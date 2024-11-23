@@ -7,6 +7,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Relation,
 } from 'typeorm';
 import { User } from './user.entity';
 
@@ -29,5 +30,5 @@ export class Session extends AbstractEntity {
 
   @ManyToOne(() => User, (user) => user.sessions)
   @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
-  user: User;
+  user: Relation<User>;
 }

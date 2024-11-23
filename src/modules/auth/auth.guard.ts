@@ -22,14 +22,12 @@ export class AuthGuard implements CanActivate {
       context.getClass(),
       context.getHandler(),
     ]);
-
     if (isPublic) return true;
 
     const isRefreshToken = this.reflector.getAllAndOverride<boolean>(
       IS_REFRESH_TOKEN,
       [context.getClass(), context.getHandler()],
     );
-
     if (isRefreshToken) {
       const request = context.switchToHttp().getRequest<ExpressRequest>();
       const refreshToken = this.extractTokenFromHeader(request);

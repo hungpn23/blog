@@ -5,11 +5,9 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService, TokenExpiredError } from '@nestjs/jwt';
-import { InjectRepository } from '@nestjs/typeorm';
 import argon2 from 'argon2';
 import { Cache } from 'cache-manager';
 import crypto from 'crypto';
-import { Repository } from 'typeorm';
 import { Session } from '../user/entities/session.entity';
 import { User } from '../user/entities/user.entity';
 import { AuthReqDto } from './auth.dto';
@@ -18,10 +16,6 @@ import { JwtPayloadType, JwtRefreshPayloadType } from './auth.type';
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
-    @InjectRepository(Session)
-    private sessionRepository: Repository<Session>,
     private configService: ConfigService,
     private jwtService: JwtService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
@@ -37,8 +31,7 @@ export class AuthService {
         HttpStatus.CONFLICT,
       );
 
-    const newUser = new User(dto);
-    await User.save(newUser);
+    const newUser = await User.save(new User(dto));
 
     return { userId: newUser.id };
   }
@@ -47,8 +40,8 @@ export class AuthService {
     const { email, password } = dto;
     const user = await User.findOne({
       where: { email },
-      select: ['id', 'password'],
     });
+    console.log('🚀 ~ AuthService ~ login ~ user:', user);
 
     const isValid =
       user && (await this.verifyPassword(user.password, password));
@@ -59,7 +52,7 @@ export class AuthService {
       );
 
     const signature = this.createSignature();
-    const session = Session.create({
+    const session = new Session({
       signature,
       userId: user.id,
     });

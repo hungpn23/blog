@@ -4,7 +4,7 @@ import { User } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
-  async getUser(payload: JwtPayloadType) {
+  async findOne(payload: JwtPayloadType) {
     return await User.findOne({
       where: { id: payload.userId },
       relations: { sessions: true },

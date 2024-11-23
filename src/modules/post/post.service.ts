@@ -1,10 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { CreatePostDto } from './dto/create-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto';
 
 @Injectable()
 export class PostService {
-  create(createPostDto: CreatePostDto) {
+  create(createPostDto: any) {
     return 'This action adds a new post';
   }
 
@@ -16,7 +14,7 @@ export class PostService {
     return `This action returns a #${id} post`;
   }
 
-  update(id: number, updatePostDto: UpdatePostDto) {
+  update(id: number, updatePostDto: any) {
     return `This action updates a #${id} post`;
   }
 
