@@ -1,3 +1,5 @@
+import { JwtPayload } from '@/decorators/jwt-payload.decorator';
+import { Uuid } from '@/types';
 import {
   Body,
   Controller,
@@ -6,35 +8,47 @@ import {
   Param,
   Patch,
   Post,
+  SerializeOptions,
 } from '@nestjs/common';
+import { JwtPayloadType } from '../auth/auth.type';
+import { CreatePostDto, UpdatePostDto } from './post.dto';
+import { Post as PostEntity } from './post.entity';
 import { PostService } from './post.service';
 
+@SerializeOptions({ type: PostEntity })
 @Controller('post')
 export class PostController {
-  constructor(private readonly postService: PostService) {}
+  constructor(private postService: PostService) {}
 
   @Post()
-  create(@Body() createPostDto: any) {
-    return this.postService.create(createPostDto);
+  async create(
+    @JwtPayload() payload: JwtPayloadType,
+    @Body() dto: CreatePostDto,
+  ): Promise<PostEntity> {
+    return await this.postService.create(payload, dto);
   }
 
   @Get()
-  findAll() {
-    return this.postService.findAll();
+  async findAll(): Promise<PostEntity[]> {
+    return await this.postService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.postService.findOne(+id);
+  async findOne(@Param('id') id: Uuid): Promise<PostEntity> {
+    return await this.postService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePostDto: any) {
-    return this.postService.update(+id, updatePostDto);
+  async update(
+    @JwtPayload() payload: JwtPayloadType,
+    @Param('id') id: Uuid,
+    @Body() dto: UpdatePostDto,
+  ): Promise<PostEntity> {
+    return await this.postService.update(payload, id, dto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.postService.remove(+id);
+  async remove(@Param('id') id: Uuid): Promise<PostEntity> {
+    return await this.postService.remove();
   }
 }

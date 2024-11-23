@@ -30,8 +30,7 @@ export class TopicService {
 
   async update(payload: JwtPayloadType, id: Uuid, dto: UpdateTopicDto) {
     const found = await Topic.findOne({ where: { id } });
-    if (!found)
-      throw new ApiException(ApiError.NotFound, HttpStatus.BAD_REQUEST);
+    if (!found) throw new ApiException(ApiError.NotFound, HttpStatus.NOT_FOUND);
 
     const user = await User.findOne({ where: { id: payload.userId } });
 
@@ -39,14 +38,13 @@ export class TopicService {
       Object.assign(found, {
         name: dto.name,
         updatedBy: user.username,
-      }),
+      } as Topic),
     );
   }
 
   async remove(id: Uuid) {
     const found = await Topic.findOne({ where: { id } });
-    if (!found)
-      throw new ApiException(ApiError.NotFound, HttpStatus.BAD_REQUEST);
+    if (!found) throw new ApiException(ApiError.NotFound, HttpStatus.NOT_FOUND);
     return await Topic.remove(found);
   }
 }

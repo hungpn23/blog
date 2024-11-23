@@ -1,24 +1,49 @@
-import { Injectable } from '@nestjs/common';
+import { ApiError } from '@/constants';
+import { ApiException } from '@/exceptions/api.exception';
+import { Uuid } from '@/types';
+import { HttpStatus, Injectable } from '@nestjs/common';
+import { JwtPayloadType } from '../auth/auth.type';
+import { Topic } from '../topic/topic.entity';
+import { User } from '../user/entities/user.entity';
+import { CreatePostDto, UpdatePostDto } from './post.dto';
+import { Post } from './post.entity';
 
 @Injectable()
 export class PostService {
-  create(createPostDto: any) {
-    return 'This action adds a new post';
+  async create(payload: JwtPayloadType, dto: CreatePostDto) {
+    const user = await User.findOne({ where: { id: payload.userId } });
+
+    const topic = await Topic.findOne({ where: { id: dto.topicId } });
+    if (!topic) throw new ApiException(ApiError.NotFound, HttpStatus.NOT_FOUND);
+
+    return await Post.save(
+      new Post({ ...dto, topic, user, createdBy: user.username }),
+    );
   }
 
-  findAll() {
-    return `This action returns all post`;
+  async findAll() {
+    return await Post.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} post`;
+  async findOne(id: Uuid) {
+    return await Post.findOne({ where: { id } });
   }
 
-  update(id: number, updatePostDto: any) {
-    return `This action updates a #${id} post`;
+  async update(payload: JwtPayloadType, id: Uuid, dto: UpdatePostDto) {
+    const user = await User.findOne({ where: { id: payload.userId } });
+
+    const found = await Post.findOne({ where: { id } });
+    if (!found) throw new ApiException(ApiError.NotFound, HttpStatus.NOT_FOUND);
+
+    return await Post.save(
+      Object.assign(found, { ...dto, updatedBy: user.username } as Post),
+    );
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} post`;
+  async remove(id: Uuid) {
+    const found = await Post.findOne({ where: { id } });
+    if (!found) throw new ApiException(ApiError.NotFound, HttpStatus.NOT_FOUND);
+
+    return await Post.remove(found);
   }
 }

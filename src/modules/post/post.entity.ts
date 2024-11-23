@@ -33,7 +33,7 @@ export class Post extends AbstractEntity {
   title: string;
 
   @Column({ type: 'text' })
-  description: string;
+  content: string;
 
   @ManyToOne(() => User, (user) => user.posts)
   @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
