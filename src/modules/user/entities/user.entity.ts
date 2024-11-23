@@ -10,12 +10,12 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { SessionEntity } from './session.entity';
+import { Session } from './session.entity';
 
 @Expose()
 @Entity('user')
-export class UserEntity extends AbstractEntity {
-  constructor(data?: Partial<UserEntity>) {
+export class User extends AbstractEntity {
+  constructor(data?: Partial<User>) {
     super();
     Object.assign(this, data);
   }
@@ -39,8 +39,8 @@ export class UserEntity extends AbstractEntity {
   @Column({ nullable: true })
   avatar: string;
 
-  @OneToMany(() => SessionEntity, (session) => session.user)
-  sessions: SessionEntity[];
+  @OneToMany(() => Session, (session) => session.user)
+  sessions: Session[];
 
   @BeforeInsert()
   @BeforeUpdate()

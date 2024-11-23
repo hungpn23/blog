@@ -8,11 +8,11 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { UserEntity } from './user.entity';
+import { User } from './user.entity';
 
 @Entity('session')
-export class SessionEntity extends AbstractEntity {
-  constructor(data?: Partial<SessionEntity>) {
+export class Session extends AbstractEntity {
+  constructor(data?: Partial<Session>) {
     super();
     Object.assign(this, data);
   }
@@ -27,7 +27,7 @@ export class SessionEntity extends AbstractEntity {
   @Column({ name: 'user_id', type: 'uuid' })
   userId: Uuid;
 
-  @ManyToOne(() => UserEntity, (user) => user.sessions)
+  @ManyToOne(() => User, (user) => user.sessions)
   @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
-  user: UserEntity;
+  user: User;
 }

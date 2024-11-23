@@ -10,18 +10,18 @@ import argon2 from 'argon2';
 import { Cache } from 'cache-manager';
 import crypto from 'crypto';
 import { Repository } from 'typeorm';
-import { SessionEntity } from '../user/entities/session.entity';
-import { UserEntity } from '../user/entities/user.entity';
+import { Session } from '../user/entities/session.entity';
+import { User } from '../user/entities/user.entity';
 import { AuthReqDto } from './auth.dto';
 import { JwtPayloadType, JwtRefreshPayloadType } from './auth.type';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(UserEntity)
-    private userRepository: Repository<UserEntity>,
-    @InjectRepository(SessionEntity)
-    private sessionRepository: Repository<SessionEntity>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+    @InjectRepository(Session)
+    private sessionRepository: Repository<Session>,
     private configService: ConfigService,
     private jwtService: JwtService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
@@ -30,22 +30,22 @@ export class AuthService {
   // *** START ROUTE ***
   async register(dto: AuthReqDto) {
     const { email } = dto;
-    const found = await UserEntity.existsBy({ email });
+    const found = await User.existsBy({ email });
     if (found)
       throw new ValidationException(
         ValidationError.EmailExists,
         HttpStatus.CONFLICT,
       );
 
-    const newUser = new UserEntity(dto);
-    await UserEntity.save(newUser);
+    const newUser = new User(dto);
+    await User.save(newUser);
 
     return { userId: newUser.id };
   }
 
   async login(dto: AuthReqDto) {
     const { email, password } = dto;
-    const user = await UserEntity.findOne({
+    const user = await User.findOne({
       where: { email },
       select: ['id', 'password'],
     });
@@ -59,11 +59,11 @@ export class AuthService {
       );
 
     const signature = this.createSignature();
-    const session = SessionEntity.create({
+    const session = Session.create({
       signature,
       userId: user.id,
     });
-    await SessionEntity.save(session);
+    await Session.save(session);
 
     const [accessToken, refreshToken] = await Promise.all([
       this.createAccessToken({ userId: user.id, sessionId: session.id }),
@@ -83,12 +83,12 @@ export class AuthService {
     const ttl = payload.exp * 1000 - Date.now();
     await this.cacheManager.store.set<boolean>(cacheKey, data, ttl);
 
-    await SessionEntity.delete({ id: payload.sessionId });
+    await Session.delete({ id: payload.sessionId });
   }
 
   async refreshToken(payload: JwtRefreshPayloadType) {
     const { sessionId, signature } = payload;
-    const session = await SessionEntity.findOneByOrFail({ id: sessionId });
+    const session = await Session.findOneByOrFail({ id: sessionId });
 
     if (session.signature !== signature)
       throw new ValidationException(

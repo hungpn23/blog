@@ -7,7 +7,6 @@ import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { AppController } from './app.controller';
 import { Modules } from './modules';
 
 @Module({
@@ -34,6 +33,5 @@ import { Modules } from './modules';
 
     Modules,
   ],
-  controllers: [AppController],
 })
 export class AppModule {}
