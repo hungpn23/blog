@@ -10,10 +10,11 @@ import { Topic } from './topic.entity';
 @Injectable()
 export class TopicService {
   async create(payload: JwtPayloadType, dto: CreateTopicDto) {
-    const found = await Topic.findOne({ where: { name: dto.name } });
+    const [user, found] = await Promise.all([
+      User.findOne({ where: { id: payload.userId } }),
+      Topic.findOne({ where: { name: dto.name } }),
+    ]);
     if (found) throw new ApiException(ApiError.Exist, HttpStatus.BAD_REQUEST);
-
-    const user = await User.findOne({ where: { id: payload.userId } });
 
     return await Topic.save(
       new Topic({ name: dto.name, createdBy: user.username }),
@@ -29,10 +30,11 @@ export class TopicService {
   }
 
   async update(payload: JwtPayloadType, id: Uuid, dto: UpdateTopicDto) {
-    const found = await Topic.findOne({ where: { id } });
+    const [user, found] = await Promise.all([
+      User.findOne({ where: { id: payload.userId } }),
+      Topic.findOne({ where: { id } }),
+    ]);
     if (!found) throw new ApiException(ApiError.NotFound, HttpStatus.NOT_FOUND);
-
-    const user = await User.findOne({ where: { id: payload.userId } });
 
     return await Topic.save(
       Object.assign(found, {

@@ -49,6 +49,6 @@ export class PostController {
 
   @Delete(':id')
   async remove(@Param('id') id: Uuid): Promise<PostEntity> {
-    return await this.postService.remove();
+    return await this.postService.remove(id);
   }
 }

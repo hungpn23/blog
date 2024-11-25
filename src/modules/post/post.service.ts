@@ -11,9 +11,10 @@ import { Post } from './post.entity';
 @Injectable()
 export class PostService {
   async create(payload: JwtPayloadType, dto: CreatePostDto) {
-    const user = await User.findOne({ where: { id: payload.userId } });
-
-    const topic = await Topic.findOne({ where: { id: dto.topicId } });
+    const [user, topic] = await Promise.all([
+      User.findOne({ where: { id: payload.userId } }),
+      Topic.findOne({ where: { id: dto.topicId } }),
+    ]);
     if (!topic) throw new ApiException(ApiError.NotFound, HttpStatus.NOT_FOUND);
 
     return await Post.save(
@@ -30,9 +31,10 @@ export class PostService {
   }
 
   async update(payload: JwtPayloadType, id: Uuid, dto: UpdatePostDto) {
-    const user = await User.findOne({ where: { id: payload.userId } });
-
-    const found = await Post.findOne({ where: { id } });
+    const [user, found] = await Promise.all([
+      User.findOne({ where: { id: payload.userId } }),
+      Post.findOne({ where: { id } }),
+    ]);
     if (!found) throw new ApiException(ApiError.NotFound, HttpStatus.NOT_FOUND);
 
     return await Post.save(
