@@ -1,6 +1,6 @@
-# Nestjs boilerplate
+# Nestjs blog
 
-A nestjs boilerplate project
+A nestjs blog project
 
 ## Tech stack
 
@@ -8,26 +8,30 @@ Nestjs, MySQL
 
 ## Installation
 
-Install with pnpm
-
-Pull mysql docker image
-
 ```bash
-  docker pull mysql:9.1
+# Clone the repository
+git clone https://github.com/hungpn23/blog.git
+
+cd blog
+
+# Create environment variables file.
+cp .env.example .env
+
+# Install dependences.
+pnpm install
+
+# Docker
+docker pull mysql:9.1
+
+docker compose up -d
+
+# Start
+pnpm start:dev
 ```
 
-```bash
-  docker compose up -d
-  git clone https://github.com/hungpn23/blog.git
-  cd blog
-  pnpm install
-```
+## Checklist
 
-Create and configure `.env` file from `example.env`
-
-```bash
-  pnpm start:dev
-```
+Change configurations in `.env`
 
 ## Related
 
