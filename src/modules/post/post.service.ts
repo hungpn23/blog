@@ -1,6 +1,6 @@
-import { ApiError } from '@/constants';
+import { ApiError } from '@/constants/index';
 import { ApiException } from '@/exceptions/api.exception';
-import { Uuid } from '@/types';
+import { Uuid } from '@/types/branded.type';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { JwtPayloadType } from '../auth/auth.type';
 import { Topic } from '../topic/topic.entity';

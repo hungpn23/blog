@@ -10,9 +10,16 @@ Nestjs, MySQL
 
 Install with pnpm
 
+Pull mysql docker image
+
 ```bash
-  git clone https://github.com/hungpn23/boilerplate.git
-  cd boilerplate
+  docker pull mysql:9.1
+```
+
+```bash
+  docker compose up -d
+  git clone https://github.com/hungpn23/blog.git
+  cd blog
   pnpm install
 ```
 

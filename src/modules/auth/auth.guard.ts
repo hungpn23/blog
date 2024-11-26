@@ -1,4 +1,8 @@
-import { IS_PUBLIC, IS_REFRESH_TOKEN, ValidationError } from '@/constants';
+import {
+  IS_PUBLIC_KEY,
+  IS_REFRESH_TOKEN_KEY,
+  ValidationError,
+} from '@/constants/index';
 import { ValidationException } from '@/exceptions/validation.exception';
 import {
   CanActivate,
@@ -18,14 +22,14 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC, [
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getClass(),
       context.getHandler(),
     ]);
     if (isPublic) return true;
 
     const isRefreshToken = this.reflector.getAllAndOverride<boolean>(
-      IS_REFRESH_TOKEN,
+      IS_REFRESH_TOKEN_KEY,
       [context.getClass(), context.getHandler()],
     );
     if (isRefreshToken) {

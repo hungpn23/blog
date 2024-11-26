@@ -1,4 +1,4 @@
-import { Uuid } from '@/types';
+import { Uuid } from '@/types/branded.type';
 import { PickType } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';

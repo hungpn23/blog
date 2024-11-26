@@ -1,4 +1,4 @@
-import { ValidationError } from '@/constants';
+import { ValidationError } from '@/constants/index';
 import { HttpException, HttpStatus } from '@nestjs/common';
 
 export class ValidationException extends HttpException {

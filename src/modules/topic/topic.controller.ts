@@ -1,5 +1,5 @@
 import { JwtPayload } from '@/decorators/jwt-payload.decorator';
-import { Uuid } from '@/types';
+import { Uuid } from '@/types/branded.type';
 import {
   Body,
   Controller,

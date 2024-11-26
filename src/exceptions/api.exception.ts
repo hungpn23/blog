@@ -1,4 +1,4 @@
-import { ApiError } from '@/constants';
+import { ApiError } from '@/constants/index';
 import { HttpException, HttpStatus } from '@nestjs/common';
 
 export class ApiException extends HttpException {

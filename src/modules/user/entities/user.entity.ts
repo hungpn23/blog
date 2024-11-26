@@ -1,6 +1,6 @@
-import { AbstractEntity } from '@/entities/abstract.entity';
+import { AbstractEntity } from '@/database/entities/abstract.entity';
 import { Post } from '@/modules/post/post.entity';
-import { Uuid } from '@/types';
+import { Uuid } from '@/types/branded.type';
 import argon2 from 'argon2';
 import { Exclude, Expose } from 'class-transformer';
 import {

@@ -1,4 +1,4 @@
-import { Uuid } from '@/types';
+import { Uuid } from '@/types/branded.type';
 import { OmitType, PartialType } from '@nestjs/swagger';
 import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
 

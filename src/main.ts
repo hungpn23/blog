@@ -1,12 +1,12 @@
-import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { NestFactory, Reflector } from '@nestjs/core';
-import compression from 'compression';
-import helmet from 'helmet';
-import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './filters/http-exception.filter';
-import { AuthGuard } from './modules/auth/auth.guard';
-import { AuthService } from './modules/auth/auth.service';
+import { ClassSerializerInterceptor, ValidationPipe } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { NestFactory, Reflector } from "@nestjs/core";
+import compression from "compression";
+import helmet from "helmet";
+import { AppModule } from "./app.module";
+import { HttpExceptionFilter } from "./filters/http-exception.filter";
+import { AuthGuard } from "./modules/auth/auth.guard";
+import { AuthService } from "./modules/auth/auth.service";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -16,12 +16,12 @@ async function bootstrap() {
   app.use(compression());
 
   app.enableCors({
-    origin: configService.getOrThrow<string>('cors.origin'),
-    methods: configService.getOrThrow<string>('cors.methods'),
-    allowedHeaders: configService.getOrThrow<string>('cors.allowedHeaders'),
-    credentials: configService.getOrThrow<boolean>('cors.credentials'),
+    origin: configService.getOrThrow<string>("cors.origin"),
+    methods: configService.getOrThrow<string>("cors.methods"),
+    allowedHeaders: configService.getOrThrow<string>("cors.allowedHeaders"),
+    credentials: configService.getOrThrow<boolean>("cors.credentials"),
   });
-  app.setGlobalPrefix(configService.getOrThrow('app.prefix'));
+  app.setGlobalPrefix(configService.getOrThrow("app.prefix"));
 
   // apply global guards
   app.useGlobalGuards(new AuthGuard(app.get(Reflector), app.get(AuthService)));
@@ -32,14 +32,15 @@ async function bootstrap() {
   // apply global interceptors
   app.useGlobalInterceptors(
     new ClassSerializerInterceptor(app.get(Reflector), {
-      strategy: 'excludeAll',
+      strategy: "excludeAll",
     }),
   );
 
+  // custom exception filter
   app.useGlobalFilters(new HttpExceptionFilter());
 
-  await app.listen(configService.getOrThrow('app.port'));
-  console.info(`App is running on: ${configService.getOrThrow('app.url')}`);
+  await app.listen(configService.getOrThrow("app.port"));
+  console.info(`App is running on: ${configService.getOrThrow("app.url")}`);
 }
 
 void bootstrap();

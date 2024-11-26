@@ -1,6 +1,6 @@
-import { ValidationError } from '@/constants';
+import { ValidationError } from '@/constants/index';
 import { ValidationException } from '@/exceptions/validation.exception';
-import { Uuid } from '@/types';
+import { Uuid } from '@/types/branded.type';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';

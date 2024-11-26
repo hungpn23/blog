@@ -1,6 +1,7 @@
-import { AbstractEntity } from '@/entities/abstract.entity';
+import { AbstractEntity } from '@/database/entities/abstract.entity';
 import { Post } from '@/modules/post/post.entity';
-import { Uuid } from '@/types';
+import { Uuid } from '@/types/branded.type';
+
 import { Expose } from 'class-transformer';
 import {
   Column,

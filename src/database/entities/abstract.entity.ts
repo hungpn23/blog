@@ -1,4 +1,5 @@
-import { SYSTEM } from '@/constants';
+import { SYSTEM } from '@/constants/index';
+import { getOrder, Order } from '@/decorators/order.decorator';
 import {
   BaseEntity,
   Column,
@@ -7,7 +8,6 @@ import {
   DeleteDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { getOrder, Order } from '../decorators/order.decorator';
 
 export abstract class AbstractEntity extends BaseEntity {
   @Order(9999)

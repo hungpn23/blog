@@ -1,5 +1,5 @@
-import { AbstractEntity } from '@/entities/abstract.entity';
-import { Uuid } from '@/types';
+import { AbstractEntity } from '@/database/entities/abstract.entity';
+import { Uuid } from '@/types/branded.type';
 import { Expose } from 'class-transformer';
 import {
   Column,

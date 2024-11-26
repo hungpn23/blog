@@ -1,6 +1,6 @@
-import { Module } from '@nestjs/common';
-import { TopicService } from './topic.service';
-import { TopicController } from './topic.controller';
+import { Module } from "@nestjs/common";
+import { TopicController } from "./topic.controller";
+import { TopicService } from "./topic.service";
 
 @Module({
   controllers: [TopicController],
