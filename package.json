@@ -18,10 +18,10 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "db:create": "ts-node ./node_modules/typeorm-extension/bin/cli.cjs db:create",
-    "db:drop": "ts-node ./node_modules/typeorm-extension/bin/cli.cjs db:drop",
-    "seed:run": "ts-node ./node_modules/typeorm-extension/bin/cli.cjs seed:run --tc ./tsconfig.json -d ./src/database/data-source.ts",
-    "seed:create": "ts-node ./node_modules/typeorm-extension/bin/cli.cjs seed:create"
+    "db:create": "env-cmd ts-node ./node_modules/typeorm-extension/bin/cli.cjs db:create",
+    "db:drop": "env-cmd ts-node ./node_modules/typeorm-extension/bin/cli.cjs db:drop",
+    "seed:run": "env-cmd ts-node ./node_modules/typeorm-extension/bin/cli.cjs seed:run",
+    "seed:create": "env-cmd ts-node ./node_modules/typeorm-extension/bin/cli.cjs seed:create"
   },
   "dependencies": {
     "@nestjs/cache-manager": "^2.3.0",
@@ -49,7 +49,6 @@
     "typeorm-extension": "^3.6.3"
   },
   "devDependencies": {
-    "@faker-js/faker": "^9.2.0",
     "@nestjs/cli": "^10.4.8",
     "@nestjs/schematics": "^10.2.3",
     "@nestjs/testing": "^10.4.9",
@@ -74,24 +73,5 @@
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.2"
   },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": "src",
-    "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node",
-    "moduleNameMapper": {
-      "@/(.*)": "<rootDir>/$1"
-    }
-  }
+  "packageManager": "pnpm@9.14.3"
 }
