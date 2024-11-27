@@ -1,15 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
-  TypeOrmModuleOptions,
-  TypeOrmOptionsFactory,
-} from '@nestjs/typeorm/dist/interfaces/typeorm-options.interface';
+  seconds,
+  ThrottlerOptions,
+  ThrottlerOptionsFactory,
+} from '@nestjs/throttler';
+import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
 
 @Injectable()
-export class TypeormConfig implements TypeOrmOptionsFactory {
+export class AppConfig
+  implements ThrottlerOptionsFactory, TypeOrmOptionsFactory
+{
   constructor(private configService: ConfigService) {}
 
-  createTypeOrmOptions(): TypeOrmModuleOptions {
+  createThrottlerOptions() {
+    return [
+      {
+        ttl: seconds(this.configService.getOrThrow<number>('throttler.ttl')),
+        limit: this.configService.getOrThrow<number>('throttler.limit'),
+      },
+    ] as Array<ThrottlerOptions>;
+  }
+
+  createTypeOrmOptions() {
     return {
       type: this.configService.getOrThrow('database.type'),
       host: this.configService.getOrThrow('database.host'),

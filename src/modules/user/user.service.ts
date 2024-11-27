@@ -1,13 +1,17 @@
+import { Uuid } from '@/types/branded.type';
 import { Injectable } from '@nestjs/common';
-import { JwtPayloadType } from '../auth/auth.type';
 import { User } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
-  async findOne(payload: JwtPayloadType) {
+  async findOne(userId: Uuid) {
     return await User.findOne({
-      where: { id: payload.userId },
+      where: { id: userId },
       relations: { sessions: true },
     });
+  }
+
+  async uploadAvatar(userId: Uuid, filePath: string) {
+    await User.update({ id: userId }, { avatar: filePath });
   }
 }

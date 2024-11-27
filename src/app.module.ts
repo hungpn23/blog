@@ -1,13 +1,12 @@
 import configuration from '@/configs/configuration';
-import { ThrottlerConfig } from '@/configs/throttler.config';
-import { TypeormConfig } from '@/configs/typeorm.config';
 import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { Modules } from './modules';
+import { AppConfig } from './configs/app.config';
+import { Modules as ApiModule } from './modules';
 
 @Module({
   imports: [
@@ -18,9 +17,8 @@ import { Modules } from './modules';
     }),
 
     TypeOrmModule.forRootAsync({
-      // Use useFactory, useClass, or useExisting
-      // to configure the DataSourceOptions.
-      useClass: TypeormConfig,
+      // configure the DataSourceOptions.
+      useClass: AppConfig,
       dataSourceFactory: async (options) => {
         if (!options) throw new Error('Invalid DataSourceOptions value');
 
@@ -28,12 +26,11 @@ import { Modules } from './modules';
       },
     }),
 
-    // https://docs.nestjs.com/security/rate-limiting#async-configuration
-    ThrottlerModule.forRootAsync({ useClass: ThrottlerConfig }),
+    ThrottlerModule.forRootAsync({ useClass: AppConfig }),
 
     CacheModule.register({ isGlobal: true }),
 
-    Modules,
+    ApiModule,
   ],
 })
 export class AppModule {}

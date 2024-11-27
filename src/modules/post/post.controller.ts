@@ -22,10 +22,10 @@ export class PostController {
 
   @Post()
   async create(
-    @JwtPayload() payload: JwtPayloadType,
+    @JwtPayload() { userId }: JwtPayloadType,
     @Body() dto: CreatePostDto,
   ): Promise<PostEntity> {
-    return await this.postService.create(payload, dto);
+    return await this.postService.create(userId, dto);
   }
 
   @Get()
@@ -40,11 +40,11 @@ export class PostController {
 
   @Patch(':id')
   async update(
-    @JwtPayload() payload: JwtPayloadType,
+    @JwtPayload() { userId }: JwtPayloadType,
     @Param('id') id: Uuid,
     @Body() dto: UpdatePostDto,
   ): Promise<PostEntity> {
-    return await this.postService.update(payload, id, dto);
+    return await this.postService.update(userId, id, dto);
   }
 
   @Delete(':id')

@@ -71,12 +71,13 @@ export class AuthService {
   }
 
   async logout(payload: JwtPayloadType): Promise<void> {
-    const cacheKey = `SESSION_BLACKLIST:${payload.sessionId}`;
+    const { sessionId, exp } = payload;
+    const cacheKey = `SESSION_BLACKLIST:${sessionId}`;
     const data = true;
-    const ttl = payload.exp * 1000 - Date.now();
+    const ttl = exp * 1000 - Date.now();
     await this.cacheManager.store.set<boolean>(cacheKey, data, ttl);
 
-    await Session.delete({ id: payload.sessionId });
+    await Session.delete({ id: sessionId });
   }
 
   async refreshToken(payload: JwtRefreshPayloadType) {

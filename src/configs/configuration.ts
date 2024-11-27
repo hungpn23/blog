@@ -34,7 +34,7 @@ export default () => ({
   },
 
   throttler: {
-    ttl: process.env.THROTTLER_TTL || 1000,
+    ttl: process.env.THROTTLER_TTL_IN_SECONDS || 1,
     limit: process.env.THROTTLER_LIMIT || 100,
   },
 });
