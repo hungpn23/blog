@@ -36,7 +36,7 @@ export class MainSeeder implements Seeder {
       new Array(100).fill('').map(async () => {
         return await postFactory.make({
           createdBy: admin.username,
-          user: admin,
+          author: admin,
           topic: topics[Math.floor(Math.random() * topics.length)],
         });
       }),

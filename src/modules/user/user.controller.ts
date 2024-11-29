@@ -1,4 +1,5 @@
 import { JwtPayload } from '@/decorators/jwt-payload.decorator';
+import { multerStorage } from '@/utils/multer-storage';
 import {
   Controller,
   Get,
@@ -10,7 +11,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { multerStorage } from 'src/utils/multer-storage';
+import { Observable } from 'rxjs';
 import { JwtPayloadType } from '../auth/auth.type';
 import { User } from './entities/user.entity';
 import { UserService } from './user.service';
@@ -21,8 +22,8 @@ export class UserController {
 
   @SerializeOptions({ type: User })
   @Get('profile')
-  async profile(@JwtPayload() { userId }: JwtPayloadType): Promise<User> {
-    return await this.userService.findOne(userId);
+  profile(@JwtPayload() { userId }: JwtPayloadType): Observable<User> {
+    return this.userService.findOne(userId);
   }
 
   @Post('upload-avatar')

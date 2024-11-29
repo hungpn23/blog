@@ -1,14 +1,9 @@
-import {
-  IS_PUBLIC_KEY,
-  IS_REFRESH_TOKEN_KEY,
-  ValidationError,
-} from '@/constants/index';
-import { ValidationException } from '@/exceptions/validation.exception';
+import { IS_PUBLIC_KEY, IS_REFRESH_TOKEN_KEY } from '@/constants/index';
 import {
   CanActivate,
   ExecutionContext,
-  HttpStatus,
   Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request as ExpressRequest } from 'express';
@@ -35,12 +30,7 @@ export class AuthGuard implements CanActivate {
     if (isRefreshToken) {
       const request = context.switchToHttp().getRequest<ExpressRequest>();
       const refreshToken = this.extractTokenFromHeader(request);
-
-      if (!refreshToken)
-        throw new ValidationException(
-          ValidationError.TokenNotFound,
-          HttpStatus.NOT_FOUND,
-        );
+      if (!refreshToken) throw new UnauthorizedException();
 
       request['user'] = this.authService.verifyRefreshToken(refreshToken);
 
@@ -49,12 +39,7 @@ export class AuthGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest<ExpressRequest>();
     const accessToken = this.extractTokenFromHeader(request);
-
-    if (!accessToken)
-      throw new ValidationException(
-        ValidationError.TokenNotFound,
-        HttpStatus.NOT_FOUND,
-      );
+    if (!accessToken) throw new UnauthorizedException();
 
     request['user'] = await this.authService.verifyAccessToken(accessToken);
 

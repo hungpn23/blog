@@ -29,13 +29,13 @@ export class PostController {
   }
 
   @Get()
-  async findAll(): Promise<PostEntity[]> {
-    return await this.postService.findAll();
+  async getMany(): Promise<PostEntity[]> {
+    return await this.postService.getMany();
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: Uuid): Promise<PostEntity> {
-    return await this.postService.findOne(id);
+  async getOne(@Param('id') id: Uuid): Promise<PostEntity> {
+    return await this.postService.getOne(id);
   }
 
   @Patch(':id')

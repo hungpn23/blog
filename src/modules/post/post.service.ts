@@ -17,15 +17,15 @@ export class PostService {
     if (!topic) throw new ApiException(ApiError.NotFound, HttpStatus.NOT_FOUND);
 
     return await Post.save(
-      new Post({ ...dto, topic, user, createdBy: user.username }),
+      new Post({ ...dto, topic, author: user, createdBy: user.username }),
     );
   }
 
-  async findAll() {
+  async getMany() {
     return await Post.find();
   }
 
-  async findOne(id: Uuid) {
+  async getOne(id: Uuid) {
     return await Post.findOne({ where: { id } });
   }
 

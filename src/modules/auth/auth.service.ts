@@ -1,10 +1,10 @@
-import { ValidationError } from '@/constants/index';
-import { ValidationException } from '@/exceptions/validation.exception';
+import { AuthError } from '@/constants/index';
+import { AuthException } from '@/exceptions/validation.exception';
 import { Uuid } from '@/types/branded.type';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { JwtService, TokenExpiredError } from '@nestjs/jwt';
+import { JwtService } from '@nestjs/jwt';
 import argon2 from 'argon2';
 import { Cache } from 'cache-manager';
 import crypto from 'crypto';
@@ -25,11 +25,7 @@ export class AuthService {
   async register(dto: AuthReqDto) {
     const { email } = dto;
     const found = await User.existsBy({ email });
-    if (found)
-      throw new ValidationException(
-        ValidationError.EmailExists,
-        HttpStatus.CONFLICT,
-      );
+    if (found) throw new AuthException(AuthError.E01);
 
     const newUser = await User.save(new User(dto));
 
@@ -41,15 +37,10 @@ export class AuthService {
     const user = await User.findOne({
       where: { email },
     });
-    console.log('🚀 ~ AuthService ~ login ~ user:', user);
 
     const isValid =
       user && (await this.verifyPassword(user.password, password));
-    if (!isValid)
-      throw new ValidationException(
-        ValidationError.InvalidCredentials,
-        HttpStatus.UNAUTHORIZED,
-      );
+    if (!isValid) throw new AuthException(AuthError.V02);
 
     const signature = this.createSignature();
     const session = new Session({
@@ -71,8 +62,8 @@ export class AuthService {
   }
 
   async logout(payload: JwtPayloadType): Promise<void> {
-    const { sessionId, exp } = payload;
-    const cacheKey = `SESSION_BLACKLIST:${sessionId}`;
+    const { sessionId, exp, userId } = payload;
+    const cacheKey = `SESSION_BLACKLIST:${userId}:${sessionId}`;
     const data = true;
     const ttl = exp * 1000 - Date.now();
     await this.cacheManager.store.set<boolean>(cacheKey, data, ttl);
@@ -82,13 +73,10 @@ export class AuthService {
 
   async refreshToken(payload: JwtRefreshPayloadType) {
     const { sessionId, signature } = payload;
-    const session = await Session.findOneByOrFail({ id: sessionId });
+    const session = await Session.findOneBy({ id: sessionId });
 
-    if (session.signature !== signature)
-      throw new ValidationException(
-        ValidationError.SessionError,
-        HttpStatus.UNAUTHORIZED,
-      );
+    if (!session || session.signature !== signature)
+      throw new UnauthorizedException();
 
     const accessToken = await this.createAccessToken({
       userId: session.userId,
@@ -107,27 +95,14 @@ export class AuthService {
         secret: this.configService.getOrThrow<string>('auth.secret'),
       });
     } catch (error) {
-      if (error instanceof TokenExpiredError)
-        throw new ValidationException(
-          ValidationError.TokenExpired,
-          HttpStatus.UNAUTHORIZED,
-        );
-
-      throw new ValidationException(
-        ValidationError.VerifyAccessToken,
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new UnauthorizedException();
     }
 
-    // TODO: Force logout if the session is in the blacklist !
-    const cacheKey = `SESSION_BLACKLIST:${payload.sessionId}`;
+    const cacheKey = `SESSION_BLACKLIST:${payload.userId}:${payload.sessionId}`;
     const isSessionBlacklisted =
       await this.cacheManager.store.get<boolean>(cacheKey);
-    if (isSessionBlacklisted)
-      throw new ValidationException(
-        ValidationError.SessionBlacklisted,
-        HttpStatus.FORBIDDEN,
-      );
+    // TODO: Force logout if the session is in the blacklist !
+    if (isSessionBlacklisted) throw new AuthException(AuthError.E03);
 
     return payload;
   }
@@ -138,11 +113,8 @@ export class AuthService {
         secret: this.configService.getOrThrow<string>('auth.refreshSecret'),
       });
     } catch (error) {
-      // TODO: logout user
-      throw new ValidationException(
-        ValidationError.VerifyRefreshToken,
-        HttpStatus.UNAUTHORIZED,
-      );
+      // TODO: force logout user
+      throw new UnauthorizedException();
     }
   }
   // *** END GUARD ***

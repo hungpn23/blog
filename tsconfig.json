@@ -25,14 +25,7 @@
     "esModuleInterop": true,
     "importHelpers": true,
     "paths": {
-      "@/configs/*": ["src/configs/*"],
-      "@/constants/*": ["src/constants/*"],
-      "@/database/*": ["src/database/*"],
-      "@/decorators/*": ["src/decorators/*"],
-      "@/exceptions/*": ["src/exceptions/*"],
-      "@/filters/*": ["src/filters/*"],
-      "@/modules/*": ["src/modules/*"],
-      "@/types/*": ["src/types/*"]
+      "@/*": ["src/*"]
     }
   }
 }
