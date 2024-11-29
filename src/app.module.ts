@@ -6,6 +6,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { AppConfig } from './configs/app.config';
+import { DatabaseNamingStrategy } from './database/name-strategy';
 import { Modules as ApiModule } from './modules';
 
 @Module({
@@ -22,7 +23,10 @@ import { Modules as ApiModule } from './modules';
       dataSourceFactory: async (options) => {
         if (!options) throw new Error('Invalid DataSourceOptions value');
 
-        return await new DataSource(options).initialize();
+        return await new DataSource({
+          ...options,
+          namingStrategy: new DatabaseNamingStrategy(),
+        }).initialize();
       },
     }),
 

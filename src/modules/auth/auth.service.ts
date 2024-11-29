@@ -1,5 +1,5 @@
 import { AuthError } from '@/constants/index';
-import { AuthException } from '@/exceptions/validation.exception';
+import { AuthException } from '@/exceptions/auth.exception';
 import { Uuid } from '@/types/branded.type';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';

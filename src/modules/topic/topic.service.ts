@@ -1,20 +1,13 @@
-import { ApiError } from '@/constants/index';
-import { ApiException } from '@/exceptions/api.exception';
 import { Uuid } from '@/types/branded.type';
-import { HttpStatus, Injectable } from '@nestjs/common';
-import { JwtPayloadType } from '../auth/auth.type';
+import { Injectable } from '@nestjs/common';
 import { User } from '../user/entities/user.entity';
 import { CreateTopicDto, UpdateTopicDto } from './topic.dto';
 import { Topic } from './topic.entity';
 
 @Injectable()
 export class TopicService {
-  async create(payload: JwtPayloadType, dto: CreateTopicDto) {
-    const [user, found] = await Promise.all([
-      User.findOne({ where: { id: payload.userId } }),
-      Topic.findOne({ where: { name: dto.name } }),
-    ]);
-    if (found) throw new ApiException(ApiError.Exist, HttpStatus.BAD_REQUEST);
+  async create(userId: Uuid, dto: CreateTopicDto) {
+    const user = await User.findOneByOrFail({ id: userId });
 
     return await Topic.save(
       new Topic({ name: dto.name, createdBy: user.username }),
@@ -26,15 +19,14 @@ export class TopicService {
   }
 
   async findOne(id: Uuid) {
-    return await Topic.findOne({ where: { id } });
+    return await Topic.findOneByOrFail({ id });
   }
 
-  async update(payload: JwtPayloadType, id: Uuid, dto: UpdateTopicDto) {
+  async update(userId: Uuid, topicId: Uuid, dto: UpdateTopicDto) {
     const [user, found] = await Promise.all([
-      User.findOne({ where: { id: payload.userId } }),
-      Topic.findOne({ where: { id } }),
+      User.findOneByOrFail({ id: userId }),
+      Topic.findOneByOrFail({ id: topicId }),
     ]);
-    if (!found) throw new ApiException(ApiError.NotFound, HttpStatus.NOT_FOUND);
 
     return await Topic.save(
       Object.assign(found, {
@@ -45,8 +37,7 @@ export class TopicService {
   }
 
   async remove(id: Uuid) {
-    const found = await Topic.findOne({ where: { id } });
-    if (!found) throw new ApiException(ApiError.NotFound, HttpStatus.NOT_FOUND);
+    const found = await Topic.findOneByOrFail({ id });
     return await Topic.remove(found);
   }
 }

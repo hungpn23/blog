@@ -22,10 +22,10 @@ export class TopicController {
 
   @Post()
   async create(
-    @JwtPayload() payload: JwtPayloadType,
+    @JwtPayload() { userId }: JwtPayloadType,
     @Body() dto: CreateTopicDto,
   ): Promise<Topic> {
-    return await this.topicService.create(payload, dto);
+    return await this.topicService.create(userId, dto);
   }
 
   @Get()
@@ -40,11 +40,11 @@ export class TopicController {
 
   @Patch(':id')
   async update(
-    @JwtPayload() payload: JwtPayloadType,
-    @Param('id') id: Uuid,
+    @JwtPayload() { userId }: JwtPayloadType,
+    @Param('id') topicid: Uuid,
     @Body() dto: UpdateTopicDto,
   ): Promise<Topic> {
-    return await this.topicService.update(payload, id, dto);
+    return await this.topicService.update(userId, topicid, dto);
   }
 
   @Delete(':id')

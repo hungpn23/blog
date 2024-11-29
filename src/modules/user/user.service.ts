@@ -8,7 +8,7 @@ export class UserService {
   findOne(userId: Uuid): Observable<User> {
     // observable test
     return from(
-      User.findOne({
+      User.findOneOrFail({
         where: { id: userId },
         relations: { sessions: true },
       }),

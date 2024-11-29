@@ -33,7 +33,7 @@ export class MainSeeder implements Seeder {
     const postRepo = dataSource.getRepository(Post);
     const postFactory = factoryManager.get(Post);
     const posts = await Promise.all(
-      new Array(100).fill('').map(async () => {
+      new Array(10).fill('').map(async () => {
         return await postFactory.make({
           createdBy: admin.username,
           author: admin,

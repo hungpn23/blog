@@ -26,9 +26,9 @@ export enum AuthError {
 }
 
 export enum ApiError {
-  Unknown = 'unknown error',
-  Exist = 'exist error',
-  NotFound = 'not found error',
+  Unknown = 'api.error.unknown',
+  Exist = 'api.error.entity_exist',
+  NotFound = 'api.error.entity_not_found',
 }
 
 export const DEFAULT_PAGE_LIMIT = 10;

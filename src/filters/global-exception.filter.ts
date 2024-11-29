@@ -1,12 +1,13 @@
-import { AuthException } from '@/exceptions/validation.exception';
+import { ApiError } from '@/constants';
+import { AuthException } from '@/exceptions/auth.exception';
 import { IErrorDetail } from '@/interfaces/error-detail.interface';
 import { IError } from '@/interfaces/error.interface';
-import { ExceptionResponse } from '@/interfaces/exception-response.interface';
 import {
   ArgumentsHost,
   Catch,
   ExceptionFilter,
   HttpException,
+  HttpStatus,
   UnprocessableEntityException,
   ValidationError,
 } from '@nestjs/common';
@@ -24,15 +25,15 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     if (exception instanceof UnprocessableEntityException) {
       error = this.handleUnprocessableEntityException(exception);
     } else if (exception instanceof AuthException) {
-      this.handleAuthException(exception);
+      error = this.handleAuthException(exception);
     } else if (exception instanceof HttpException) {
-      this.handleHttpException(exception);
+      error = this.handleHttpException(exception);
     } else if (exception instanceof QueryFailedError) {
-      this.handleQueryFailedError(exception);
+      error = this.handleQueryFailedError(exception);
     } else if (exception instanceof EntityNotFoundError) {
-      this.handleEntityNotFoundError(exception);
+      error = this.handleEntityNotFoundError(exception);
     } else {
-      this.handleError(exception);
+      error = this.handleError(exception);
     }
 
     response.status(error.statusCode).json(error);
@@ -41,32 +42,25 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   private handleUnprocessableEntityException(
     exception: UnprocessableEntityException,
   ) {
-    const response = exception.getResponse() as ExceptionResponse;
+    const response = exception.getResponse() as { message: ValidationError[] };
     const statusCode = exception.getStatus();
 
-    const errorResponse: IError = {
+    const errorResponse = {
       timestamp: new Date().toISOString(),
       statusCode,
       message: 'Validation failed',
-      details: this.getValidationErrorDetails(
-        response.message as ValidationError[],
-      ),
+      details: this.getValidationErrorDetails(response.message),
     };
 
-    return errorResponse;
+    return errorResponse as IError;
   }
 
   private handleAuthException(exception: AuthException) {
-    const response = exception.getResponse() as ExceptionResponse;
-    const statusCode = exception.getStatus();
-
-    const errorResponse: IError = {
+    return {
       timestamp: new Date().toISOString(),
-      statusCode,
-      message: response.message as string,
-    };
-
-    return errorResponse;
+      statusCode: exception.getStatus(),
+      message: exception.message,
+    } as IError;
   }
 
   private handleHttpException(exception: HttpException) {
@@ -77,16 +71,28 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     } as IError;
   }
 
-  private handleQueryFailedError(exception: QueryFailedError) {
-    console.log(exception);
+  private handleQueryFailedError(error: QueryFailedError) {
+    return {
+      timestamp: new Date().toISOString(),
+      statusCode: error.message.includes('Duplicate entry') ? 409 : 400,
+      message: error.message,
+    } as IError;
   }
 
-  private handleEntityNotFoundError(exception: EntityNotFoundError) {
-    console.log(exception);
+  private handleEntityNotFoundError(error: EntityNotFoundError) {
+    return {
+      timestamp: new Date().toISOString(),
+      statusCode: HttpStatus.NOT_FOUND,
+      message: ApiError.NotFound,
+    } as IError;
   }
 
-  private handleError(exception: any) {
-    console.log(exception);
+  private handleError(error: any) {
+    return {
+      timestamp: new Date().toISOString(),
+      statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+      message: error?.message || ApiError.Unknown,
+    } as IError;
   }
 
   private getValidationErrorDetails(errors: ValidationError[]) {
