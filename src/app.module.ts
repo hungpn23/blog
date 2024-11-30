@@ -4,6 +4,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { LoggerModule } from 'nestjs-pino';
 import { DataSource } from 'typeorm';
 import { AppConfig } from './configs/app.config';
 import { DatabaseNamingStrategy } from './database/name-strategy';
@@ -28,6 +29,10 @@ import { Modules as ApiModule } from './modules';
           namingStrategy: new DatabaseNamingStrategy(),
         }).initialize();
       },
+    }),
+
+    LoggerModule.forRootAsync({
+      useFactory: AppConfig.loggerFactory,
     }),
 
     ThrottlerModule.forRootAsync({ useClass: AppConfig }),
