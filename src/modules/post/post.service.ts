@@ -7,14 +7,14 @@ import { Post } from './post.entity';
 
 @Injectable()
 export class PostService {
-  async create(userId: Uuid, dto: CreatePostDto) {
-    const [user, topic] = await Promise.all([
-      User.findOneOrFail({ where: { id: userId } }),
+  async create(authorId: Uuid, dto: CreatePostDto) {
+    const [author, topic] = await Promise.all([
+      User.findOneOrFail({ where: { id: authorId } }),
       Topic.findOneOrFail({ where: { id: dto.topicId } }),
     ]);
 
     return await Post.save(
-      new Post({ ...dto, topic, author: user, createdBy: user.username }),
+      new Post({ ...dto, topic, author, createdBy: author.username }),
     );
   }
 
@@ -26,14 +26,14 @@ export class PostService {
     return await Post.findOneByOrFail({ id });
   }
 
-  async update(userId: Uuid, id: Uuid, dto: UpdatePostDto) {
-    const [user, found] = await Promise.all([
-      User.findOneOrFail({ where: { id: userId } }),
-      Post.findOneOrFail({ where: { id } }),
+  async update(authorId: Uuid, postId: Uuid, dto: UpdatePostDto) {
+    const [author, found] = await Promise.all([
+      User.findOneOrFail({ where: { id: authorId } }),
+      Post.findOneOrFail({ where: { id: postId } }),
     ]);
 
     return await Post.save(
-      Object.assign(found, { ...dto, updatedBy: user.username } as Post),
+      Object.assign(found, { ...dto, updatedBy: author.username } as Post),
     );
   }
 

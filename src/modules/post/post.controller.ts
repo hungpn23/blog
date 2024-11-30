@@ -33,22 +33,22 @@ export class PostController {
     return await this.postService.getMany();
   }
 
-  @Get(':id')
-  async getOne(@Param('id') id: Uuid): Promise<PostEntity> {
-    return await this.postService.getOne(id);
+  @Get(':postId')
+  async getOne(@Param('postId') postId: Uuid): Promise<PostEntity> {
+    return await this.postService.getOne(postId);
   }
 
-  @Patch(':id')
+  @Patch(':postId')
   async update(
     @JwtPayload() { userId }: JwtPayloadType,
-    @Param('id') id: Uuid,
+    @Param('postId') postId: Uuid,
     @Body() dto: UpdatePostDto,
   ): Promise<PostEntity> {
-    return await this.postService.update(userId, id, dto);
+    return await this.postService.update(userId, postId, dto);
   }
 
-  @Delete(':id')
-  async remove(@Param('id') id: Uuid): Promise<PostEntity> {
-    return await this.postService.remove(id);
+  @Delete(':postId')
+  async remove(@Param('postId') postId: Uuid): Promise<PostEntity> {
+    return await this.postService.remove(postId);
   }
 }

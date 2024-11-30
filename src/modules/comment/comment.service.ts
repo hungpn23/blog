@@ -1,25 +1,44 @@
+import { Uuid } from '@/types/branded.type';
 import { Injectable } from '@nestjs/common';
+import { Post } from '../post/post.entity';
+import { User } from '../user/entities/user.entity';
 import { CreateCommentDto, UpdateCommentDto } from './comment.dto';
+import { Comment } from './comment.entity';
 
 @Injectable()
 export class CommentService {
-  create(createCommentDto: CreateCommentDto) {
-    return 'This action adds a new comment';
+  async create(authorId: Uuid, dto: CreateCommentDto) {
+    const [author, post] = await Promise.all([
+      User.findOneByOrFail({ id: authorId }),
+      Post.findOneByOrFail({ id: dto.postId }),
+    ]);
+    return await Comment.save(new Comment({ ...dto, author, post }));
   }
 
-  findAll() {
-    return `This action returns all comment`;
+  async findAll(postId: Uuid) {
+    return await Comment.find({
+      where: { postId },
+      // relations: {
+      //   author: true,
+      //   post: true,
+      // },
+      order: { createdAt: 'ASC' },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} comment`;
+  async update(authorId: Uuid, commentId: Uuid, dto: UpdateCommentDto) {
+    const [author, found] = await Promise.all([
+      User.findOneOrFail({ where: { id: authorId } }),
+      Comment.findOneOrFail({ where: { id: commentId } }),
+    ]);
+    return await Comment.save(
+      Object.assign(found, { ...dto, updatedBy: author.username } as Comment),
+    );
   }
 
-  update(id: number, updateCommentDto: UpdateCommentDto) {
-    return `This action updates a #${id} comment`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} comment`;
+  async remove(commentId: Uuid) {
+    return await Comment.remove(
+      await Comment.findOneByOrFail({ id: commentId }),
+    );
   }
 }
