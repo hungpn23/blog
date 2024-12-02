@@ -7,6 +7,7 @@ import {
 } from '@nestjs/throttler';
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
 import { IncomingMessage, ServerResponse } from 'http';
+import { MysqlConnectionOptions } from 'typeorm/driver/mysql/MysqlConnectionOptions';
 
 @Injectable()
 export class AppConfig
@@ -26,17 +27,49 @@ export class AppConfig
   createTypeOrmOptions() {
     return {
       type: this.configService.getOrThrow('database.type'),
-      host: this.configService.getOrThrow('database.host'),
-      port: this.configService.getOrThrow('database.port'),
-      username: this.configService.getOrThrow('database.username'),
-      password: this.configService.getOrThrow('database.password'),
-      database: this.configService.getOrThrow('database.name'),
+      replication: {
+        master: {
+          host: this.configService.getOrThrow(
+            'database.replication.master.host',
+          ),
+          port: this.configService.getOrThrow(
+            'database.replication.master.port',
+          ),
+          username: this.configService.getOrThrow(
+            'database.replication.master.username',
+          ),
+          password: this.configService.getOrThrow(
+            'database.replication.master.password',
+          ),
+          database: this.configService.getOrThrow(
+            'database.replication.master.database',
+          ),
+        },
+        slaves: [
+          {
+            host: this.configService.getOrThrow(
+              'database.replication.slaves[0].host',
+            ),
+            port: this.configService.getOrThrow(
+              'database.replication.slaves[0].port',
+            ),
+            username: this.configService.getOrThrow(
+              'database.replication.slaves[0].username',
+            ),
+            password: this.configService.getOrThrow(
+              'database.replication.slaves[0].password',
+            ),
+            database: this.configService.getOrThrow(
+              'database.replication.slaves[0].database',
+            ),
+          },
+        ],
+      },
       synchronize: this.configService.getOrThrow('database.synchronize'),
       logging: this.configService.getOrThrow('database.logging'),
-      logger: this.configService.getOrThrow('database.logger'),
       entities: [__dirname + '/../**/*.entity{.ts,.js}'],
       migrations: [__dirname + '/../**/migrations/**/*.{.ts,.js}'],
-    } as TypeOrmModuleOptions;
+    } as MysqlConnectionOptions as TypeOrmModuleOptions;
   }
 
   static loggerFactory() {

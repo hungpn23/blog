@@ -1,14 +1,45 @@
+name: blog
+
 services:
-  mysql:
-    image: mysql:9.1
-    container_name: mysql_c
+  master:
+    image: mysql:8.0
+    container_name: master
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: password
     ports:
-      - '3306:3306'
+      - '33061:3306'
     volumes:
-      - mysql_data:/var/lib/mysql
+      - master:/var/lib/mysql
+    networks:
+      - mysql_master_slave
+    command: >
+      --server-id=1
+      --log-bin=mysql-bin
+
+  slave:
+    image: mysql:8.0
+    container_name: slave
+    restart: always
+    depends_on:
+      - master
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - '33062:3306'
+    volumes:
+      - slave:/var/lib/mysql
+    networks:
+      - mysql_master_slave
+    command: >
+      --server-id=2
+      --log-bin=mysql-bin
+      --read-only=ON
 
 volumes:
-  mysql_data:
+  master:
+  slave:
+
+networks:
+  mysql_master_slave:
+    driver: bridge

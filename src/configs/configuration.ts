@@ -1,4 +1,6 @@
+import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import process from 'node:process';
+import { MysqlConnectionOptions } from 'typeorm/driver/mysql/MysqlConnectionOptions';
 
 export default () => ({
   app: {
@@ -16,15 +18,27 @@ export default () => ({
 
   database: {
     type: process.env.DATABASE_TYPE || 'mysql',
-    host: process.env.DATABASE_HOST || '127.0.0.1',
-    port: +process.env.DATABASE_PORT || 3306,
-    username: process.env.DATABASE_USERNAME || 'root',
-    password: process.env.DATABASE_PASSWORD || 'password',
-    name: process.env.DATABASE_NAME || 'sys',
+    replication: {
+      master: {
+        host: process.env.DATABASE_HOST,
+        port: +process.env.DATABASE_MASTER_PORT,
+        username: process.env.DATABASE_USERNAME,
+        password: process.env.DATABASE_PASSWORD,
+        database: process.env.DATABASE_DB_NAME,
+      },
+      slaves: [
+        {
+          host: process.env.DATABASE_HOST,
+          port: +process.env.DATABASE_SLAVE_PORT,
+          username: process.env.DATABASE_USERNAME,
+          password: process.env.DATABASE_PASSWORD,
+          database: process.env.DATABASE_DB_NAME,
+        },
+      ],
+    },
     synchronize: process.env.DATABASE_SYNCHRONIZE === 'true',
     logging: process.env.DATABASE_LOGGING === 'true',
-    logger: process.env.DATABASE_LOGGER || 'advanced-console',
-  },
+  } as TypeOrmModuleOptions as MysqlConnectionOptions,
 
   auth: {
     secret: process.env.AUTH_JWT_SECRET || 'secret',

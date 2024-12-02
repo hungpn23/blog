@@ -27,13 +27,13 @@ export class MainSeeder implements Seeder {
 
     console.log('seeding users...');
     const userFactory = factoryManager.get(User);
-    const users = await userFactory.saveMany(10);
+    await userFactory.saveMany(10);
 
     console.log('seeding admin posts...');
     const postRepo = dataSource.getRepository(Post);
     const postFactory = factoryManager.get(Post);
     const posts = await Promise.all(
-      new Array(10).fill('').map(async () => {
+      new Array(1000).fill('').map(async () => {
         return await postFactory.make({
           createdBy: admin.username,
           author: admin,
