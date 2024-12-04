@@ -1,4 +1,6 @@
 import { JwtPayload } from '@/decorators/jwt-payload.decorator';
+import { OffsetPaginatedDto } from '@/dto/offset-pagination/paginated.dto';
+import { OffsetPaginationQueryDto } from '@/dto/offset-pagination/query.dto';
 import { Uuid } from '@/types/branded.type';
 import {
   Body,
@@ -6,8 +8,10 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   SerializeOptions,
 } from '@nestjs/common';
 import { JwtPayloadType } from '../auth/auth.type';
@@ -28,27 +32,34 @@ export class PostController {
     return await this.postService.create(userId, dto);
   }
 
+  @SerializeOptions({ type: OffsetPaginatedDto<PostEntity> })
   @Get()
-  async getMany(): Promise<PostEntity[]> {
-    return await this.postService.getMany();
+  async getMany(
+    @Query() query: OffsetPaginationQueryDto,
+  ): Promise<OffsetPaginatedDto<PostEntity>> {
+    return await this.postService.getMany(query);
   }
 
   @Get(':postId')
-  async getOne(@Param('postId') postId: Uuid): Promise<PostEntity> {
+  async getOne(
+    @Param('postId', ParseUUIDPipe) postId: Uuid,
+  ): Promise<PostEntity> {
     return await this.postService.getOne(postId);
   }
 
   @Patch(':postId')
   async update(
     @JwtPayload() { userId }: JwtPayloadType,
-    @Param('postId') postId: Uuid,
+    @Param('postId', ParseUUIDPipe) postId: Uuid,
     @Body() dto: UpdatePostDto,
   ): Promise<PostEntity> {
     return await this.postService.update(userId, postId, dto);
   }
 
   @Delete(':postId')
-  async remove(@Param('postId') postId: Uuid): Promise<PostEntity> {
+  async remove(
+    @Param('postId', ParseUUIDPipe) postId: Uuid,
+  ): Promise<PostEntity> {
     return await this.postService.remove(postId);
   }
 }

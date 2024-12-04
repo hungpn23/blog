@@ -1,5 +1,6 @@
 import { SYSTEM } from '@/constants/index';
 import { getOrder, Order } from '@/decorators/order.decorator';
+import { Exclude } from 'class-transformer';
 import {
   BaseEntity,
   Column,
@@ -27,6 +28,7 @@ export abstract class AbstractEntity extends BaseEntity {
   })
   updatedAt: Date;
 
+  @Exclude()
   @Order(9999)
   @DeleteDateColumn({
     name: 'deleted_at',
@@ -42,6 +44,7 @@ export abstract class AbstractEntity extends BaseEntity {
   })
   createdBy: string;
 
+  @Exclude()
   @Order(9999)
   @Column({
     name: 'updated_by',
@@ -49,6 +52,7 @@ export abstract class AbstractEntity extends BaseEntity {
   })
   updatedBy: string;
 
+  @Exclude()
   @Order(9999)
   @Column({
     name: 'deleted_by',

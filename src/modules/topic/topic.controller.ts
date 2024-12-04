@@ -6,6 +6,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   SerializeOptions,
@@ -34,21 +35,21 @@ export class TopicController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: Uuid): Promise<Topic> {
+  async findOne(@Param('id', ParseUUIDPipe) id: Uuid): Promise<Topic> {
     return await this.topicService.findOne(id);
   }
 
   @Patch(':id')
   async update(
     @JwtPayload() { userId }: JwtPayloadType,
-    @Param('id') topicid: Uuid,
+    @Param('id', ParseUUIDPipe) topicid: Uuid,
     @Body() dto: UpdateTopicDto,
   ): Promise<Topic> {
     return await this.topicService.update(userId, topicid, dto);
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: Uuid): Promise<Topic> {
+  async remove(@Param('id', ParseUUIDPipe) id: Uuid): Promise<Topic> {
     return await this.topicService.remove(id);
   }
 }

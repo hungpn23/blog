@@ -1,4 +1,7 @@
+import { OffsetPaginatedDto } from '@/dto/offset-pagination/paginated.dto';
+import { OffsetPaginationQueryDto } from '@/dto/offset-pagination/query.dto';
 import { Uuid } from '@/types/branded.type';
+import paginate from '@/utils/offset-paginate';
 import { Injectable } from '@nestjs/common';
 import { Topic } from '../topic/topic.entity';
 import { User } from '../user/entities/user.entity';
@@ -18,8 +21,18 @@ export class PostService {
     );
   }
 
-  async getMany() {
-    return await Post.find();
+  async getMany(query: OffsetPaginationQueryDto) {
+    let builder = Post.createQueryBuilder('post');
+    if (query.search) {
+      let search = query.search.replaceAll('-', ' ').trim();
+      builder
+        .where('post.title LIKE :title', { title: `%${search}%` })
+        .orWhere('post.content LIKE :content', { content: `%${search}%` });
+    }
+
+    const { entities, metadata } = await paginate<Post>(builder, query);
+
+    return new OffsetPaginatedDto(entities, metadata);
   }
 
   async getOne(id: Uuid) {

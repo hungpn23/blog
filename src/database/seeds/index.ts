@@ -10,13 +10,12 @@ export class MainSeeder implements Seeder {
     factoryManager: SeederFactoryManager,
   ): Promise<any> {
     console.time('SEEDING TIME');
-    console.log('seeding topics...');
+
     const topics = await Topic.save([
       new Topic({ name: 'Thảo luận' }),
       new Topic({ name: 'Hỏi đáp' }),
     ]);
 
-    console.log('seeding admin');
     const admin = await User.save(
       new User({
         username: 'admin',
@@ -25,23 +24,39 @@ export class MainSeeder implements Seeder {
       }),
     );
 
-    console.log('seeding users...');
     const userFactory = factoryManager.get(User);
     await userFactory.saveMany(10);
 
-    console.log('seeding admin posts...');
     const postRepo = dataSource.getRepository(Post);
     const postFactory = factoryManager.get(Post);
-    const posts = await Promise.all(
-      new Array(1000).fill('').map(async () => {
-        return await postFactory.make({
+
+    const batchSize = 10000;
+    const totalPosts = 100000;
+    let postPromises = [];
+
+    for (let i = 0; i < totalPosts; i++) {
+      postPromises.push(
+        postFactory.make({
           createdBy: admin.username,
           author: admin,
           topic: topics[Math.floor(Math.random() * topics.length)],
-        });
-      }),
-    );
-    await postRepo.save(posts);
+        }),
+      );
+
+      if (postPromises.length === batchSize) {
+        console.log(`adding ${postPromises.length} posts...`);
+        const posts = await Promise.all(postPromises);
+        await postRepo.save(posts);
+        postPromises = [];
+      }
+    }
+
+    if (postPromises.length > 0) {
+      console.log(`adding ${postPromises.length} remaining posts...`);
+      const posts = await Promise.all(postPromises);
+      await postRepo.save(posts);
+    }
+
     console.timeEnd('SEEDING TIME');
   }
 }
