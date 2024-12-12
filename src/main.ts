@@ -11,6 +11,7 @@ import compression from 'compression';
 import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module';
+import swaggerConfig from './configs/swagger.config';
 import { GlobalExceptionFilter } from './filters/global-exception.filter';
 import { AuthGuard } from './modules/auth/auth.guard';
 import { AuthService } from './modules/auth/auth.service';
@@ -51,6 +52,8 @@ async function bootstrap() {
   );
 
   app.useGlobalFilters(new GlobalExceptionFilter());
+
+  swaggerConfig(app, configService);
 
   await app.listen(configService.getOrThrow('app.port'));
   console.info(`App is running on: ${configService.getOrThrow('app.url')}`);

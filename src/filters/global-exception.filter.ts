@@ -1,7 +1,7 @@
 import { ApiError } from '@/constants';
+import { ErrorDetailDto } from '@/dto/error/error-detail.dto';
+import { ErrorDto } from '@/dto/error/error.dto';
 import { AuthException } from '@/exceptions/auth.exception';
-import { IErrorDetail } from '@/interfaces/error-detail.interface';
-import { IError } from '@/interfaces/error.interface';
 import {
   ArgumentsHost,
   Catch,
@@ -20,7 +20,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response: Response = ctx.getResponse();
 
-    let error: IError;
+    let error: ErrorDto;
 
     if (exception instanceof UnprocessableEntityException) {
       error = this.handleUnprocessableEntityException(exception);
@@ -52,7 +52,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       details: this.getValidationErrorDetails(response.message),
     };
 
-    return errorResponse as IError;
+    return errorResponse as ErrorDto;
   }
 
   private handleAuthException(exception: AuthException) {
@@ -60,7 +60,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       timestamp: new Date().toISOString(),
       statusCode: exception.getStatus(),
       message: exception.message,
-    } as IError;
+    } as ErrorDto;
   }
 
   private handleHttpException(exception: HttpException) {
@@ -68,7 +68,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       timestamp: new Date().toISOString(),
       statusCode: exception.getStatus(),
       message: exception.message,
-    } as IError;
+    } as ErrorDto;
   }
 
   private handleQueryFailedError(error: QueryFailedError) {
@@ -76,7 +76,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       timestamp: new Date().toISOString(),
       statusCode: error.message.includes('Duplicate entry') ? 409 : 400,
       message: error.message,
-    } as IError;
+    } as ErrorDto;
   }
 
   private handleEntityNotFoundError(error: EntityNotFoundError) {
@@ -84,7 +84,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       timestamp: new Date().toISOString(),
       statusCode: HttpStatus.NOT_FOUND,
       message: ApiError.NotFound,
-    } as IError;
+    } as ErrorDto;
   }
 
   private handleError(error: any) {
@@ -92,7 +92,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       timestamp: new Date().toISOString(),
       statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
       message: error?.message || ApiError.Unknown,
-    } as IError;
+    } as ErrorDto;
   }
 
   private getValidationErrorDetails(errors: ValidationError[]) {
@@ -101,7 +101,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         ? `${parentProperty}.${error.property}`
         : error.property;
 
-      const currentErrors: IErrorDetail[] = Object.entries(
+      const currentErrors: ErrorDetailDto[] = Object.entries(
         error.constraints || {},
       ).map(([code, message]) => ({
         property,
@@ -109,14 +109,14 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         message,
       }));
 
-      const childErrors: IErrorDetail[] =
+      const childErrors: ErrorDetailDto[] =
         error.children?.flatMap((childError) =>
           extractErrors(childError, property),
         ) || [];
 
-      return [...currentErrors, ...childErrors] as IErrorDetail[];
+      return [...currentErrors, ...childErrors] as ErrorDetailDto[];
     }
 
-    return errors.flatMap((error) => extractErrors(error)) as IErrorDetail[];
+    return errors.flatMap((error) => extractErrors(error)) as ErrorDetailDto[];
   }
 }

@@ -32,7 +32,7 @@ export class MainSeeder implements Seeder {
 
     const batchSize = 10000;
     const totalPosts = 100000;
-    let postPromises = [];
+    let postPromises: Promise<Post>[] = [];
 
     for (let i = 0; i < totalPosts; i++) {
       postPromises.push(

@@ -4,20 +4,21 @@ import { MysqlConnectionOptions } from 'typeorm/driver/mysql/MysqlConnectionOpti
 
 export default () => ({
   app: {
-    port: +process.env.APP_PORT || 3000,
-    url: process.env.APP_URL || 'http://localhost:3000',
-    prefix: process.env.APP_PREFIX || '/api',
+    port: +process.env.APP_PORT,
+    url: process.env.APP_URL,
+    prefix: process.env.APP_PREFIX,
+    name: process.env.APP_NAME,
   },
 
   cors: {
-    origin: process.env.CORS_ORIGIN || '*',
-    methods: process.env.CORS_METHODS || '*',
-    allowedHeaders: process.env.CORS_ALLOWED_HEADERS || '*',
+    origin: process.env.CORS_ORIGIN,
+    methods: process.env.CORS_METHODS,
+    allowedHeaders: process.env.CORS_ALLOWED_HEADERS,
     credentials: process.env.CORS_CREDENTIALS === 'true',
   },
 
   database: {
-    type: process.env.DATABASE_TYPE || 'mysql',
+    type: process.env.DATABASE_TYPE,
     replication: {
       master: {
         host: process.env.DATABASE_HOST,
@@ -41,14 +42,14 @@ export default () => ({
   } as TypeOrmModuleOptions as MysqlConnectionOptions,
 
   auth: {
-    secret: process.env.AUTH_JWT_SECRET || 'secret',
-    expiresIn: process.env.AUTH_JWT_TOKEN_EXPIRES_IN || '1d',
-    refreshSecret: process.env.AUTH_REFRESH_SECRET || 'refreshSecret',
-    refreshExpiresIn: process.env.AUTH_REFRESH_TOKEN_EXPIRES_IN || '7d',
+    secret: process.env.AUTH_JWT_SECRET,
+    expiresIn: process.env.AUTH_JWT_TOKEN_EXPIRES_IN,
+    refreshSecret: process.env.AUTH_REFRESH_SECRET,
+    refreshExpiresIn: process.env.AUTH_REFRESH_TOKEN_EXPIRES_IN,
   },
 
   throttler: {
-    ttl: process.env.THROTTLER_TTL_IN_SECONDS || 1,
-    limit: process.env.THROTTLER_LIMIT || 100,
+    ttl: +process.env.THROTTLER_TTL_IN_SECONDS,
+    limit: +process.env.THROTTLER_LIMIT,
   },
 });
