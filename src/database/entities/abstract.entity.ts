@@ -1,5 +1,6 @@
 import { SYSTEM } from '@/constants/index';
 import { getOrder, Order } from '@/decorators/order.decorator';
+import { ApiHideProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import {
   BaseEntity,
@@ -28,6 +29,7 @@ export abstract class AbstractEntity extends BaseEntity {
   })
   updatedAt: Date;
 
+  @ApiHideProperty()
   @Exclude()
   @Order(9999)
   @DeleteDateColumn({
@@ -52,6 +54,7 @@ export abstract class AbstractEntity extends BaseEntity {
   })
   updatedBy: string;
 
+  @ApiHideProperty()
   @Exclude()
   @Order(9999)
   @Column({

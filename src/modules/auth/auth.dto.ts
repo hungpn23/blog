@@ -1,20 +1,23 @@
-import { Uuid } from '@/types/branded.type';
-import { PickType } from '@nestjs/swagger';
+import { ToLowerCase } from '@/decorators/transforms.decorator';
+import { IsPassword } from '@/decorators/validators/is-password.decorator';
+import { type Uuid } from '@/types/branded.type';
+import { ApiProperty, PickType } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, MinLength } from 'class-validator';
 
 export class AuthReqDto {
+  @ToLowerCase()
   @IsEmail()
-  @IsNotEmpty()
   email: string;
 
-  @IsString()
-  @IsNotEmpty()
+  @IsPassword()
+  @MinLength(8)
   password: string;
 }
 
 @Expose()
 export class AuthResDto {
+  @ApiProperty({ type: () => String })
   userId: Uuid;
   accessToken: string;
   refreshToken: string;

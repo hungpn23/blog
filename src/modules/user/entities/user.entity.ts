@@ -1,7 +1,8 @@
 import { AbstractEntity } from '@/database/entities/abstract.entity';
 import { Comment } from '@/modules/comment/comment.entity';
 import { Post } from '@/modules/post/post.entity';
-import { Uuid } from '@/types/branded.type';
+import { type Uuid } from '@/types/branded.type';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import argon2 from 'argon2';
 import { Exclude, Expose } from 'class-transformer';
 import {
@@ -23,6 +24,7 @@ export class User extends AbstractEntity {
     Object.assign(this, data);
   }
 
+  @ApiProperty({ type: () => String })
   @PrimaryGeneratedColumn('uuid')
   id: Uuid;
 
@@ -32,6 +34,7 @@ export class User extends AbstractEntity {
   @Column({ unique: true })
   email: string;
 
+  @ApiHideProperty()
   @Exclude()
   @Column()
   password: string;

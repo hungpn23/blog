@@ -1,12 +1,10 @@
-import { Uuid } from '@/types/branded.type';
-import { PickType } from '@nestjs/swagger';
-import { IsString, IsUUID } from 'class-validator';
+import { type Uuid } from '@/types/branded.type';
+import { ApiProperty, PickType } from '@nestjs/swagger';
 
 export class CreateCommentDto {
-  @IsString()
   content: string;
 
-  @IsUUID()
+  @ApiProperty({ type: () => String })
   postId: Uuid;
 }
 

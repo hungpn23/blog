@@ -23,6 +23,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     let error: ErrorDto;
 
     if (exception instanceof UnprocessableEntityException) {
+      // this exception is thrown from main.ts (ValidationPipe)
       error = this.handleUnprocessableEntityException(exception);
     } else if (exception instanceof AuthException) {
       error = this.handleAuthException(exception);

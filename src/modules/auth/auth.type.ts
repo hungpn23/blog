@@ -1,4 +1,4 @@
-import { Uuid } from '@/types/branded.type';
+import { type Uuid } from '@/types/branded.type';
 
 type BaseJwtPayload = {
   sessionId: Uuid;

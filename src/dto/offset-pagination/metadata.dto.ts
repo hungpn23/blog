@@ -1,7 +1,9 @@
+import { ApiExtraModels } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { OffsetPaginationQueryDto } from './query.dto';
 
 @Expose()
+@ApiExtraModels(() => OffsetMetadataDto)
 export class OffsetMetadataDto {
   limit: number;
   totalRecords: number;

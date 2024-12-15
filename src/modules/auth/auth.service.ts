@@ -1,6 +1,6 @@
 import { AuthError } from '@/constants/index';
 import { AuthException } from '@/exceptions/auth.exception';
-import { Uuid } from '@/types/branded.type';
+import { type Uuid } from '@/types/branded.type';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -87,6 +87,8 @@ export class AuthService {
   }
   // *** END ROUTE ***
 
+  // ======================================================= //
+
   // *** START GUARD ***
   async verifyAccessToken(accessToken: string): Promise<JwtPayloadType> {
     let payload: JwtPayloadType;
@@ -118,6 +120,8 @@ export class AuthService {
     }
   }
   // *** END GUARD ***
+
+  // ======================================================= //
 
   // *** START PRIVATE ***
   private async createAccessToken(data: {

@@ -1,7 +1,8 @@
 import { AbstractEntity } from '@/database/entities/abstract.entity';
 import { Topic } from '@/modules/topic/topic.entity';
 import { User } from '@/modules/user/entities/user.entity';
-import { Uuid } from '@/types/branded.type';
+import { type Uuid } from '@/types/branded.type';
+import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import {
   Column,
@@ -22,12 +23,15 @@ export class Post extends AbstractEntity {
     Object.assign(this, data);
   }
 
+  @ApiProperty({ type: () => String })
   @PrimaryGeneratedColumn('uuid')
   id: Uuid;
 
+  @ApiProperty({ type: () => String })
   @Column({ type: 'uuid', name: 'author_id' })
   authorId: Uuid;
 
+  @ApiProperty({ type: () => String })
   @Column({ type: 'uuid', name: 'topic_id' })
   topicId: Uuid;
 

@@ -1,4 +1,4 @@
-import { Uuid } from '@/types/branded.type';
+import { type Uuid } from '@/types/branded.type';
 import { Injectable } from '@nestjs/common';
 import { User } from '../user/entities/user.entity';
 import { CreateTopicDto, UpdateTopicDto } from './topic.dto';

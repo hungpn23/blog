@@ -1,22 +1,17 @@
 import { DEFAULT_CURRENT_PAGE, DEFAULT_PAGE_LIMIT, Order } from '@/constants';
-import { IsEnum, IsNumberString, IsOptional, IsString } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class OffsetPaginationQueryDto {
-  @IsOptional()
-  @IsNumberString()
-  page?: number = DEFAULT_CURRENT_PAGE;
+  @ApiProperty({ default: DEFAULT_CURRENT_PAGE })
+  page?: number;
 
-  @IsOptional()
-  @IsNumberString()
-  limit?: number = DEFAULT_PAGE_LIMIT;
+  @ApiProperty({ default: DEFAULT_PAGE_LIMIT })
+  limit?: number;
 
-  @IsOptional()
-  @IsString()
+  @ApiProperty({ enum: () => Order, default: Order.ASC })
+  order?: Order;
+
   search?: string;
-
-  @IsOptional()
-  @IsEnum(Order)
-  order?: Order = Order.ASC;
 
   get offset() {
     return this.page ? (this.page - 1) * this.limit : 0;

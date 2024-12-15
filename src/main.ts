@@ -53,7 +53,7 @@ async function bootstrap() {
 
   app.useGlobalFilters(new GlobalExceptionFilter());
 
-  swaggerConfig(app, configService);
+  await swaggerConfig(app, configService);
 
   await app.listen(configService.getOrThrow('app.port'));
   console.info(`App is running on: ${configService.getOrThrow('app.url')}`);

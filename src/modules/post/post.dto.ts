@@ -1,18 +1,11 @@
-import { Uuid } from '@/types/branded.type';
-import { OmitType, PartialType } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import { type Uuid } from '@/types/branded.type';
+import { ApiProperty, OmitType, PartialType } from '@nestjs/swagger';
 
 export class CreatePostDto {
-  @IsNotEmpty()
-  @IsString()
   title: string;
-
-  @IsNotEmpty()
-  @IsString()
   content: string;
 
-  @IsNotEmpty()
-  @IsUUID()
+  @ApiProperty({ type: () => String })
   topicId: Uuid;
 }
 

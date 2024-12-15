@@ -1,18 +1,12 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiHideProperty } from '@nestjs/swagger';
 import { ErrorDetailDto } from './error-detail.dto';
 
 export class ErrorDto {
-  @ApiProperty()
-  timestamp: string;
-
-  @ApiProperty()
   statusCode: number;
-
-  @ApiProperty()
   message: string;
-
-  @ApiPropertyOptional({ type: ErrorDetailDto, isArray: true })
+  timestamp: string;
   details?: ErrorDetailDto[];
 
+  @ApiHideProperty()
   stack?: string;
 }

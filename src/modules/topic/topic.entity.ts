@@ -1,6 +1,7 @@
 import { AbstractEntity } from '@/database/entities/abstract.entity';
 import { Post } from '@/modules/post/post.entity';
-import { Uuid } from '@/types/branded.type';
+import { type Uuid } from '@/types/branded.type';
+import { ApiProperty } from '@nestjs/swagger';
 
 import { Expose } from 'class-transformer';
 import {
@@ -19,6 +20,7 @@ export class Topic extends AbstractEntity {
     Object.assign(this, data);
   }
 
+  @ApiProperty({ type: () => String })
   @PrimaryGeneratedColumn('uuid')
   id: Uuid;
 

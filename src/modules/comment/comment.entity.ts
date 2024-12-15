@@ -1,5 +1,6 @@
 import { AbstractEntity } from '@/database/entities/abstract.entity';
-import { Uuid } from '@/types/branded.type';
+import { type Uuid } from '@/types/branded.type';
+import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import {
   Column,
@@ -20,15 +21,18 @@ export class Comment extends AbstractEntity {
     Object.assign(this, data);
   }
 
+  @ApiProperty({ type: () => String })
   @PrimaryGeneratedColumn('uuid')
   id: Uuid;
 
   @Column('text')
   content: string;
 
+  @ApiProperty({ type: () => String })
   @Column({ type: 'uuid', name: 'post_id' })
   postId: Uuid;
 
+  @ApiProperty({ type: () => String })
   @Column({ type: 'uuid', name: 'author_id' })
   authorId: Uuid;
 

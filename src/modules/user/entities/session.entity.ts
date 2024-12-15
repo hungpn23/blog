@@ -1,6 +1,7 @@
 import { AbstractEntity } from '@/database/entities/abstract.entity';
-import { Uuid } from '@/types/branded.type';
-import { Expose } from 'class-transformer';
+import { type Uuid } from '@/types/branded.type';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
+import { Exclude, Expose } from 'class-transformer';
 import {
   Column,
   Entity,
@@ -11,6 +12,7 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 
+@Expose()
 @Entity('session')
 export class Session extends AbstractEntity {
   constructor(data?: Partial<Session>) {
@@ -18,13 +20,16 @@ export class Session extends AbstractEntity {
     Object.assign(this, data);
   }
 
-  @Expose()
+  @ApiProperty({ type: () => String })
   @PrimaryGeneratedColumn('uuid')
   id: Uuid;
 
-  @Column({ name: 'signature' })
+  @ApiHideProperty()
+  @Exclude()
+  @Column()
   signature: string;
 
+  @ApiProperty({ type: () => String })
   @Column({ name: 'user_id', type: 'uuid' })
   userId: Uuid;
 

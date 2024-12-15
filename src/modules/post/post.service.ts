@@ -1,6 +1,6 @@
 import { OffsetPaginatedDto } from '@/dto/offset-pagination/paginated.dto';
 import { OffsetPaginationQueryDto } from '@/dto/offset-pagination/query.dto';
-import { Uuid } from '@/types/branded.type';
+import { type Uuid } from '@/types/branded.type';
 import paginate from '@/utils/offset-paginate';
 import { Injectable } from '@nestjs/common';
 import { Topic } from '../topic/topic.entity';

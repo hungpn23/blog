@@ -1,4 +1,4 @@
-import { Uuid } from '@/types/branded.type';
+import { type Uuid } from '@/types/branded.type';
 import { Injectable } from '@nestjs/common';
 import { Post } from '../post/post.entity';
 import { User } from '../user/entities/user.entity';

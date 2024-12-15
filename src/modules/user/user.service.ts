@@ -1,4 +1,4 @@
-import { Uuid } from '@/types/branded.type';
+import { type Uuid } from '@/types/branded.type';
 import { Injectable } from '@nestjs/common';
 import { from, Observable } from 'rxjs';
 import { User } from './entities/user.entity';

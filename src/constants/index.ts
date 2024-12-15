@@ -8,11 +8,6 @@ export enum Role {
   Admin = 'admin',
 }
 
-export enum Order {
-  ASC = 'ASC',
-  DESC = 'DESC',
-}
-
 export enum ProductStatus {
   Available = 'available',
   Unavailable = 'unavailable',
@@ -34,6 +29,11 @@ export enum ApiError {
   Unknown = 'api.error.unknown',
   Exist = 'api.error.entity_exist',
   NotFound = 'api.error.entity_not_found',
+}
+
+export enum Order {
+  ASC = 'ASC',
+  DESC = 'DESC',
 }
 
 export const DEFAULT_PAGE_LIMIT = 10;
