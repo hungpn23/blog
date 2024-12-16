@@ -1,3 +1,4 @@
+import { OffsetMetadataDto } from '@/dto/offset-pagination/metadata.dto';
 import { applyDecorators } from '@nestjs/common';
 import { ApiExtraModels, ApiOkResponse, getSchemaPath } from '@nestjs/swagger';
 import { EndpointOptions } from './endpoint.decorator';
@@ -9,33 +10,21 @@ export type PaginatedOptions = Required<
 export function ApiPaginatedResponse(
   options: PaginatedOptions,
 ): MethodDecorator {
-  const decorators: MethodDecorator[] = [];
-
-  decorators.push(ApiExtraModels(() => options.type));
-
-  decorators.push(
+  return applyDecorators(
+    ApiExtraModels(OffsetMetadataDto),
     ApiOkResponse({
-      description: `Paginated list of ${options.type.name}`,
+      description: `Array of ${options.type.name} and metadata`,
       schema: {
-        title: `PaginatedResponseOf${options.type.name}`,
-        allOf: [
-          {
-            properties: {
-              data: {
-                type: 'array',
-                items: { $ref: getSchemaPath(options.type) },
-              },
-              // !! Resolver error at paths./api/post.get.responses.200.content.application/json.schema.properties.metadata.$ref
-              // !! Could not resolve reference: Could not resolve pointer: /components/schemas/OffsetMetadataDto does not exist in document
-              // metadata: {
-              //   $ref: getSchemaPath(OffsetMetadataDto),
-              // },
-            },
+        properties: {
+          data: {
+            type: 'array',
+            items: { $ref: getSchemaPath(options.type) },
           },
-        ],
+          metadata: {
+            $ref: getSchemaPath(OffsetMetadataDto),
+          },
+        },
       },
     }),
   );
-
-  return applyDecorators(...decorators);
 }

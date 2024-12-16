@@ -1,3 +1,4 @@
+import { ApiEndpoint } from '@/decorators/endpoint.decorator';
 import { JwtPayload } from '@/decorators/jwt-payload.decorator';
 import { multerStorage } from '@/utils/multer-storage';
 import {
@@ -6,30 +7,33 @@ import {
   ParseFilePipeBuilder,
   Patch,
   Post,
-  SerializeOptions,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Observable } from 'rxjs';
+import { ApiBody, ApiConsumes, ApiExcludeEndpoint } from '@nestjs/swagger';
 import { JwtPayloadType } from '../auth/auth.type';
 import { User } from './entities/user.entity';
+import { UploadAvatarDto } from './user.dto';
 import { UserService } from './user.service';
 
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @SerializeOptions({ type: User })
+  @ApiEndpoint({ type: User })
   @Get('profile')
-  profile(@JwtPayload() { userId }: JwtPayloadType): Observable<User> {
-    return this.userService.findOne(userId);
+  async profile(@JwtPayload() { userId }: JwtPayloadType): Promise<User> {
+    return await this.userService.findOne(userId);
   }
 
-  @Post('upload-avatar')
   @UseInterceptors(
     FileInterceptor('avatar', { storage: multerStorage('avatars') }),
   )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ type: UploadAvatarDto })
+  @ApiEndpoint()
+  @Post('upload-avatar')
   async uploadAvatar(
     @UploadedFile(
       new ParseFilePipeBuilder()
@@ -42,11 +46,13 @@ export class UserController {
         .build(),
     )
     file: Express.Multer.File,
+
     @JwtPayload() { userId }: JwtPayloadType,
   ) {
     return await this.userService.uploadAvatar(userId, file.path);
   }
 
+  @ApiExcludeEndpoint()
   @Patch('/profile')
   async updateUser() {
     return 'update profile';

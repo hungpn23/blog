@@ -41,9 +41,7 @@ export class AuthController {
   }
 
   @RefreshToken()
-  @ApiEndpoint({
-    type: RefreshResDto,
-  })
+  @ApiEndpoint({ type: RefreshResDto })
   @Post('/refresh')
   async refreshToken(
     @JwtPayload() payload: JwtRefreshPayloadType,

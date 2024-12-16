@@ -1,3 +1,4 @@
+import { ApiEndpoint } from '@/decorators/endpoint.decorator';
 import { JwtPayload } from '@/decorators/jwt-payload.decorator';
 import { type Uuid } from '@/types/branded.type';
 import {
@@ -9,18 +10,17 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
-  SerializeOptions,
 } from '@nestjs/common';
 import { JwtPayloadType } from '../auth/auth.type';
 import { CreateTopicDto, UpdateTopicDto } from './topic.dto';
 import { Topic } from './topic.entity';
 import { TopicService } from './topic.service';
 
-@SerializeOptions({ type: Topic })
 @Controller('topic')
 export class TopicController {
   constructor(private topicService: TopicService) {}
 
+  @ApiEndpoint({ type: Topic })
   @Post()
   async create(
     @JwtPayload() { userId }: JwtPayloadType,
@@ -29,27 +29,42 @@ export class TopicController {
     return await this.topicService.create(userId, dto);
   }
 
+  @ApiEndpoint({ type: Topic })
   @Get()
   async findAll(): Promise<Topic[]> {
     return await this.topicService.findAll();
   }
 
-  @Get(':id')
-  async findOne(@Param('id', ParseUUIDPipe) id: Uuid): Promise<Topic> {
-    return await this.topicService.findOne(id);
+  @ApiEndpoint({
+    type: Topic,
+    params: [{ name: 'topicId' }],
+  })
+  @Get(':topicId')
+  async findOne(
+    @Param('topicId', ParseUUIDPipe) topicId: Uuid,
+  ): Promise<Topic> {
+    return await this.topicService.findOne(topicId);
   }
 
-  @Patch(':id')
+  @ApiEndpoint({
+    type: Topic,
+    params: [{ name: 'topicId' }],
+  })
+  @Patch(':topicId')
   async update(
     @JwtPayload() { userId }: JwtPayloadType,
-    @Param('id', ParseUUIDPipe) topicid: Uuid,
+    @Param('topicId', ParseUUIDPipe) topicId: Uuid,
     @Body() dto: UpdateTopicDto,
   ): Promise<Topic> {
-    return await this.topicService.update(userId, topicid, dto);
+    return await this.topicService.update(userId, topicId, dto);
   }
 
-  @Delete(':id')
-  async remove(@Param('id', ParseUUIDPipe) id: Uuid): Promise<Topic> {
-    return await this.topicService.remove(id);
+  @ApiEndpoint({
+    type: Topic,
+    params: [{ name: 'topicId' }],
+  })
+  @Delete(':topicId')
+  async remove(@Param('topicId', ParseUUIDPipe) topicId: Uuid): Promise<Topic> {
+    return await this.topicService.remove(topicId);
   }
 }

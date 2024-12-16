@@ -1,5 +1,3 @@
-import { OffsetMetadataDto } from '@/dto/offset-pagination/metadata.dto';
-import { OffsetPaginatedDto } from '@/dto/offset-pagination/paginated.dto';
 import metadata from '@/metadata';
 import { INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -22,9 +20,7 @@ export default async function swaggerConfig(
     .addServer(configService.getOrThrow('app.url'), 'Application Server')
     .build();
 
-  const document = SwaggerModule.createDocument(app, config, {
-    extraModels: [() => OffsetMetadataDto, () => OffsetPaginatedDto], // ** define extraModels
-  });
+  const document = SwaggerModule.createDocument(app, config);
 
   SwaggerModule.setup('docs', app, document, {
     customSiteTitle: appName,

@@ -1,4 +1,4 @@
-import { ErrorDto } from '@/dto/error/error.dto';
+import { CommonErrorDto, ErrorDto } from '@/dto/error/error.dto';
 import {
   applyDecorators,
   HttpCode,
@@ -7,12 +7,12 @@ import {
   Type,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
   ApiParamOptions,
   ApiResponse,
-  OmitType,
 } from '@nestjs/swagger';
 import { STATUS_CODES } from 'node:http';
 import { Public } from './public.decorator';
@@ -42,46 +42,22 @@ export function ApiEndpoint(options: EndpointOptions = {}): MethodDecorator {
 
   const decorators: MethodDecorator[] = [];
 
-  // default
-  decorators.push(SerializeOptions({ type: options?.type }));
-  decorators.push(HttpCode(statusCode));
-  decorators.push(
-    ApiResponse({
-      type: OmitType(ErrorDto, ['details']),
-      status: DEFAULT_ERROR_STATUS_CODE,
-      description: STATUS_CODES[DEFAULT_ERROR_STATUS_CODE],
-    }),
-  );
-
-  const defaultErrorCodes = [
-    HttpStatus.BAD_REQUEST,
-    HttpStatus.UNPROCESSABLE_ENTITY,
-  ];
-
-  if (options?.errorStatusCodes) {
-    defaultErrorCodes.push(...options.errorStatusCodes);
-  }
-
-  defaultErrorCodes.forEach((statusCode) => {
-    decorators.push(
-      ApiResponse({
-        type:
-          statusCode === HttpStatus.UNPROCESSABLE_ENTITY
-            ? ErrorDto
-            : OmitType(ErrorDto, ['details']),
-        status: statusCode,
-        description: STATUS_CODES[statusCode],
-      }),
-    );
-  });
-
-  if (options?.isPublic) {
-    decorators.push(Public());
-  }
-
   if (options?.summary) {
     decorators.push(ApiOperation({ summary: options.summary }));
   }
+
+  if (options?.params) {
+    options.params.forEach((param) => {
+      decorators.push(
+        ApiParam({
+          required: param.required ?? true,
+          ...param,
+        }),
+      );
+    });
+  }
+
+  decorators.push(options?.isPublic ? Public() : ApiBearerAuth());
 
   decorators.push(
     options?.isPaginated
@@ -92,11 +68,42 @@ export function ApiEndpoint(options: EndpointOptions = {}): MethodDecorator {
         }),
   );
 
-  if (options?.params) {
-    options.params.forEach((param) => {
-      decorators.push(ApiParam(param));
-    });
-  }
+  decorators.push(SerializeOptions({ type: options?.type }));
+  decorators.push(HttpCode(statusCode));
+
+  handleErrorResponse(options?.errorStatusCodes, options?.isPublic).forEach(
+    (statusCode) => {
+      decorators.push(
+        ApiResponse({
+          type:
+            statusCode === HttpStatus.UNPROCESSABLE_ENTITY
+              ? ErrorDto
+              : CommonErrorDto,
+          status: statusCode,
+          description: STATUS_CODES[statusCode],
+        }),
+      );
+    },
+  );
 
   return applyDecorators(...decorators);
+}
+
+function handleErrorResponse(
+  errorStatusCodes: HttpStatus[] = [],
+  isPublic: boolean = false,
+) {
+  const errorCodes = [
+    HttpStatus.BAD_REQUEST,
+    HttpStatus.UNPROCESSABLE_ENTITY,
+    HttpStatus.UNAUTHORIZED,
+    HttpStatus.INTERNAL_SERVER_ERROR,
+  ];
+
+  errorCodes.push(...errorStatusCodes);
+
+  if (isPublic)
+    return errorCodes.filter((code) => code !== HttpStatus.UNAUTHORIZED);
+
+  return errorCodes;
 }

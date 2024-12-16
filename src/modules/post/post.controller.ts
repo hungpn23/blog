@@ -25,7 +25,6 @@ export class PostController {
 
   @ApiEndpoint({
     type: PostEntity,
-    summary: 'create post',
   })
   @Post()
   async create(
@@ -37,7 +36,6 @@ export class PostController {
 
   @ApiEndpoint({
     type: PostEntity,
-    summary: 'get paginated posts',
     isPaginated: true,
   })
   @Get()
@@ -49,14 +47,7 @@ export class PostController {
 
   @ApiEndpoint({
     type: PostEntity,
-    summary: 'get post by id',
-    params: [
-      {
-        name: 'postId',
-        type: () => String,
-        required: true,
-      },
-    ],
+    params: [{ name: 'postId' }],
   })
   @Get(':postId')
   async getOne(
@@ -67,14 +58,7 @@ export class PostController {
 
   @ApiEndpoint({
     type: PostEntity,
-    summary: 'update post by id',
-    params: [
-      {
-        name: 'postId',
-        type: () => String,
-        required: true,
-      },
-    ],
+    params: [{ name: 'postId' }],
   })
   @Patch(':postId')
   async update(
@@ -87,14 +71,7 @@ export class PostController {
 
   @ApiEndpoint({
     type: PostEntity,
-    summary: 'delete post by id',
-    params: [
-      {
-        name: 'postId',
-        type: () => String,
-        required: true,
-      },
-    ],
+    params: [{ name: 'postId' }],
   })
   @Delete(':postId')
   async remove(
