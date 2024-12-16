@@ -43,10 +43,7 @@ export class AuthService {
     if (!isValid) throw new AuthException(AuthError.V02);
 
     const signature = this.createSignature();
-    const session = new Session({
-      signature,
-      userId: user.id,
-    });
+    const session = new Session({ signature });
     await Session.save(session);
 
     const [accessToken, refreshToken] = await Promise.all([
@@ -79,7 +76,7 @@ export class AuthService {
       throw new UnauthorizedException();
 
     const accessToken = await this.createAccessToken({
-      userId: session.userId,
+      userId: session.user.id,
       sessionId,
     });
 

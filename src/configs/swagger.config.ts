@@ -13,17 +13,19 @@ export default async function swaggerConfig(
 
   const config = new DocumentBuilder()
     .setTitle(appName)
-    .setDescription('a blog api project')
-    .setVersion('1.0')
-    .setContact('Blog', 'https://example.com', 'example@gmail.com')
-    .addBearerAuth()
+    .setDescription(`### A blog api documentation using NestJS `)
     .addServer(configService.getOrThrow('app.url'), 'Application Server')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
 
-  SwaggerModule.setup('docs', app, document, {
+  SwaggerModule.setup('api-docs', app, document, {
     customSiteTitle: appName,
-    swaggerOptions: { persistAuthorization: true },
+    customJs: '/swagger-custom.js',
+    swaggerOptions: {
+      // https://trilon.io/blog/nestjs-swagger-tips-tricks#preauth-alternatives
+      persistAuthorization: true,
+    },
   });
 }

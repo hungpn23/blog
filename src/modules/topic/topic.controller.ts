@@ -20,7 +20,10 @@ import { TopicService } from './topic.service';
 export class TopicController {
   constructor(private topicService: TopicService) {}
 
-  @ApiEndpoint({ type: Topic })
+  @ApiEndpoint({
+    type: Topic,
+    summary: 'create a new topic',
+  })
   @Post()
   async create(
     @JwtPayload() { userId }: JwtPayloadType,
@@ -29,7 +32,10 @@ export class TopicController {
     return await this.topicService.create(userId, dto);
   }
 
-  @ApiEndpoint({ type: Topic })
+  @ApiEndpoint({
+    type: Topic,
+    summary: 'get all topic',
+  })
   @Get()
   async findAll(): Promise<Topic[]> {
     return await this.topicService.findAll();
@@ -37,6 +43,7 @@ export class TopicController {
 
   @ApiEndpoint({
     type: Topic,
+    summary: 'get a topic by id',
     params: [{ name: 'topicId' }],
   })
   @Get(':topicId')
@@ -48,6 +55,7 @@ export class TopicController {
 
   @ApiEndpoint({
     type: Topic,
+    summary: 'update a topic by id, return updated topic',
     params: [{ name: 'topicId' }],
   })
   @Patch(':topicId')
@@ -61,6 +69,7 @@ export class TopicController {
 
   @ApiEndpoint({
     type: Topic,
+    summary: 'delete a topic by id, return deleted topic',
     params: [{ name: 'topicId' }],
   })
   @Delete(':topicId')

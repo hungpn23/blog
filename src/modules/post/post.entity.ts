@@ -14,6 +14,7 @@ import {
   Relation,
 } from 'typeorm';
 import { Comment } from '../comment/comment.entity';
+import { PostImage } from './entities/post-image.entity';
 
 @Expose()
 @Entity('post')
@@ -27,19 +28,14 @@ export class Post extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: Uuid;
 
-  @ApiProperty({ type: () => String })
-  @Column({ type: 'uuid', name: 'author_id' })
-  authorId: Uuid;
-
-  @ApiProperty({ type: () => String })
-  @Column({ type: 'uuid', name: 'topic_id' })
-  topicId: Uuid;
-
   @Column()
   title: string;
 
   @Column({ type: 'text' })
   content: string;
+
+  @OneToMany(() => PostImage, (image) => image.post)
+  images: Relation<PostImage[]>;
 
   @OneToMany(() => Comment, (comment) => comment.post)
   comments: Relation<Comment[]>;

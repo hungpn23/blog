@@ -1,6 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { PickType } from '@nestjs/swagger';
+import { User } from './entities/user.entity';
 
-export class UploadAvatarDto {
-  @ApiProperty({ type: 'string', format: 'binary' })
-  avatar: Express.Multer.File;
-}
+export class UpdateUserDto extends PickType(User, ['bio', 'email']) {}

@@ -19,7 +19,10 @@ import { CommentService } from './comment.service';
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
-  @ApiEndpoint({ type: Comment })
+  @ApiEndpoint({
+    type: Comment,
+    summary: 'create a new comment',
+  })
   @Post()
   async create(
     @JwtPayload() { userId }: JwtPayloadType,
@@ -28,13 +31,21 @@ export class CommentController {
     return await this.commentService.create(userId, dto);
   }
 
-  @ApiEndpoint({ type: Comment, params: [{ name: 'postId' }] })
+  @ApiEndpoint({
+    type: Comment,
+    summary: 'get all comments by post id',
+    params: [{ name: 'postId' }],
+  })
   @Get(':postId')
   findAll(@Param('postId') postId: Uuid) {
     return this.commentService.findAll(postId);
   }
 
-  @ApiEndpoint({ type: Comment, params: [{ name: 'commentId' }] })
+  @ApiEndpoint({
+    type: Comment,
+    summary: 'update a comment by id, return updated comment',
+    params: [{ name: 'commentId' }],
+  })
   @Patch(':commentId')
   update(
     @JwtPayload() { userId }: JwtPayloadType,
@@ -44,7 +55,11 @@ export class CommentController {
     return this.commentService.update(userId, commentId, updateCommentDto);
   }
 
-  @ApiEndpoint({ type: Comment, params: [{ name: 'commentId' }] })
+  @ApiEndpoint({
+    type: Comment,
+    summary: 'delete a comment by id, return deleted comment',
+    params: [{ name: 'commentId' }],
+  })
   @Delete(':commentId')
   remove(@Param('commentId') commentId: Uuid) {
     return this.commentService.remove(commentId);

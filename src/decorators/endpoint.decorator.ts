@@ -1,18 +1,26 @@
 import { CommonErrorDto, ErrorDto } from '@/dto/error/error.dto';
+import { CreatePostDto } from '@/modules/post/post.dto';
+import { multerStorage } from '@/utils/multer-storage';
 import {
   applyDecorators,
   HttpCode,
   HttpStatus,
   SerializeOptions,
   Type,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiExtraModels,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
   ApiParamOptions,
   ApiResponse,
+  getSchemaPath,
 } from '@nestjs/swagger';
 import { STATUS_CODES } from 'node:http';
 import { Public } from './public.decorator';
@@ -42,9 +50,9 @@ export function ApiEndpoint(options: EndpointOptions = {}): MethodDecorator {
 
   const decorators: MethodDecorator[] = [];
 
-  if (options?.summary) {
-    decorators.push(ApiOperation({ summary: options.summary }));
-  }
+  // TODO: markdown description https://trilon.io/blog/nestjs-swagger-tips-tricks
+  if (options?.summary)
+    decorators.push(ApiOperation({ summary: options?.summary }));
 
   if (options?.params) {
     options.params.forEach((param) => {
@@ -87,6 +95,64 @@ export function ApiEndpoint(options: EndpointOptions = {}): MethodDecorator {
   );
 
   return applyDecorators(...decorators);
+}
+
+export function ApiFile(fileName: string): MethodDecorator {
+  return applyDecorators(
+    UseInterceptors(
+      FileInterceptor(fileName, { storage: multerStorage(`${fileName}s`) }),
+    ),
+    ApiConsumes('multipart/form-data'),
+    ApiBody({
+      schema: {
+        type: 'object',
+        properties: {
+          [fileName]: {
+            type: 'string',
+            format: 'binary',
+          },
+        },
+        required: [fileName],
+      },
+    }),
+  );
+}
+
+export function ApiArrayFiles(
+  fileName: string,
+  maxCount: number = 3,
+): MethodDecorator {
+  return applyDecorators(
+    UseInterceptors(
+      FilesInterceptor(fileName, maxCount, {
+        storage: multerStorage(fileName),
+      }),
+    ),
+    ApiConsumes('multipart/form-data'),
+    ApiExtraModels(CreatePostDto),
+    ApiBody({
+      required: true,
+      schema: {
+        allOf: [
+          {
+            properties: {
+              [fileName]: {
+                type: 'array',
+                items: {
+                  type: 'string',
+                  format: 'binary',
+                },
+              },
+            },
+            required: [fileName],
+          },
+          {
+            $ref: getSchemaPath(CreatePostDto),
+          },
+        ],
+      },
+    }),
+  );
 }
 
 function handleErrorResponse(

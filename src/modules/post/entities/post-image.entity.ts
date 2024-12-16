@@ -10,13 +10,12 @@ import {
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
-import { Post } from '../post/post.entity';
-import { User } from '../user/entities/user.entity';
+import { Post } from '../post.entity';
 
 @Expose()
-@Entity('comment')
-export class Comment extends AbstractEntity {
-  constructor(data?: Partial<Comment>) {
+@Entity('post_image')
+export class PostImage extends AbstractEntity {
+  constructor(data?: Partial<PostImage>) {
     super();
     Object.assign(this, data);
   }
@@ -25,14 +24,10 @@ export class Comment extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: Uuid;
 
-  @Column('text')
-  content: string;
+  @Column()
+  url: string;
 
-  @ManyToOne(() => Post, (post) => post.comments)
+  @ManyToOne(() => Post, (post) => post.images)
   @JoinColumn({ name: 'post_id', referencedColumnName: 'id' })
   post: Relation<Post>;
-
-  @ManyToOne(() => User, (author) => author.comments)
-  @JoinColumn({ name: 'author_id', referencedColumnName: 'id' })
-  author: Relation<User>;
 }

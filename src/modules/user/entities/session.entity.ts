@@ -29,10 +29,6 @@ export class Session extends AbstractEntity {
   @Column()
   signature: string;
 
-  @ApiProperty({ type: () => String })
-  @Column({ name: 'user_id', type: 'uuid' })
-  userId: Uuid;
-
   @ManyToOne(() => User, (user) => user.sessions)
   @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   user: Relation<User>;

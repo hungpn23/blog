@@ -86,6 +86,9 @@ importers:
       typeorm-extension:
         specifier: ^3.6.3
         version: 3.6.3(typeorm@0.3.20(mysql2@3.11.4)(ts-node@10.9.2(@swc/core@1.9.3)(@types/node@20.17.7)(typescript@5.7.2)))
+      typeorm-orderable:
+        specifier: ^0.1.2
+        version: 0.1.2(mysql2@3.11.4)(ts-node@10.9.2(@swc/core@1.9.3)(@types/node@20.17.7)(typescript@5.7.2))
     devDependencies:
       '@nestjs/cli':
         specifier: ^10.4.8
@@ -3283,6 +3286,9 @@ packages:
     hasBin: true
     peerDependencies:
       typeorm: ~0.3.0
+
+  typeorm-orderable@0.1.2:
+    resolution: {integrity: sha512-P8AIZhvEGn2i8ABLokRXfiUHxh4OmEOY1oRuyMeDmQ6xTlVvMWXZblkAO3OZ38kDn0IbhqTyS1p+Si92cxwn/w==}
 
   typeorm@0.3.20:
     resolution: {integrity: sha512-sJ0T08dV5eoZroaq9uPKBoNcGslHBR4E4y+EBHs//SiGbblGe7IeduP/IH4ddCcj0qp3PHwDwGnuvqEAnKlq/Q==}
@@ -7013,6 +7019,29 @@ snapshots:
       smob: 1.5.0
       typeorm: 0.3.20(mysql2@3.11.4)(ts-node@10.9.2(@swc/core@1.9.3)(@types/node@20.17.7)(typescript@5.7.2))
       yargs: 17.7.2
+
+  typeorm-orderable@0.1.2(mysql2@3.11.4)(ts-node@10.9.2(@swc/core@1.9.3)(@types/node@20.17.7)(typescript@5.7.2)):
+    dependencies:
+      typeorm: 0.3.20(mysql2@3.11.4)(ts-node@10.9.2(@swc/core@1.9.3)(@types/node@20.17.7)(typescript@5.7.2))
+    transitivePeerDependencies:
+      - '@google-cloud/spanner'
+      - '@sap/hana-client'
+      - better-sqlite3
+      - hdb-pool
+      - ioredis
+      - mongodb
+      - mssql
+      - mysql2
+      - oracledb
+      - pg
+      - pg-native
+      - pg-query-stream
+      - redis
+      - sql.js
+      - sqlite3
+      - supports-color
+      - ts-node
+      - typeorm-aurora-data-api-driver
 
   typeorm@0.3.20(mysql2@3.11.4)(ts-node@10.9.2(@swc/core@1.9.3)(@types/node@20.17.7)(typescript@5.7.2)):
     dependencies:

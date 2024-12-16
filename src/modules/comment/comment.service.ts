@@ -17,7 +17,7 @@ export class CommentService {
 
   async findAll(postId: Uuid) {
     return await Comment.find({
-      where: { postId },
+      where: { post: await Post.findOneByOrFail({ id: postId }) },
       // relations: {
       //   author: true,
       //   post: true,

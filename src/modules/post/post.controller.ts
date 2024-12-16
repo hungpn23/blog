@@ -1,7 +1,8 @@
-import { ApiEndpoint } from '@/decorators/endpoint.decorator';
+import { ApiArrayFiles, ApiEndpoint } from '@/decorators/endpoint.decorator';
 import { JwtPayload } from '@/decorators/jwt-payload.decorator';
 import { OffsetPaginatedDto } from '@/dto/offset-pagination/paginated.dto';
 import { OffsetPaginationQueryDto } from '@/dto/offset-pagination/query.dto';
+import { validateImagePipe } from '@/pipes/validate-image.pipe';
 import { type Uuid } from '@/types/branded.type';
 import {
   Body,
@@ -13,7 +14,9 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFiles,
 } from '@nestjs/common';
+import { plainToInstance } from 'class-transformer';
 import { JwtPayloadType } from '../auth/auth.type';
 import { CreatePostDto, UpdatePostDto } from './post.dto';
 import { Post as PostEntity } from './post.entity';
@@ -23,20 +26,32 @@ import { PostService } from './post.service';
 export class PostController {
   constructor(private postService: PostService) {}
 
+  @ApiArrayFiles('images')
   @ApiEndpoint({
     type: PostEntity,
+    summary: 'create a new file',
+    params: [{ name: 'topicId' }],
   })
-  @Post()
+  @Post(':topicId')
   async create(
+    @UploadedFiles(validateImagePipe())
+    files: Express.Multer.File[],
     @JwtPayload() { userId }: JwtPayloadType,
-    @Body() dto: CreatePostDto,
+    @Body() dto: typeof CreatePostDto, // avoid empty object bug
+    @Param('topicId', ParseUUIDPipe) topicId: Uuid,
   ): Promise<PostEntity> {
-    return await this.postService.create(userId, dto);
+    return await this.postService.create(
+      userId,
+      topicId,
+      files,
+      plainToInstance(CreatePostDto, dto),
+    );
   }
 
   @ApiEndpoint({
     type: PostEntity,
     isPaginated: true,
+    summary: 'get paginated post',
   })
   @Get()
   async getMany(
@@ -47,6 +62,7 @@ export class PostController {
 
   @ApiEndpoint({
     type: PostEntity,
+    summary: 'get a post by id',
     params: [{ name: 'postId' }],
   })
   @Get(':postId')
@@ -58,6 +74,7 @@ export class PostController {
 
   @ApiEndpoint({
     type: PostEntity,
+    summary: 'update a post by id, return updated post',
     params: [{ name: 'postId' }],
   })
   @Patch(':postId')
@@ -71,6 +88,7 @@ export class PostController {
 
   @ApiEndpoint({
     type: PostEntity,
+    summary: 'delete a post by id, return deleted post',
     params: [{ name: 'postId' }],
   })
   @Delete(':postId')

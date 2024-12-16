@@ -30,8 +30,8 @@ export class MainSeeder implements Seeder {
     const postRepo = dataSource.getRepository(Post);
     const postFactory = factoryManager.get(Post);
 
-    const batchSize = 10000;
-    const totalPosts = 100000;
+    const batchSize = 100;
+    const totalPosts = 100;
     let postPromises: Promise<Post>[] = [];
 
     for (let i = 0; i < totalPosts; i++) {

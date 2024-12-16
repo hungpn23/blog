@@ -87,23 +87,23 @@ export class AppConfig
         },
 
         customReceivedMessage: (req: IncomingMessage) => {
-          return `[${req.id || '*'}] "${req.method} ${req.url}"`;
+          return `[${req.id || '*'}] "${req.method} ${req.headers['host']}${req.url} "`;
         },
 
         customSuccessMessage: (
-          req: IncomingMessage,
+          _req: IncomingMessage,
           res: ServerResponse<IncomingMessage>,
           responseTime: number,
         ) => {
-          return `[${req.id || '*'}] "${req.method} ${req.url}" ${res.statusCode} - "${req.headers['host']}" "${req.headers['user-agent']}" - ${responseTime} ms`;
+          return `${res.statusCode} - ${responseTime} ms`;
         },
 
         customErrorMessage: (
-          req: IncomingMessage,
+          _req: IncomingMessage,
           res: ServerResponse<IncomingMessage>,
           err: Error,
         ) => {
-          return `[${req.id || '*'}] "${req.method} ${req.url}" ${res.statusCode} - "${req.headers['host']}" "${req.headers['user-agent']}" - message: ${err.message}`;
+          return `${res.statusCode} - ERROR: ${err.message} - STACK: ${err.stack}`;
         },
       },
     };

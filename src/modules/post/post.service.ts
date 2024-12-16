@@ -5,20 +5,37 @@ import paginate from '@/utils/offset-paginate';
 import { Injectable } from '@nestjs/common';
 import { Topic } from '../topic/topic.entity';
 import { User } from '../user/entities/user.entity';
+import { PostImage } from './entities/post-image.entity';
 import { CreatePostDto, UpdatePostDto } from './post.dto';
 import { Post } from './post.entity';
 
 @Injectable()
 export class PostService {
-  async create(authorId: Uuid, dto: CreatePostDto) {
+  async create(
+    authorId: Uuid,
+    topicId: Uuid,
+    files: Express.Multer.File[],
+    dto: CreatePostDto,
+  ) {
     const [author, topic] = await Promise.all([
       User.findOneOrFail({ where: { id: authorId } }),
-      Topic.findOneOrFail({ where: { id: dto.topicId } }),
+      Topic.findOneOrFail({ where: { id: topicId } }),
     ]);
 
-    return await Post.save(
-      new Post({ ...dto, topic, author, createdBy: author.username }),
+    const newPost = new Post({
+      ...dto,
+      topic,
+      author,
+      createdBy: author.username,
+    });
+
+    const postImages = files.map(
+      ({ path }) => new PostImage({ url: path, post: newPost }),
     );
+
+    newPost.images = await PostImage.save(postImages);
+
+    return await Post.save(newPost);
   }
 
   async getMany(query: OffsetPaginationQueryDto) {

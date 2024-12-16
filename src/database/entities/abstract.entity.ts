@@ -10,9 +10,10 @@ import {
   DeleteDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { ColumnMetadata } from 'typeorm/metadata/ColumnMetadata';
 
 export abstract class AbstractEntity extends BaseEntity {
-  @Order(9999)
+  @Order(9998)
   @CreateDateColumn({
     name: 'created_at',
     type: 'timestamp',
@@ -20,7 +21,7 @@ export abstract class AbstractEntity extends BaseEntity {
   })
   createdAt: Date;
 
-  @Order(9999)
+  @Order(9998)
   @UpdateDateColumn({
     name: 'updated_at',
     type: 'timestamp',
@@ -29,6 +30,43 @@ export abstract class AbstractEntity extends BaseEntity {
   })
   updatedAt: Date;
 
+  @Order(9998)
+  @Column({
+    name: 'created_by',
+    default: SYSTEM,
+  })
+  createdBy: string;
+
+  @Exclude()
+  @Order(9998)
+  @Column({
+    name: 'updated_by',
+    default: null,
+  })
+  updatedBy: string;
+
+  // issue: https://github.com/typeorm/typeorm/issues/541#issuecomment-2358776943
+  static useDataSource(dataSource: DataSource) {
+    BaseEntity.useDataSource.call(this, dataSource);
+    const meta = dataSource.entityMetadatasMap.get(this);
+    const getOrderSafely = (column: ColumnMetadata) => {
+      const target = column.target as any;
+      if (target && target.prototype) {
+        return getOrder(target.prototype, column.propertyName);
+      }
+      return 9996;
+    };
+    if (meta != null) {
+      meta.columns = [...meta.columns].sort((xColumn, yColumn) => {
+        const orderXColumn = getOrderSafely(xColumn);
+        const orderYColumn = getOrderSafely(yColumn);
+        return orderXColumn - orderYColumn;
+      });
+    }
+  }
+}
+
+export abstract class DeletableAbstractEntity extends AbstractEntity {
   @ApiHideProperty()
   @Exclude()
   @Order(9999)
@@ -39,21 +77,6 @@ export abstract class AbstractEntity extends BaseEntity {
   })
   deletedAt: Date;
 
-  @Order(9999)
-  @Column({
-    name: 'created_by',
-    default: SYSTEM,
-  })
-  createdBy: string;
-
-  @Exclude()
-  @Order(9999)
-  @Column({
-    name: 'updated_by',
-    default: null,
-  })
-  updatedBy: string;
-
   @ApiHideProperty()
   @Exclude()
   @Order(9999)
@@ -62,18 +85,4 @@ export abstract class AbstractEntity extends BaseEntity {
     default: null,
   })
   deletedBy: string;
-
-  // issue: https://github.com/typeorm/typeorm/issues/541#issuecomment-2014291439
-  static useDataSource(dataSource: DataSource) {
-    BaseEntity.useDataSource.call(this, dataSource);
-    const meta = dataSource.entityMetadatasMap.get(this);
-    if (meta != null) {
-      // reorder columns here
-      meta.columns = [...meta.columns].sort((x, y) => {
-        const orderX = getOrder((x.target as any).prototype, x.propertyName);
-        const orderY = getOrder((y.target as any).prototype, y.propertyName);
-        return orderX - orderY;
-      });
-    }
-  }
 }

@@ -18,6 +18,7 @@ export class AuthController {
 
   @ApiEndpoint({
     isPublic: true,
+    summary: 'register a new account',
     type: RegisterResDto,
   })
   @Post('/register')
@@ -27,6 +28,7 @@ export class AuthController {
 
   @ApiEndpoint({
     isPublic: true,
+    summary: 'login',
     type: LoginResDto,
   })
   @Post('/login')
@@ -34,14 +36,14 @@ export class AuthController {
     return await this.authService.login(dto);
   }
 
-  @ApiEndpoint()
+  @ApiEndpoint({ summary: 'logout' })
   @Post('/logout')
   async logout(@JwtPayload() payload: JwtPayloadType) {
     return await this.authService.logout(payload);
   }
 
   @RefreshToken()
-  @ApiEndpoint({ type: RefreshResDto })
+  @ApiEndpoint({ type: RefreshResDto, summary: 'get new access token' })
   @Post('/refresh')
   async refreshToken(
     @JwtPayload() payload: JwtRefreshPayloadType,
