@@ -20,7 +20,7 @@ export class UserService {
     const found = await User.findOneOrFail({ where: { id: userId } });
 
     return await User.save(
-      Object.assign(found, { ...dto, updatedBy: found.username } as User),
+      Object.assign(found, { ...dto, updatedBy: dto.username } as User),
     );
   }
 }

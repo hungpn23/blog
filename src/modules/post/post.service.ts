@@ -22,18 +22,15 @@ export class PostService {
       Topic.findOneOrFail({ where: { id: topicId } }),
     ]);
 
+    const postImages = files.map(({ path }) => new PostImage({ url: path }));
+
     const newPost = new Post({
       ...dto,
       topic,
       author,
-      createdBy: author.username,
+      images: postImages,
+      createdBy: author.username ?? author.email,
     });
-
-    const postImages = files.map(
-      ({ path }) => new PostImage({ url: path, post: newPost }),
-    );
-
-    newPost.images = await PostImage.save(postImages);
 
     return await Post.save(newPost);
   }
@@ -48,8 +45,7 @@ export class PostService {
     }
 
     const { entities, metadata } = await paginate<Post>(builder, query);
-
-    return new OffsetPaginatedDto(entities, metadata);
+    return new OffsetPaginatedDto<Post>(entities, metadata);
   }
 
   async getOne(id: Uuid) {

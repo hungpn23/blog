@@ -37,7 +37,6 @@ export abstract class AbstractEntity extends BaseEntity {
   })
   createdBy: string;
 
-  @Exclude()
   @Order(9998)
   @Column({
     name: 'updated_by',

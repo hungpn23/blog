@@ -11,8 +11,7 @@ export default async function paginate<Entity extends AbstractEntity>(
 
   builder.skip(offset).take(limit).orderBy({ created_at: order });
 
-  const entities = await builder.getMany();
-  const totalRecords = await builder.getCount();
+  const [entities, totalRecords] = await builder.getManyAndCount();
 
   const metadata = new OffsetMetadataDto(totalRecords, query);
 

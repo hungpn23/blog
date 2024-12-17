@@ -34,10 +34,10 @@ export class Post extends AbstractEntity {
   @Column({ type: 'text' })
   content: string;
 
-  @OneToMany(() => PostImage, (image) => image.post)
+  @OneToMany(() => PostImage, (image) => image.post, { cascade: true })
   images: Relation<PostImage[]>;
 
-  @OneToMany(() => Comment, (comment) => comment.post)
+  @OneToMany(() => Comment, (comment) => comment.post, { cascade: true })
   comments: Relation<Comment[]>;
 
   @ManyToOne(() => User, (user) => user.posts)

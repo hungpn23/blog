@@ -27,6 +27,6 @@ export class Topic extends AbstractEntity {
   @Column({ unique: true })
   name: string;
 
-  @OneToMany(() => Post, (post) => post.topic)
+  @OneToMany(() => Post, (post) => post.topic, { cascade: true })
   posts: Relation<Post[]>;
 }

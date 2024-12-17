@@ -26,7 +26,7 @@ import { PostService } from './post.service';
 export class PostController {
   constructor(private postService: PostService) {}
 
-  @ApiArrayFiles('images')
+  @ApiArrayFiles('images', CreatePostDto)
   @ApiEndpoint({
     type: PostEntity,
     summary: 'create a new file',
@@ -37,14 +37,15 @@ export class PostController {
     @UploadedFiles(validateImagePipe())
     files: Express.Multer.File[],
     @JwtPayload() { userId }: JwtPayloadType,
-    @Body() dto: typeof CreatePostDto, // avoid empty object bug
+    @Body() dto: CreatePostDto | typeof CreatePostDto, // avoid empty object bug
     @Param('topicId', ParseUUIDPipe) topicId: Uuid,
   ): Promise<PostEntity> {
+    dto = plainToInstance(CreatePostDto, dto)
     return await this.postService.create(
       userId,
       topicId,
       files,
-      plainToInstance(CreatePostDto, dto),
+      dto,
     );
   }
 

@@ -103,7 +103,7 @@ export class AppConfig
           res: ServerResponse<IncomingMessage>,
           err: Error,
         ) => {
-          return `${res.statusCode} - ERROR: ${err.message} - STACK: ${err.stack}`;
+          return `${res.statusCode} - ERROR: ${err.message}`;
         },
       },
     };

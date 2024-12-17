@@ -1,5 +1,4 @@
 import { CommonErrorDto, ErrorDto } from '@/dto/error/error.dto';
-import { CreatePostDto } from '@/modules/post/post.dto';
 import { multerStorage } from '@/utils/multer-storage';
 import {
   applyDecorators,
@@ -27,7 +26,6 @@ import { Public } from './public.decorator';
 import { ApiPaginatedResponse } from './swagger.decorator';
 
 const DEFAULT_STATUS_CODE = HttpStatus.OK;
-const DEFAULT_ERROR_STATUS_CODE = HttpStatus.INTERNAL_SERVER_ERROR;
 
 export type EndpointOptions = {
   type?: Type<any>;
@@ -37,16 +35,11 @@ export type EndpointOptions = {
   statusCode?: HttpStatus;
   errorStatusCodes?: HttpStatus[];
   isPaginated?: boolean;
-  paginationType?: 'offset' | 'cursor';
   params?: ApiParamOptions[];
 };
 
 export function ApiEndpoint(options: EndpointOptions = {}): MethodDecorator {
-  const {
-    description = 'OK',
-    paginationType = 'offset',
-    statusCode = DEFAULT_STATUS_CODE,
-  } = options;
+  const { description = 'OK', statusCode = DEFAULT_STATUS_CODE } = options;
 
   const decorators: MethodDecorator[] = [];
 
@@ -69,7 +62,7 @@ export function ApiEndpoint(options: EndpointOptions = {}): MethodDecorator {
 
   decorators.push(
     options?.isPaginated
-      ? ApiPaginatedResponse({ type: options?.type, paginationType })
+      ? ApiPaginatedResponse(options?.type)
       : ApiOkResponse({
           type: options?.type,
           description,
@@ -120,6 +113,7 @@ export function ApiFile(fileName: string): MethodDecorator {
 
 export function ApiArrayFiles(
   fileName: string,
+  extraModels: Function,
   maxCount: number = 3,
 ): MethodDecorator {
   return applyDecorators(
@@ -129,7 +123,7 @@ export function ApiArrayFiles(
       }),
     ),
     ApiConsumes('multipart/form-data'),
-    ApiExtraModels(CreatePostDto),
+    ApiExtraModels(extraModels),
     ApiBody({
       required: true,
       schema: {
@@ -147,7 +141,7 @@ export function ApiArrayFiles(
             required: [fileName],
           },
           {
-            $ref: getSchemaPath(CreatePostDto),
+            $ref: getSchemaPath(extraModels),
           },
         ],
       },

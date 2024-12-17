@@ -45,13 +45,13 @@ export class User extends AbstractEntity {
   @Column({ nullable: true })
   avatar: string;
 
-  @OneToMany(() => Session, (session) => session.user)
+  @OneToMany(() => Session, (session) => session.user, { cascade: true })
   sessions: Relation<Session[]>;
 
-  @OneToMany(() => Post, (post) => post.author)
+  @OneToMany(() => Post, (post) => post.author, { cascade: true })
   posts: Relation<Post[]>;
 
-  @OneToMany(() => Comment, (comment) => comment.author)
+  @OneToMany(() => Comment, (comment) => comment.author, { cascade: true })
   comments: Relation<Comment[]>;
 
   @BeforeInsert()

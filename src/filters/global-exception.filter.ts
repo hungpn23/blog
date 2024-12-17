@@ -8,21 +8,24 @@ import {
   ExceptionFilter,
   HttpException,
   HttpStatus,
+  Logger,
   UnprocessableEntityException,
   ValidationError,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { Logger } from 'nestjs-pino';
 import { EntityNotFoundError, QueryFailedError } from 'typeorm';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
-  private logger: Logger;
+  private readonly logger = new Logger(GlobalExceptionFilter.name);
+
   catch(exception: any, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const response: Response = ctx.getResponse();
 
     let error: ErrorDto;
+
+    this.logger.debug('exception::::::', exception);
 
     if (exception instanceof UnprocessableEntityException) {
       // this exception is thrown from main.ts (ValidationPipe)
@@ -67,7 +70,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   }
 
   private handleHttpException(exception: HttpException) {
-    console.debug(exception.stack);
     return {
       timestamp: new Date().toISOString(),
       statusCode: exception.getStatus(),
