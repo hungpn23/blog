@@ -27,7 +27,7 @@ export class PostImage extends AbstractEntity {
   @Column()
   url: string;
 
-  @ManyToOne(() => Post, (post) => post.images)
+  @ManyToOne(() => Post, (post) => post.images, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'post_id', referencedColumnName: 'id' })
   post: Relation<Post>;
 }

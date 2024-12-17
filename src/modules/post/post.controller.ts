@@ -34,19 +34,14 @@ export class PostController {
   })
   @Post(':topicId')
   async create(
-    @UploadedFiles(validateImagePipe())
+    @UploadedFiles(validateImagePipe({ required: false }))
     files: Express.Multer.File[],
     @JwtPayload() { userId }: JwtPayloadType,
     @Body() dto: CreatePostDto | typeof CreatePostDto, // avoid empty object bug
     @Param('topicId', ParseUUIDPipe) topicId: Uuid,
   ): Promise<PostEntity> {
-    dto = plainToInstance(CreatePostDto, dto)
-    return await this.postService.create(
-      userId,
-      topicId,
-      files,
-      dto,
-    );
+    dto = plainToInstance(CreatePostDto, dto);
+    return await this.postService.create(userId, topicId, files, dto);
   }
 
   @ApiEndpoint({

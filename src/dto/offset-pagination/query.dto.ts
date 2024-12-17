@@ -14,8 +14,8 @@ export class OffsetPaginationQueryDto {
   limit?: number = 10;
 
   @EnumDecorators(Order, { required: false })
-  @ApiProperty({ type: () => Order, default: Order.ASC })
-  order?: Order;
+  @ApiProperty({ type: () => Order, default: Order.DESC })
+  order?: Order = Order.DESC; // ?? it is not a referenceable value
 
   @StringDecorators({ required: false })
   search?: string;

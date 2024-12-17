@@ -7,22 +7,19 @@ import { Comment } from './comment.entity';
 
 @Injectable()
 export class CommentService {
-  async create(authorId: Uuid, dto: CreateCommentDto) {
+  async create(authorId: Uuid, postId: Uuid, dto: CreateCommentDto) {
     const [author, post] = await Promise.all([
       User.findOneByOrFail({ id: authorId }),
-      Post.findOneByOrFail({ id: dto.postId }),
+      Post.findOneByOrFail({ id: postId }),
     ]);
     return await Comment.save(new Comment({ ...dto, author, post }));
   }
 
   async findAll(postId: Uuid) {
+    const found = await Post.findOneByOrFail({ id: postId });
     return await Comment.find({
-      where: { post: await Post.findOneByOrFail({ id: postId }) },
-      // relations: {
-      //   author: true,
-      //   post: true,
-      // },
-      order: { createdAt: 'ASC' },
+      where: { post: { id: found.id } },
+      order: { createdAt: 'DESC' },
     });
   }
 

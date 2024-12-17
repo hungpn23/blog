@@ -1,11 +1,14 @@
 import { ParseFilePipeBuilder } from '@nestjs/common';
 
-export function validateImagePipe(
-  fileType: string | RegExp = /(jpeg|jpg|png)/,
-  maxSize: number = 3 * 1000 * 1000, // 3 mb
-) {
+type ValidateOptions = {
+  required?: boolean;
+  fileType?: string | RegExp;
+  maxSize?: number;
+};
+
+export function validateImagePipe(options?: ValidateOptions) {
   return new ParseFilePipeBuilder()
-    .addFileTypeValidator({ fileType })
-    .addMaxSizeValidator({ maxSize })
-    .build();
+    .addFileTypeValidator({ fileType: options?.fileType ?? /(jpeg|jpg|png)/ })
+    .addMaxSizeValidator({ maxSize: options?.maxSize ?? 3 * 1000 * 1000 })
+    .build({ fileIsRequired: options?.required ?? true });
 }

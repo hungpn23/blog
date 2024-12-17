@@ -43,6 +43,12 @@ export function ApiEndpoint(options: EndpointOptions = {}): MethodDecorator {
 
   const decorators: MethodDecorator[] = [];
 
+  // runtime
+  decorators.push(SerializeOptions({ type: options?.type }));
+  decorators.push(HttpCode(statusCode));
+
+  // documentation
+
   // TODO: markdown description https://trilon.io/blog/nestjs-swagger-tips-tricks
   if (options?.summary)
     decorators.push(ApiOperation({ summary: options?.summary }));
@@ -68,9 +74,6 @@ export function ApiEndpoint(options: EndpointOptions = {}): MethodDecorator {
           description,
         }),
   );
-
-  decorators.push(SerializeOptions({ type: options?.type }));
-  decorators.push(HttpCode(statusCode));
 
   handleErrorResponse(options?.errorStatusCodes, options?.isPublic).forEach(
     (statusCode) => {

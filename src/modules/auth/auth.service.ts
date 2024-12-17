@@ -43,7 +43,7 @@ export class AuthService {
     if (!isValid) throw new AuthException(AuthError.V02);
 
     const signature = this.createSignature();
-    const session = new Session({ signature });
+    const session = new Session({ signature, user });
     await Session.save(session);
 
     const [accessToken, refreshToken] = await Promise.all([
@@ -70,7 +70,12 @@ export class AuthService {
 
   async refreshToken(payload: JwtRefreshPayloadType) {
     const { sessionId, signature } = payload;
-    const session = await Session.findOneBy({ id: sessionId });
+    const session = await Session.findOneOrFail({
+      where: { id: sessionId },
+      relations: { user: true },
+      select: { id: true, signature: true, user: { id: true } },
+    });
+    console.log('🚀 ~ AuthService ~ refreshToken ~ session:', session);
 
     if (!session || session.signature !== signature)
       throw new UnauthorizedException();

@@ -40,11 +40,11 @@ export class Post extends AbstractEntity {
   @OneToMany(() => Comment, (comment) => comment.post, { cascade: true })
   comments: Relation<Comment[]>;
 
-  @ManyToOne(() => User, (user) => user.posts)
+  @ManyToOne(() => User, (user) => user.posts, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'author_id', referencedColumnName: 'id' })
   author: Relation<User>;
 
-  @ManyToOne(() => Topic, (topic) => topic.posts)
+  @ManyToOne(() => Topic, (topic) => topic.posts, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'topic_id', referencedColumnName: 'id' })
   topic: Relation<Topic>;
 }

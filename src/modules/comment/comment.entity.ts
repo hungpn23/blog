@@ -28,11 +28,11 @@ export class Comment extends AbstractEntity {
   @Column('text')
   content: string;
 
-  @ManyToOne(() => Post, (post) => post.comments)
+  @ManyToOne(() => Post, (post) => post.comments, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'post_id', referencedColumnName: 'id' })
   post: Relation<Post>;
 
-  @ManyToOne(() => User, (author) => author.comments)
+  @ManyToOne(() => User, (author) => author.comments, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'author_id', referencedColumnName: 'id' })
   author: Relation<User>;
 }

@@ -63,8 +63,8 @@ export class PostService {
     );
   }
 
-  async remove(id: Uuid) {
-    const found = await Post.findOneByOrFail({ id });
+  async remove(postId: Uuid) {
+    const found = await Post.findOneByOrFail({ id: postId });
     return await Post.remove(found);
   }
 }

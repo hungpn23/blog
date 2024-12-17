@@ -22,13 +22,16 @@ export class CommentController {
   @ApiEndpoint({
     type: Comment,
     summary: 'create a new comment',
+    params: [{ name: 'postId' }],
   })
-  @Post()
+  @Post(':postId')
   async create(
     @JwtPayload() { userId }: JwtPayloadType,
-    @Body() dto: CreateCommentDto,
+    @Param('postId') postId: Uuid,
+    @Body()
+    dto: CreateCommentDto,
   ) {
-    return await this.commentService.create(userId, dto);
+    return await this.commentService.create(userId, postId, dto);
   }
 
   @ApiEndpoint({
@@ -37,8 +40,8 @@ export class CommentController {
     params: [{ name: 'postId' }],
   })
   @Get(':postId')
-  findAll(@Param('postId') postId: Uuid) {
-    return this.commentService.findAll(postId);
+  async findAll(@Param('postId') postId: Uuid) {
+    return await this.commentService.findAll(postId);
   }
 
   @ApiEndpoint({
@@ -47,12 +50,16 @@ export class CommentController {
     params: [{ name: 'commentId' }],
   })
   @Patch(':commentId')
-  update(
+  async update(
     @JwtPayload() { userId }: JwtPayloadType,
     @Param('commentId') commentId: Uuid,
     @Body() updateCommentDto: UpdateCommentDto,
   ) {
-    return this.commentService.update(userId, commentId, updateCommentDto);
+    return await this.commentService.update(
+      userId,
+      commentId,
+      updateCommentDto,
+    );
   }
 
   @ApiEndpoint({
@@ -61,7 +68,7 @@ export class CommentController {
     params: [{ name: 'commentId' }],
   })
   @Delete(':commentId')
-  remove(@Param('commentId') commentId: Uuid) {
-    return this.commentService.remove(commentId);
+  async remove(@Param('commentId') commentId: Uuid) {
+    return await this.commentService.remove(commentId);
   }
 }

@@ -63,7 +63,7 @@ export function NumberDecorators(options?: NumberOptions): PropertyDecorator {
 }
 
 export function StringDecorators(options?: StringOptions): PropertyDecorator {
-  let decorators = [Type(() => String), IsString({ each: options.isArray })];
+  let decorators = [Type(() => String), IsString({ each: options?.isArray })];
 
   decorators = checkCommonOptions(decorators, options);
   decorators.push(
@@ -163,12 +163,12 @@ function checkCommonOptions(
   options?: CommonOptions,
 ) {
   if (options?.required === false)
-    decorators.push(IsOptional({ each: options.isArray }));
+    decorators.push(IsOptional({ each: options?.isArray }));
 
   decorators.push(
-    options.nullable
-      ? Nullable({ each: options.isArray })
-      : NotEquals(null, { each: options.isArray }),
+    options?.nullable
+      ? Nullable({ each: options?.isArray })
+      : NotEquals(null, { each: options?.isArray }),
   );
 
   return decorators;

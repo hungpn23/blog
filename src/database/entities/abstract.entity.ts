@@ -14,20 +14,11 @@ import { ColumnMetadata } from 'typeorm/metadata/ColumnMetadata';
 
 export abstract class AbstractEntity extends BaseEntity {
   @Order(9998)
-  @CreateDateColumn({
-    name: 'created_at',
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP(6)',
-  })
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
   @Order(9998)
-  @UpdateDateColumn({
-    name: 'updated_at',
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP(6)',
-    onUpdate: 'CURRENT_TIMESTAMP(6)',
-  })
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
   @Order(9998)
@@ -71,7 +62,6 @@ export abstract class DeletableAbstractEntity extends AbstractEntity {
   @Order(9999)
   @DeleteDateColumn({
     name: 'deleted_at',
-    type: 'timestamp',
     default: null,
   })
   deletedAt: Date;
