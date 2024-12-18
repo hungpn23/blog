@@ -6,9 +6,9 @@ import {
   ThrottlerOptionsFactory,
 } from '@nestjs/throttler';
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
-import { IncomingMessage, ServerResponse } from 'http';
 import { MysqlConnectionOptions } from 'typeorm/driver/mysql/MysqlConnectionOptions';
 
+// TODO: split into small configuration files and validate input.
 @Injectable()
 export class AppConfig
   implements ThrottlerOptionsFactory, TypeOrmOptionsFactory
@@ -67,7 +67,7 @@ export class AppConfig
       },
       synchronize: this.configService.getOrThrow('database.synchronize'),
       logging: this.configService.getOrThrow('database.logging'),
-      timezone: 'Z',
+      timezone: this.configService.getOrThrow('database.timezone'),
       entities: [__dirname + '/../**/*.entity{.ts,.js}'],
       migrations: [__dirname + '/../**/migrations/**/*.{.ts,.js}'],
     } as MysqlConnectionOptions as TypeOrmModuleOptions;
@@ -76,36 +76,32 @@ export class AppConfig
   static loggerFactory() {
     return {
       pinoHttp: {
-        messageKey: 'msg',
-
         transport: {
           target: 'pino-pretty',
           options: {
-            colorize: true,
-            ignore:
-              'req.id,req.method,req.url,req.headers,req.remoteAddress,req.remotePort,res.headers',
+            ignore: 'req.headers,res.headers',
           },
         },
 
-        customReceivedMessage: (req: IncomingMessage) => {
-          return `[${req.id || '*'}] "${req.method} ${req.headers['host']}${req.url} "`;
-        },
+        // customReceivedMessage: (req: IncomingMessage) => {
+        //   return `[${req.id || '*'}] "${req.method} ${req.headers['host']}${req.url} "`;
+        // },
 
-        customSuccessMessage: (
-          _req: IncomingMessage,
-          res: ServerResponse<IncomingMessage>,
-          responseTime: number,
-        ) => {
-          return `${res.statusCode} - ${responseTime} ms`;
-        },
+        // customSuccessMessage: (
+        //   _req: IncomingMessage,
+        //   res: ServerResponse<IncomingMessage>,
+        //   responseTime: number,
+        // ) => {
+        //   return `${res.statusCode} - ${responseTime} ms`;
+        // },
 
-        customErrorMessage: (
-          _req: IncomingMessage,
-          res: ServerResponse<IncomingMessage>,
-          err: Error,
-        ) => {
-          return `${res.statusCode} - ERROR: ${err.message}`;
-        },
+        // customErrorMessage: (
+        //   _req: IncomingMessage,
+        //   res: ServerResponse<IncomingMessage>,
+        //   err: Error,
+        // ) => {
+        //   return `${res.statusCode} - ERROR: ${err.message}`;
+        // },
       },
     };
   }

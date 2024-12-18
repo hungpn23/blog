@@ -37,8 +37,9 @@ export default () => ({
         },
       ],
     },
-    synchronize: process.env.DATABASE_SYNCHRONIZE === 'true',
     logging: process.env.DATABASE_LOGGING === 'true',
+    synchronize: process.env.DATABASE_SYNCHRONIZE === 'true',
+    timezone: process.env.DATABASE_TIMEZONE,
   } as TypeOrmModuleOptions as MysqlConnectionOptions,
 
   auth: {

@@ -51,7 +51,7 @@ export class AuthController {
     return await this.authService.refreshToken(payload);
   }
 
-  // TODO -------------------------------------
+  // TODO auth api
 
   @ApiExcludeEndpoint()
   @Post('forgot-password')

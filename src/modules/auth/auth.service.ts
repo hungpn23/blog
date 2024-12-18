@@ -117,7 +117,7 @@ export class AuthService {
         secret: this.configService.getOrThrow<string>('auth.refreshSecret'),
       });
     } catch (error) {
-      // TODO: force logout user
+      // TODO: force logout user (xoá hết sessions)
       throw new UnauthorizedException();
     }
   }

@@ -24,9 +24,9 @@ export const dataSource = new DataSource({
     ],
   },
 
-  logging: process.env.DATABASE_LOGGING,
   synchronize: process.env.DATABASE_SYNCHRONIZE === 'true',
-  dropSchema: process.env.DATABASE_DROPSCHEMA === 'true',
+  logging: process.env.DATABASE_LOGGING,
+  timezone: process.env.DATABASE_TIMEZONE,
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
   migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
   namingStrategy: new DatabaseNamingStrategy(),
