@@ -2,7 +2,7 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import process from 'node:process';
 import { MysqlConnectionOptions } from 'typeorm/driver/mysql/MysqlConnectionOptions';
 
-export default () => ({
+export const configFactory = () => ({
   app: {
     port: +process.env.APP_PORT,
     url: process.env.APP_URL,

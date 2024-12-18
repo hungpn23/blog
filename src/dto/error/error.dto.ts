@@ -1,4 +1,4 @@
-import { ApiHideProperty, OmitType } from '@nestjs/swagger';
+import { OmitType } from '@nestjs/swagger';
 import { ErrorDetailDto } from './error-detail.dto';
 
 export class ErrorDto {
@@ -6,9 +6,6 @@ export class ErrorDto {
   message: string;
   timestamp: string;
   details?: ErrorDetailDto[];
-
-  @ApiHideProperty()
-  stack?: string;
 }
 
 export class CommonErrorDto extends OmitType(ErrorDto, ['details']) {}

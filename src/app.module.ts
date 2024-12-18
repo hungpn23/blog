@@ -1,4 +1,3 @@
-import configuration from '@/configs/configuration';
 import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -7,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { LoggerModule } from 'nestjs-pino';
 import { DataSource } from 'typeorm';
 import { AppConfig } from './configs/app.config';
+import { configFactory } from './configs/configuration';
 import { DatabaseNamingStrategy } from './database/name-strategy';
 import { Modules as ApiModule } from './modules';
 
@@ -15,7 +15,7 @@ import { Modules as ApiModule } from './modules';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env'],
-      load: [configuration],
+      load: [configFactory],
     }),
 
     TypeOrmModule.forRootAsync({
@@ -31,9 +31,7 @@ import { Modules as ApiModule } from './modules';
       },
     }),
 
-    LoggerModule.forRootAsync({
-      useFactory: AppConfig.loggerFactory,
-    }),
+    LoggerModule.forRoot(AppConfig.getPinoParams()),
 
     ThrottlerModule.forRootAsync({ useClass: AppConfig }),
 

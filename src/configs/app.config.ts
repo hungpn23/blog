@@ -6,6 +6,8 @@ import {
   ThrottlerOptionsFactory,
 } from '@nestjs/throttler';
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
+import { IncomingMessage, ServerResponse } from 'http';
+import { Params } from 'nestjs-pino';
 import { MysqlConnectionOptions } from 'typeorm/driver/mysql/MysqlConnectionOptions';
 
 // TODO: split into small configuration files and validate input.
@@ -73,35 +75,28 @@ export class AppConfig
     } as MysqlConnectionOptions as TypeOrmModuleOptions;
   }
 
-  static loggerFactory() {
+  static getPinoParams(): Params {
     return {
       pinoHttp: {
         transport: {
           target: 'pino-pretty',
           options: {
-            ignore: 'req.headers,res.headers',
+            ignore: 'req,res,responseTime,context',
+            singleLine: true,
           },
         },
 
-        // customReceivedMessage: (req: IncomingMessage) => {
-        //   return `[${req.id || '*'}] "${req.method} ${req.headers['host']}${req.url} "`;
-        // },
+        customReceivedMessage: (req: IncomingMessage) => {
+          return `REQUEST(${req.id}) ${req.method} ${req.headers['host']}${req.url}`;
+        },
 
-        // customSuccessMessage: (
-        //   _req: IncomingMessage,
-        //   res: ServerResponse<IncomingMessage>,
-        //   responseTime: number,
-        // ) => {
-        //   return `${res.statusCode} - ${responseTime} ms`;
-        // },
-
-        // customErrorMessage: (
-        //   _req: IncomingMessage,
-        //   res: ServerResponse<IncomingMessage>,
-        //   err: Error,
-        // ) => {
-        //   return `${res.statusCode} - ERROR: ${err.message}`;
-        // },
+        customSuccessMessage: (
+          req: IncomingMessage,
+          res: ServerResponse<IncomingMessage>,
+          responseTime: number,
+        ) => {
+          return `RESPONSE(${req.id}) ${res.statusCode} - ${responseTime} ms`;
+        },
       },
     };
   }

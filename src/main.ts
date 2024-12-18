@@ -20,7 +20,7 @@ import { secureApiDocs } from './utils/secure-docs';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    bufferLogs: true,
+    bufferLogs: true, // buffering logs before nestjs-pino logger ready
   });
   const configService = app.get(ConfigService);
 
@@ -35,7 +35,8 @@ async function bootstrap() {
   });
 
   // ================= apply global components & logger  =================
-  app.useLogger(app.get(Logger));
+  const logger = app.get(Logger);
+  app.useLogger(logger);
 
   app.setGlobalPrefix(configService.getOrThrow('app.prefix'));
 
@@ -67,7 +68,9 @@ async function bootstrap() {
 
   // ================= start app =================
   await app.listen(configService.getOrThrow('app.port'));
-  console.info(`App is running on: ${configService.getOrThrow('app.url')}`);
+  logger.log(
+    `🚀🚀🚀 App is running on: ${configService.getOrThrow('app.url')}`,
+  );
 }
 
 void bootstrap();

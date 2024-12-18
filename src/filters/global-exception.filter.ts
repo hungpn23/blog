@@ -15,6 +15,7 @@ import {
 import { Response } from 'express';
 import { EntityNotFoundError, QueryFailedError } from 'typeorm';
 
+// ** handle all exceptions and log them to debug **
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(GlobalExceptionFilter.name);
@@ -25,7 +26,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     let error: ErrorDto;
 
-    this.logger.debug('exception::::::', exception);
+    this.logger.error(exception);
 
     if (exception instanceof UnprocessableEntityException) {
       // this exception is thrown from main.ts (ValidationPipe)
