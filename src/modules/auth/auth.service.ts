@@ -1,3 +1,4 @@
+import { AuthEnvVariables } from '@/configs/auth.config';
 import { AuthError } from '@/constants/index';
 import { AuthException } from '@/exceptions/auth.exception';
 import { type Uuid } from '@/types/branded.type';
@@ -16,7 +17,7 @@ import { JwtPayloadType, JwtRefreshPayloadType } from './auth.type';
 @Injectable()
 export class AuthService {
   constructor(
-    private configService: ConfigService,
+    private configService: ConfigService<AuthEnvVariables>,
     private jwtService: JwtService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
@@ -96,15 +97,14 @@ export class AuthService {
     let payload: JwtPayloadType;
     try {
       payload = this.jwtService.verify(accessToken, {
-        secret: this.configService.getOrThrow<string>('auth.secret'),
+        secret: this.configService.get('AUTH_JWT_SECRET'),
       });
     } catch (error) {
       throw new UnauthorizedException();
     }
 
     const cacheKey = `SESSION_BLACKLIST:${payload.userId}:${payload.sessionId}`;
-    const isSessionBlacklisted =
-      await this.cacheManager.store.get<boolean>(cacheKey);
+    const isSessionBlacklisted = await this.cacheManager.store.get(cacheKey);
     // TODO: Force logout if the session is in the blacklist !
     if (isSessionBlacklisted) throw new AuthException(AuthError.E03);
 
@@ -114,7 +114,7 @@ export class AuthService {
   verifyRefreshToken(refreshToken: string): JwtRefreshPayloadType {
     try {
       return this.jwtService.verify(refreshToken, {
-        secret: this.configService.getOrThrow<string>('auth.refreshSecret'),
+        secret: this.configService.get('AUTH_REFRESH_SECRET'),
       });
     } catch (error) {
       // TODO: force logout user (xoá hết sessions)
@@ -133,8 +133,8 @@ export class AuthService {
     return await this.jwtService.signAsync(
       { userId: data.userId, sessionId: data.sessionId },
       {
-        secret: this.configService.getOrThrow<string>('auth.secret'),
-        expiresIn: this.configService.getOrThrow<string>('auth.expiresIn'),
+        secret: this.configService.get('AUTH_JWT_SECRET'),
+        expiresIn: this.configService.get('AUTH_JWT_TOKEN_EXPIRES_IN'),
       },
     );
   }
@@ -146,10 +146,8 @@ export class AuthService {
     return await this.jwtService.signAsync(
       { sessionId: data.sessionId, signature: data.signature },
       {
-        secret: this.configService.getOrThrow<string>('auth.refreshSecret'),
-        expiresIn: this.configService.getOrThrow<string>(
-          'auth.refreshExpiresIn',
-        ),
+        secret: this.configService.get('AUTH_REFRESH_SECRET'),
+        expiresIn: this.configService.get('AUTH_REFRESH_TOKEN_EXPIRES_IN'),
       },
     );
   }
