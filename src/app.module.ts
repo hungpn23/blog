@@ -1,13 +1,16 @@
 import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { IncomingMessage, ServerResponse } from 'http';
 import { LoggerModule } from 'nestjs-pino';
 import { DataSource } from 'typeorm';
-import { AppConfig } from './configs/app.config';
-import { configFactory } from './configs/configuration';
+import appConfig from './configs/app.config';
+import databaseConfig from './configs/database.config';
+import { ThrottlerEnvVariables } from './configs/throttler.config';
 import { DatabaseNamingStrategy } from './database/name-strategy';
+import { TypeOrmConfigService } from './database/typeorm-config.service';
 import { Modules as ApiModule } from './modules';
 
 @Module({
@@ -15,12 +18,14 @@ import { Modules as ApiModule } from './modules';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env'],
-      load: [configFactory],
+      load: [appConfig, databaseConfig],
+      cache: true, // speed up the loading process
+      expandVariables: true, // expand variables in .env file
     }),
 
     TypeOrmModule.forRootAsync({
       // configure the DataSourceOptions.
-      useClass: AppConfig,
+      useClass: TypeOrmConfigService,
       dataSourceFactory: async (options) => {
         if (!options) throw new Error('Invalid DataSourceOptions value');
 
@@ -31,9 +36,40 @@ import { Modules as ApiModule } from './modules';
       },
     }),
 
-    LoggerModule.forRoot(AppConfig.getPinoParams()),
+    LoggerModule.forRoot({
+      pinoHttp: {
+        transport: {
+          target: 'pino-pretty',
+          options: {
+            ignore: 'req,res,responseTime,context',
+            singleLine: true,
+          },
+        },
 
-    ThrottlerModule.forRootAsync({ useClass: AppConfig }),
+        customReceivedMessage: (req: IncomingMessage) => {
+          return `REQUEST(${req.id}) ${req.method} ${req.headers['host']}${req.url}`;
+        },
+
+        customSuccessMessage: (
+          req: IncomingMessage,
+          res: ServerResponse<IncomingMessage>,
+          responseTime: number,
+        ) => {
+          return `RESPONSE(${req.id}) ${res.statusCode} - ${responseTime} ms`;
+        },
+      },
+    }),
+
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService<ThrottlerEnvVariables>) => [
+        {
+          ttl: configService.get('THROTTLER_TTL_IN_SECONDS'),
+          limit: configService.get('THROTTLER_LIMIT'),
+        },
+      ],
+    }),
 
     CacheModule.register({ isGlobal: true }),
 

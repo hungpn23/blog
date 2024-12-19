@@ -4,6 +4,7 @@ import {
   UnprocessableEntityException,
   ValidationError,
   ValidationPipe,
+  VersioningType,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory, Reflector } from '@nestjs/core';
@@ -12,6 +13,7 @@ import compression from 'compression';
 import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module';
+import { AppEnvVariables } from './configs/app.config';
 import swaggerConfig from './configs/swagger.config';
 import { GlobalExceptionFilter } from './filters/global-exception.filter';
 import { AuthGuard } from './modules/auth/auth.guard';
@@ -22,23 +24,27 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bufferLogs: true, // buffering logs before nestjs-pino logger ready
   });
-  const configService = app.get(ConfigService);
+  const configService = app.get(ConfigService<AppEnvVariables, true>);
 
   // ================= middlewares =================
   app.use(helmet());
   app.use(compression());
+
+  // ================= configs =================
+  const appUrl = configService.get('APP_URL');
   app.enableCors({
-    origin: configService.getOrThrow<string>('cors.origin'),
-    methods: configService.getOrThrow<string>('cors.methods'),
-    allowedHeaders: configService.getOrThrow<string>('cors.allowedHeaders'),
-    credentials: configService.getOrThrow<boolean>('cors.credentials'),
+    origin: [appUrl, 'http://localhost:5173'],
+    methods: ['GET', 'PUT', 'PATCH', 'POST', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
   });
+  app.enableVersioning({ type: VersioningType.URI });
 
   // ================= apply global components & logger  =================
   const logger = app.get(Logger);
   app.useLogger(logger);
 
-  app.setGlobalPrefix(configService.getOrThrow('app.prefix'));
+  app.setGlobalPrefix(configService.get('APP_PREFIX'));
 
   app.useGlobalGuards(new AuthGuard(app.get(Reflector), app.get(AuthService)));
 
@@ -67,10 +73,8 @@ async function bootstrap() {
   await swaggerConfig(app, configService);
 
   // ================= start app =================
-  await app.listen(configService.getOrThrow('app.port'));
-  logger.log(
-    `🚀🚀🚀 App is running on: ${configService.getOrThrow('app.url')}`,
-  );
+  await app.listen(configService.get('APP_PORT'));
+  logger.log(`🚀🚀🚀 App is running on: ${appUrl}`);
 }
 
 void bootstrap();

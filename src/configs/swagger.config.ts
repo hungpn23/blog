@@ -2,19 +2,23 @@ import metadata from '@/metadata';
 import { INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { AppEnvVariables } from './app.config';
 
 export default async function swaggerConfig(
   app: INestApplication,
-  configService: ConfigService,
+  configService: ConfigService<AppEnvVariables>,
 ) {
   await SwaggerModule.loadPluginMetadata(metadata);
 
-  const appName = configService.getOrThrow<string>('app.name');
+  const appName = configService.get('APP_NAME', { infer: true });
 
   const config = new DocumentBuilder()
     .setTitle(appName)
     .setDescription(`### A blog api documentation using NestJS `)
-    .addServer(configService.getOrThrow('app.url'), 'Application Server')
+    .addServer(
+      configService.get('APP_URL', { infer: true }),
+      'Application Server',
+    )
     .addBearerAuth()
     .build();
 
@@ -22,7 +26,7 @@ export default async function swaggerConfig(
 
   SwaggerModule.setup('api-docs', app, document, {
     customSiteTitle: appName,
-    customJs: '/swagger-custom.js',
+    // customJs: '/swagger-custom.js',
     swaggerOptions: {
       // https://trilon.io/blog/nestjs-swagger-tips-tricks#preauth-alternatives
       persistAuthorization: true,

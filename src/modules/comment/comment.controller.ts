@@ -15,7 +15,10 @@ import { CreateCommentDto, UpdateCommentDto } from './comment.dto';
 import { Comment } from './comment.entity';
 import { CommentService } from './comment.service';
 
-@Controller('comment')
+@Controller({
+  path: 'comment',
+  version: '1',
+})
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 

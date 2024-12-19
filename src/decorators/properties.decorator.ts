@@ -1,24 +1,24 @@
 import { applyDecorators } from '@nestjs/common';
 import { Type } from 'class-transformer';
 import {
+  IsBoolean,
+  IsDefined,
   IsEnum,
   IsInt,
   IsNumber,
   IsOptional,
   IsPositive,
   IsString,
+  IsUrl,
   Max,
   MaxLength,
   Min,
   MinLength,
-  NotEquals,
 } from 'class-validator';
-import { ToLowerCase, ToUpperCase } from './transforms.decorator';
-import { Nullable } from './validators/nullable.decorator';
+import { ToBoolean, ToLowerCase, ToUpperCase } from './transforms.decorator';
 
 type CommonOptions = {
   isArray?: boolean; // to check if prop is an array & to validate each items in array
-  nullable?: boolean;
   required?: boolean;
 };
 
@@ -36,33 +36,37 @@ type StringOptions = CommonOptions & {
   toUpperCase?: boolean;
 };
 
-export function NumberDecorators(options?: NumberOptions): PropertyDecorator {
+type UrlOptions = CommonOptions & {
+  require_tld?: boolean;
+};
+
+export function NumberValidators(options?: NumberOptions): PropertyDecorator {
   let decorators = [Type(() => Number)];
 
   decorators = checkCommonOptions(decorators, options);
 
   decorators.push(
     options?.isInt
-      ? IsInt({ each: options.isArray })
-      : IsNumber({}, { each: options.isArray }),
+      ? IsInt({ each: options?.isArray })
+      : IsNumber({}, { each: options?.isArray }),
   );
 
   if (options?.min) {
-    decorators.push(Min(options.min, { each: options.isArray }));
+    decorators.push(Min(options?.min, { each: options?.isArray }));
   }
 
   if (options?.max) {
-    decorators.push(Max(options.max, { each: options.isArray }));
+    decorators.push(Max(options?.max, { each: options?.isArray }));
   }
 
   if (options?.isPositive) {
-    decorators.push(IsPositive({ each: options.isArray }));
+    decorators.push(IsPositive({ each: options?.isArray }));
   }
 
   return applyDecorators(...decorators);
 }
 
-export function StringDecorators(options?: StringOptions): PropertyDecorator {
+export function StringValidators(options?: StringOptions): PropertyDecorator {
   let decorators = [Type(() => String), IsString({ each: options?.isArray })];
 
   decorators = checkCommonOptions(decorators, options);
@@ -76,6 +80,20 @@ export function StringDecorators(options?: StringOptions): PropertyDecorator {
   if (options?.toLowerCase) decorators.push(ToLowerCase());
 
   if (options?.toUpperCase) decorators.push(ToUpperCase());
+
+  return applyDecorators(...decorators);
+}
+
+export function UrlValidators(
+  options?: CommonOptions & UrlOptions,
+): PropertyDecorator {
+  let decorators = [
+    Type(() => String),
+    IsString({ each: options?.isArray }),
+    IsUrl({ require_tld: options?.require_tld }, { each: options?.isArray }),
+  ];
+
+  decorators = checkCommonOptions(decorators, options);
 
   return applyDecorators(...decorators);
 }
@@ -94,7 +112,7 @@ export function StringDecorators(options?: StringOptions): PropertyDecorator {
 //   options?: StringOptions,
 // ): PropertyDecorator {
 //   let decorators = [
-//     StringDecorators({ ...options, minLength: 6 }),
+//     StringValidators({ ...options, minLength: 6 }),
 //     IsPassword(),
 //   ];
 
@@ -103,22 +121,20 @@ export function StringDecorators(options?: StringOptions): PropertyDecorator {
 //   return applyDecorators(...decorators);
 // }
 
-// export function BooleanDecorators(
-//   options?: StringOptions,
-// ): PropertyDecorator {
-//   let decorators = [ToBoolean(), IsBoolean()];
+export function BooleanValidators(options?: CommonOptions): PropertyDecorator {
+  let decorators = [ToBoolean(), IsBoolean({ each: options?.isArray })];
 
-//   decorators = checkCommonOptions(decorators, options);
+  decorators = checkCommonOptions(decorators, options);
 
-//   return applyDecorators(...decorators);
-// }
+  return applyDecorators(...decorators);
+}
 
 // export function EmailDecorators(
 //   options?: StringOptions,
 // ): PropertyDecorator {
 //   let decorators = [
 //     IsEmail(),
-//     StringDecorators({ toLowerCase: true, ...options }),
+//     StringValidators({ toLowerCase: true, ...options }),
 //   ];
 
 //   decorators = checkCommonOptions(decorators, options);
@@ -136,7 +152,7 @@ export function StringDecorators(options?: StringOptions): PropertyDecorator {
 //   return applyDecorators(...decorators);
 // }
 
-export function EnumDecorators(
+export function EnumValidators(
   entity: object,
   options?: CommonOptions,
 ): PropertyDecorator {
@@ -162,14 +178,9 @@ function checkCommonOptions(
   decorators: PropertyDecorator[],
   options?: CommonOptions,
 ) {
-  if (options?.required === false)
-    decorators.push(IsOptional({ each: options?.isArray }));
-
-  decorators.push(
-    options?.nullable
-      ? Nullable({ each: options?.isArray })
-      : NotEquals(null, { each: options?.isArray }),
-  );
+  options?.required === false
+    ? decorators.push(IsOptional({ each: options?.isArray }))
+    : decorators.push(IsDefined({ each: options?.isArray }));
 
   return decorators;
 }

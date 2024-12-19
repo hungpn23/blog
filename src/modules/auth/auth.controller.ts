@@ -12,7 +12,10 @@ import {
 import { AuthService } from './auth.service';
 import { JwtPayloadType, JwtRefreshPayloadType } from './auth.type';
 
-@Controller('/auth')
+@Controller({
+  path: 'auth',
+  version: '1',
+})
 export class AuthController {
   constructor(private authService: AuthService) {}
 

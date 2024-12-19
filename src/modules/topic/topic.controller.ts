@@ -16,7 +16,10 @@ import { CreateTopicDto, UpdateTopicDto } from './topic.dto';
 import { Topic } from './topic.entity';
 import { TopicService } from './topic.service';
 
-@Controller('topic')
+@Controller({
+  path: 'topic',
+  version: '1',
+})
 export class TopicController {
   constructor(private topicService: TopicService) {}
 

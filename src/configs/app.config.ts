@@ -1,103 +1,40 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Environment } from '@/constants';
 import {
-  seconds,
-  ThrottlerOptions,
-  ThrottlerOptionsFactory,
-} from '@nestjs/throttler';
-import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
-import { IncomingMessage, ServerResponse } from 'http';
-import { Params } from 'nestjs-pino';
-import { MysqlConnectionOptions } from 'typeorm/driver/mysql/MysqlConnectionOptions';
+  EnumValidators,
+  NumberValidators,
+  StringValidators,
+  UrlValidators,
+} from '@/decorators/properties.decorator';
+import { validateConfig } from '@/utils/validate-config';
+import { registerAs } from '@nestjs/config';
+import process from 'node:process';
 
-// TODO: split into small configuration files and validate input.
-@Injectable()
-export class AppConfig
-  implements ThrottlerOptionsFactory, TypeOrmOptionsFactory
-{
-  constructor(private configService: ConfigService) {}
+export class AppEnvVariables {
+  @EnumValidators(Environment)
+  NODE_ENV: Environment;
 
-  createThrottlerOptions() {
-    return [
-      {
-        ttl: seconds(this.configService.getOrThrow<number>('throttler.ttl')),
-        limit: this.configService.getOrThrow<number>('throttler.limit'),
-      },
-    ] as Array<ThrottlerOptions>;
-  }
+  @StringValidators()
+  APP_NAME: string;
 
-  createTypeOrmOptions() {
-    return {
-      type: this.configService.getOrThrow('database.type'),
-      replication: {
-        master: {
-          host: this.configService.getOrThrow(
-            'database.replication.master.host',
-          ),
-          port: this.configService.getOrThrow(
-            'database.replication.master.port',
-          ),
-          username: this.configService.getOrThrow(
-            'database.replication.master.username',
-          ),
-          password: this.configService.getOrThrow(
-            'database.replication.master.password',
-          ),
-          database: this.configService.getOrThrow(
-            'database.replication.master.database',
-          ),
-        },
-        slaves: [
-          {
-            host: this.configService.getOrThrow(
-              'database.replication.slaves[0].host',
-            ),
-            port: this.configService.getOrThrow(
-              'database.replication.slaves[0].port',
-            ),
-            username: this.configService.getOrThrow(
-              'database.replication.slaves[0].username',
-            ),
-            password: this.configService.getOrThrow(
-              'database.replication.slaves[0].password',
-            ),
-            database: this.configService.getOrThrow(
-              'database.replication.slaves[0].database',
-            ),
-          },
-        ],
-      },
-      synchronize: this.configService.getOrThrow('database.synchronize'),
-      logging: this.configService.getOrThrow('database.logging'),
-      timezone: this.configService.getOrThrow('database.timezone'),
-      entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-      migrations: [__dirname + '/../**/migrations/**/*.{.ts,.js}'],
-    } as MysqlConnectionOptions as TypeOrmModuleOptions;
-  }
+  @NumberValidators({ isInt: true, min: 1, max: 65535 })
+  APP_PORT: number;
 
-  static getPinoParams(): Params {
-    return {
-      pinoHttp: {
-        transport: {
-          target: 'pino-pretty',
-          options: {
-            ignore: 'req,res,responseTime,context',
-            singleLine: true,
-          },
-        },
+  @UrlValidators({ require_tld: false }) // to allow localhost
+  APP_URL: string;
 
-        customReceivedMessage: (req: IncomingMessage) => {
-          return `REQUEST(${req.id}) ${req.method} ${req.headers['host']}${req.url}`;
-        },
-
-        customSuccessMessage: (
-          req: IncomingMessage,
-          res: ServerResponse<IncomingMessage>,
-          responseTime: number,
-        ) => {
-          return `RESPONSE(${req.id}) ${res.statusCode} - ${responseTime} ms`;
-        },
-      },
-    };
-  }
+  @StringValidators()
+  APP_PREFIX: string;
 }
+
+// config namespace
+export default registerAs<AppEnvVariables>('app', () => {
+  validateConfig(process.env, AppEnvVariables);
+
+  return {
+    NODE_ENV: process.env.NODE_ENV as Environment,
+    APP_NAME: process.env.APP_NAME,
+    APP_PORT: +process.env.APP_PORT as number,
+    APP_URL: process.env.APP_URL,
+    APP_PREFIX: process.env.API_PREFIX,
+  };
+});

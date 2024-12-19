@@ -22,7 +22,10 @@ import { CreatePostDto, UpdatePostDto } from './post.dto';
 import { Post as PostEntity } from './post.entity';
 import { PostService } from './post.service';
 
-@Controller('post')
+@Controller({
+  path: 'post',
+  version: '1',
+})
 export class PostController {
   constructor(private postService: PostService) {}
 

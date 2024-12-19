@@ -1,7 +1,7 @@
-import { StringDecorators } from '@/decorators/properties.decorator';
+import { StringValidators } from '@/decorators/properties.decorator';
 
 export class CreateCommentDto {
-  @StringDecorators()
+  @StringValidators()
   content: string;
 }
 

@@ -2,15 +2,15 @@ export const SYSTEM = 'system';
 export const IS_PUBLIC_KEY = 'isPublic';
 export const IS_REFRESH_TOKEN_KEY = 'isRefreshToken';
 
+export enum Environment {
+  DEVELOPMENT = 'development',
+  PRODUCTION = 'production',
+}
+
 // TODO: authorization
 export enum Role {
   User = 'user',
   Admin = 'admin',
-}
-
-export enum ProductStatus {
-  Available = 'available',
-  Unavailable = 'unavailable',
 }
 
 export enum AuthError {
@@ -36,5 +36,5 @@ export enum Order {
   DESC = 'DESC',
 }
 
-export const DEFAULT_PAGE_LIMIT = 10;
 export const DEFAULT_CURRENT_PAGE = 1;
+export const DEFAULT_PAGE_LIMIT = 10;
