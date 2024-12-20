@@ -1,7 +1,7 @@
 import { Role } from '@/constants';
 import { AbstractEntity } from '@/database/entities/abstract.entity';
-import { Comment } from '@/modules/comment/comment.entity';
-import { Post } from '@/modules/post/post.entity';
+import { CommentEntity } from '@/modules/comment/comment.entity';
+import { PostEntity } from '@/modules/post/post.entity';
 import { type Uuid } from '@/types/branded.type';
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import argon2 from 'argon2';
@@ -15,12 +15,12 @@ import {
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
-import { Session } from './session.entity';
+import { SessionEntity } from './session.entity';
 
 @Expose()
 @Entity('user')
-export class User extends AbstractEntity {
-  constructor(data?: Partial<User>) {
+export class UserEntity extends AbstractEntity {
+  constructor(data?: Partial<UserEntity>) {
     super();
     Object.assign(this, data);
   }
@@ -32,8 +32,8 @@ export class User extends AbstractEntity {
   @Column({ type: 'enum', enum: Role, default: Role.USER })
   role: Role;
 
-  @Column({ nullable: true })
-  username: string;
+  @Column({ nullable: true, unique: true })
+  username?: string;
 
   @Column({ unique: true })
   email: string;
@@ -44,19 +44,21 @@ export class User extends AbstractEntity {
   password: string;
 
   @Column({ nullable: true })
-  bio: string;
+  bio?: string;
 
   @Column({ nullable: true })
-  avatar: string;
+  avatar?: string;
 
-  @OneToMany(() => Session, (session) => session.user, { cascade: true })
-  sessions: Relation<Session[]>;
+  @OneToMany(() => SessionEntity, (session) => session.user, { cascade: true })
+  sessions: Relation<SessionEntity[]>;
 
-  @OneToMany(() => Post, (post) => post.author, { cascade: true })
-  posts: Relation<Post[]>;
+  @OneToMany(() => PostEntity, (post) => post.author, { cascade: true })
+  posts: Relation<PostEntity[]>;
 
-  @OneToMany(() => Comment, (comment) => comment.author, { cascade: true })
-  comments: Relation<Comment[]>;
+  @OneToMany(() => CommentEntity, (comment) => comment.author, {
+    cascade: true,
+  })
+  comments: Relation<CommentEntity[]>;
 
   @BeforeInsert()
   @BeforeUpdate()

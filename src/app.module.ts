@@ -1,6 +1,7 @@
 import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { IncomingMessage, ServerResponse } from 'http';
@@ -72,6 +73,7 @@ import { Modules as ApiModule } from './modules';
     }),
 
     CacheModule.register({ isGlobal: true }),
+    ScheduleModule.forRoot(),
 
     ApiModule,
   ],

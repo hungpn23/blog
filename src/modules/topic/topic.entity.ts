@@ -1,5 +1,5 @@
 import { AbstractEntity } from '@/database/entities/abstract.entity';
-import { Post } from '@/modules/post/post.entity';
+import { PostEntity } from '@/modules/post/post.entity';
 import { type Uuid } from '@/types/branded.type';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -14,8 +14,8 @@ import {
 
 @Expose()
 @Entity('topic')
-export class Topic extends AbstractEntity {
-  constructor(data?: Partial<Topic>) {
+export class TopicEntity extends AbstractEntity {
+  constructor(data?: Partial<TopicEntity>) {
     super();
     Object.assign(this, data);
   }
@@ -27,6 +27,6 @@ export class Topic extends AbstractEntity {
   @Column({ unique: true })
   name: string;
 
-  @OneToMany(() => Post, (post) => post.topic, { cascade: true })
-  posts: Relation<Post[]>;
+  @OneToMany(() => PostEntity, (post) => post.topic, { cascade: true })
+  posts: Relation<PostEntity[]>;
 }

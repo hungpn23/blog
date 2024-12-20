@@ -3,11 +3,11 @@ import { OffsetPaginationQueryDto } from '@/dto/offset-pagination/query.dto';
 import { type Uuid } from '@/types/branded.type';
 import paginate from '@/utils/offset-paginate';
 import { Injectable } from '@nestjs/common';
-import { Topic } from '../topic/topic.entity';
-import { User } from '../user/entities/user.entity';
-import { PostImage } from './entities/post-image.entity';
+import { TopicEntity } from '../topic/topic.entity';
+import { UserEntity } from '../user/entities/user.entity';
+import { PostImageEntity } from './entities/post-image.entity';
 import { CreatePostDto, UpdatePostDto } from './post.dto';
-import { Post } from './post.entity';
+import { PostEntity } from './post.entity';
 
 @Injectable()
 export class PostService {
@@ -18,13 +18,15 @@ export class PostService {
     dto: CreatePostDto,
   ) {
     const [author, topic] = await Promise.all([
-      User.findOneOrFail({ where: { id: authorId } }),
-      Topic.findOneOrFail({ where: { id: topicId } }),
+      UserEntity.findOneOrFail({ where: { id: authorId } }),
+      TopicEntity.findOneOrFail({ where: { id: topicId } }),
     ]);
 
-    const postImages = files.map(({ path }) => new PostImage({ url: path }));
+    const postImages = files.map(
+      ({ path }) => new PostImageEntity({ url: path }),
+    );
 
-    const newPost = new Post({
+    const newPost = new PostEntity({
       ...dto,
       topic,
       author,
@@ -32,11 +34,11 @@ export class PostService {
       createdBy: author.username ?? author.email,
     });
 
-    return await Post.save(newPost);
+    return await PostEntity.save(newPost);
   }
 
   async getMany(query: OffsetPaginationQueryDto) {
-    let builder = Post.createQueryBuilder('post');
+    let builder = PostEntity.createQueryBuilder('post');
     if (query.search) {
       let search = query.search.replaceAll('-', ' ').trim();
       builder
@@ -44,27 +46,30 @@ export class PostService {
         .orWhere('post.content LIKE :content', { content: `%${search}%` });
     }
 
-    const { entities, metadata } = await paginate<Post>(builder, query);
-    return new OffsetPaginatedDto<Post>(entities, metadata);
+    const { entities, metadata } = await paginate<PostEntity>(builder, query);
+    return new OffsetPaginatedDto<PostEntity>(entities, metadata);
   }
 
   async getOne(id: Uuid) {
-    return await Post.findOneByOrFail({ id });
+    return await PostEntity.findOneByOrFail({ id });
   }
 
   async update(authorId: Uuid, postId: Uuid, dto: UpdatePostDto) {
     const [author, found] = await Promise.all([
-      User.findOneOrFail({ where: { id: authorId } }),
-      Post.findOneOrFail({ where: { id: postId } }),
+      UserEntity.findOneOrFail({ where: { id: authorId } }),
+      PostEntity.findOneOrFail({ where: { id: postId } }),
     ]);
 
-    return await Post.save(
-      Object.assign(found, { ...dto, updatedBy: author.username } as Post),
+    return await PostEntity.save(
+      Object.assign(found, {
+        ...dto,
+        updatedBy: author.username,
+      } as PostEntity),
     );
   }
 
   async remove(postId: Uuid) {
-    const found = await Post.findOneByOrFail({ id: postId });
-    return await Post.remove(found);
+    const found = await PostEntity.findOneByOrFail({ id: postId });
+    return await PostEntity.remove(found);
   }
 }

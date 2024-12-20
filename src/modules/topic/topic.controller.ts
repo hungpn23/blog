@@ -17,7 +17,7 @@ import {
 import { JwtPayloadType } from '../auth/auth.type';
 import { RoleGuard } from '../auth/guards/role.guard';
 import { CreateTopicDto, UpdateTopicDto } from './topic.dto';
-import { Topic } from './topic.entity';
+import { TopicEntity } from './topic.entity';
 import { TopicService } from './topic.service';
 
 @UseRole(Role.ADMIN)
@@ -30,40 +30,40 @@ export class TopicController {
   constructor(private topicService: TopicService) {}
 
   @ApiEndpoint({
-    type: Topic,
+    type: TopicEntity,
     summary: 'create a new topic',
   })
   @Post()
   async create(
     @JwtPayload() { userId }: JwtPayloadType,
     @Body() dto: CreateTopicDto,
-  ): Promise<Topic> {
+  ): Promise<TopicEntity> {
     return await this.topicService.create(userId, dto);
   }
 
   @ApiEndpoint({
-    type: Topic,
+    type: TopicEntity,
     summary: 'get all topic',
   })
   @Get()
-  async findAll(): Promise<Topic[]> {
+  async findAll(): Promise<TopicEntity[]> {
     return await this.topicService.findAll();
   }
 
   @ApiEndpoint({
-    type: Topic,
+    type: TopicEntity,
     summary: 'get a topic by id',
     params: [{ name: 'topicId' }],
   })
   @Get(':topicId')
   async findOne(
     @Param('topicId', ParseUUIDPipe) topicId: Uuid,
-  ): Promise<Topic> {
+  ): Promise<TopicEntity> {
     return await this.topicService.findOne(topicId);
   }
 
   @ApiEndpoint({
-    type: Topic,
+    type: TopicEntity,
     summary: 'update a topic by id, return updated topic',
     params: [{ name: 'topicId' }],
   })
@@ -72,17 +72,19 @@ export class TopicController {
     @JwtPayload() { userId }: JwtPayloadType,
     @Param('topicId', ParseUUIDPipe) topicId: Uuid,
     @Body() dto: UpdateTopicDto,
-  ): Promise<Topic> {
+  ): Promise<TopicEntity> {
     return await this.topicService.update(userId, topicId, dto);
   }
 
   @ApiEndpoint({
-    type: Topic,
+    type: TopicEntity,
     summary: 'delete a topic by id, return deleted topic',
     params: [{ name: 'topicId' }],
   })
   @Delete(':topicId')
-  async remove(@Param('topicId', ParseUUIDPipe) topicId: Uuid): Promise<Topic> {
+  async remove(
+    @Param('topicId', ParseUUIDPipe) topicId: Uuid,
+  ): Promise<TopicEntity> {
     return await this.topicService.remove(topicId);
   }
 }

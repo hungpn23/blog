@@ -1,7 +1,7 @@
 import { Role } from '@/constants';
-import { Post } from '@/modules/post/post.entity';
-import { Topic } from '@/modules/topic/topic.entity';
-import { User } from '@/modules/user/entities/user.entity';
+import { PostEntity } from '@/modules/post/post.entity';
+import { TopicEntity } from '@/modules/topic/topic.entity';
+import { UserEntity } from '@/modules/user/entities/user.entity';
 import { DataSource } from 'typeorm';
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
 
@@ -12,13 +12,13 @@ export class MainSeeder implements Seeder {
   ): Promise<any> {
     console.time('SEEDING TIME');
 
-    const topics = await Topic.save([
-      new Topic({ name: 'Thảo luận' }),
-      new Topic({ name: 'Hỏi đáp' }),
+    const topics = await TopicEntity.save([
+      new TopicEntity({ name: 'Thảo luận' }),
+      new TopicEntity({ name: 'Hỏi đáp' }),
     ]);
 
-    const admin = await User.save(
-      new User({
+    const admin = await UserEntity.save(
+      new UserEntity({
         username: 'admin',
         email: 'admin@admin.com',
         password: 'admin123',
@@ -26,15 +26,15 @@ export class MainSeeder implements Seeder {
       }),
     );
 
-    const userFactory = factoryManager.get(User);
+    const userFactory = factoryManager.get(UserEntity);
     await userFactory.saveMany(1);
 
-    const postRepo = dataSource.getRepository(Post);
-    const postFactory = factoryManager.get(Post);
+    const postRepo = dataSource.getRepository(PostEntity);
+    const postFactory = factoryManager.get(PostEntity);
 
     const batchSize = 10;
     const totalPosts = 10;
-    let postPromises: Promise<Post>[] = [];
+    let postPromises: Promise<PostEntity>[] = [];
 
     for (let i = 0; i < totalPosts; i++) {
       postPromises.push(

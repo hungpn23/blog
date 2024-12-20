@@ -1,23 +1,25 @@
 import { type Uuid } from '@/types/branded.type';
 import { Injectable } from '@nestjs/common';
-import { Post } from '../post/post.entity';
-import { User } from '../user/entities/user.entity';
+import { PostEntity } from '../post/post.entity';
+import { UserEntity } from '../user/entities/user.entity';
 import { CreateCommentDto, UpdateCommentDto } from './comment.dto';
-import { Comment } from './comment.entity';
+import { CommentEntity } from './comment.entity';
 
 @Injectable()
 export class CommentService {
   async create(authorId: Uuid, postId: Uuid, dto: CreateCommentDto) {
     const [author, post] = await Promise.all([
-      User.findOneByOrFail({ id: authorId }),
-      Post.findOneByOrFail({ id: postId }),
+      UserEntity.findOneByOrFail({ id: authorId }),
+      PostEntity.findOneByOrFail({ id: postId }),
     ]);
-    return await Comment.save(new Comment({ ...dto, author, post }));
+    return await CommentEntity.save(
+      new CommentEntity({ ...dto, author, post }),
+    );
   }
 
   async findAll(postId: Uuid) {
-    const found = await Post.findOneByOrFail({ id: postId });
-    return await Comment.find({
+    const found = await PostEntity.findOneByOrFail({ id: postId });
+    return await CommentEntity.find({
       where: { post: { id: found.id } },
       order: { createdAt: 'DESC' },
     });
@@ -25,17 +27,20 @@ export class CommentService {
 
   async update(authorId: Uuid, commentId: Uuid, dto: UpdateCommentDto) {
     const [author, found] = await Promise.all([
-      User.findOneOrFail({ where: { id: authorId } }),
-      Comment.findOneOrFail({ where: { id: commentId } }),
+      UserEntity.findOneOrFail({ where: { id: authorId } }),
+      CommentEntity.findOneOrFail({ where: { id: commentId } }),
     ]);
-    return await Comment.save(
-      Object.assign(found, { ...dto, updatedBy: author.username } as Comment),
+    return await CommentEntity.save(
+      Object.assign(found, {
+        ...dto,
+        updatedBy: author.username,
+      } as CommentEntity),
     );
   }
 
   async remove(commentId: Uuid) {
-    return await Comment.remove(
-      await Comment.findOneByOrFail({ id: commentId }),
+    return await CommentEntity.remove(
+      await CommentEntity.findOneByOrFail({ id: commentId }),
     );
   }
 }

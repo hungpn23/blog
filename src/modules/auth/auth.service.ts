@@ -8,8 +8,8 @@ import { JwtService } from '@nestjs/jwt';
 import argon2 from 'argon2';
 import { Cache } from 'cache-manager';
 import crypto from 'crypto';
-import { Session } from '../user/entities/session.entity';
-import { User } from '../user/entities/user.entity';
+import { SessionEntity } from '../user/entities/session.entity';
+import { UserEntity } from '../user/entities/user.entity';
 import { AuthReqDto } from './auth.dto';
 import { JwtPayloadType, JwtRefreshPayloadType } from './auth.type';
 
@@ -24,17 +24,19 @@ export class AuthService {
   // *** START ROUTE ***
   async register(dto: AuthReqDto) {
     const { email } = dto;
-    const found = await User.existsBy({ email });
+    const found = await UserEntity.existsBy({ email });
     if (found) throw new AuthException(AuthError.E01);
 
-    const newUser = await User.save(new User({ ...dto, role: Role.USER }));
+    const newUser = await UserEntity.save(
+      new UserEntity({ ...dto, role: Role.USER }),
+    );
 
     return { userId: newUser.id, role: newUser.role };
   }
 
   async login(dto: AuthReqDto) {
     const { email, password } = dto;
-    const user = await User.findOne({
+    const user = await UserEntity.findOne({
       where: { email },
     });
 
@@ -43,8 +45,7 @@ export class AuthService {
     if (!isValid) throw new AuthException(AuthError.V02);
 
     const signature = this.createSignature();
-    const session = new Session({ signature, user });
-    await Session.save(session);
+    const session = new SessionEntity({ signature, user });
 
     const payload: JwtPayloadType = {
       userId: user.id,
@@ -56,6 +57,9 @@ export class AuthService {
       this.createAccessToken(payload),
       this.createRefreshToken({ ...payload, signature }),
     ]);
+
+    const { exp } = this.verifyRefreshToken(refreshToken);
+    await SessionEntity.save({ ...session, expiresAt: new Date(exp * 1000) });
 
     return {
       userId: user.id,
@@ -71,11 +75,11 @@ export class AuthService {
     const ttl = exp * 1000 - Date.now();
     await this.cacheManager.store.set<boolean>(cacheKey, data, ttl);
 
-    await Session.delete({ id: sessionId });
+    await SessionEntity.delete({ id: sessionId });
   }
 
   async refreshToken({ sessionId, signature }: JwtRefreshPayloadType) {
-    const session = await Session.findOneOrFail({
+    const session = await SessionEntity.findOneOrFail({
       where: { id: sessionId },
       relations: { user: true },
       select: { id: true, signature: true, user: { id: true } },
@@ -106,13 +110,16 @@ export class AuthService {
         secret: this.configService.get('AUTH_JWT_SECRET'),
       });
     } catch (error) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException(); // token expired or invalid
     }
 
     const cacheKey = `SESSION_BLACKLIST:${payload.userId}:${payload.sessionId}`;
     const isSessionBlacklisted = await this.cacheManager.store.get(cacheKey);
-    // TODO: Force logout if the session is in the blacklist !
-    if (isSessionBlacklisted) throw new AuthException(AuthError.E03);
+
+    if (isSessionBlacklisted) {
+      await SessionEntity.delete({ user: { id: payload.userId } }); // delete all user's sessions
+      throw new AuthException(AuthError.E03);
+    }
 
     return payload;
   }
@@ -123,8 +130,7 @@ export class AuthService {
         secret: this.configService.get('AUTH_REFRESH_SECRET'),
       });
     } catch (error) {
-      // TODO: force logout user (xoá hết sessions)
-      throw new UnauthorizedException();
+      throw new UnauthorizedException(); // token expired or invalid
     }
   }
   // *** END GUARD ***

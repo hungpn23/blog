@@ -1,6 +1,6 @@
 import { PartialType, PickType } from '@nestjs/swagger';
-import { User } from './entities/user.entity';
+import { UserEntity } from './entities/user.entity';
 
 export class UpdateUserDto extends PartialType(
-  PickType(User, ['username', 'bio', 'email']),
+  PickType(UserEntity, ['username', 'bio', 'email']),
 ) {}

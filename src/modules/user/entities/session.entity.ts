@@ -10,12 +10,12 @@ import {
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
-import { User } from './user.entity';
+import { UserEntity } from './user.entity';
 
 @Expose()
 @Entity('session')
-export class Session extends AbstractEntity {
-  constructor(data?: Partial<Session>) {
+export class SessionEntity extends AbstractEntity {
+  constructor(data?: Partial<SessionEntity>) {
     super();
     Object.assign(this, data);
   }
@@ -29,7 +29,10 @@ export class Session extends AbstractEntity {
   @Column()
   signature: string;
 
-  @ManyToOne(() => User, (user) => user.sessions, { onDelete: 'CASCADE' })
+  @Column({ name: 'expires_at', type: 'timestamp' })
+  expiresAt: Date;
+
+  @ManyToOne(() => UserEntity, (user) => user.sessions, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
-  user: Relation<User>;
+  user: Relation<UserEntity>;
 }

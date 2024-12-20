@@ -10,12 +10,12 @@ import {
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
-import { Post } from '../post.entity';
+import { PostEntity } from '../post.entity';
 
 @Expose()
 @Entity('post_image')
-export class PostImage extends AbstractEntity {
-  constructor(data?: Partial<PostImage>) {
+export class PostImageEntity extends AbstractEntity {
+  constructor(data?: Partial<PostImageEntity>) {
     super();
     Object.assign(this, data);
   }
@@ -27,7 +27,7 @@ export class PostImage extends AbstractEntity {
   @Column()
   url: string;
 
-  @ManyToOne(() => Post, (post) => post.images, { onDelete: 'CASCADE' })
+  @ManyToOne(() => PostEntity, (post) => post.images, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'post_id', referencedColumnName: 'id' })
-  post: Relation<Post>;
+  post: Relation<PostEntity>;
 }

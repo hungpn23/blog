@@ -15,11 +15,11 @@ import { ColumnMetadata } from 'typeorm/metadata/ColumnMetadata';
 // use Active Record pattern
 export abstract class AbstractEntity extends BaseEntity {
   @Order(9998)
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
 
   @Order(9998)
-  @UpdateDateColumn({ name: 'updated_at' })
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
   updatedAt: Date;
 
   @Order(9998)
@@ -63,6 +63,7 @@ export abstract class DeletableAbstractEntity extends AbstractEntity {
   @Order(9999)
   @DeleteDateColumn({
     name: 'deleted_at',
+    type: 'timestamp',
     default: null,
   })
   deletedAt: Date;

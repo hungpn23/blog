@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { JwtPayloadType } from '../auth/auth.type';
 import { CreateCommentDto, UpdateCommentDto } from './comment.dto';
-import { Comment } from './comment.entity';
+import { CommentEntity } from './comment.entity';
 import { CommentService } from './comment.service';
 
 @Controller({
@@ -23,7 +23,7 @@ export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
   @ApiEndpoint({
-    type: Comment,
+    type: CommentEntity,
     summary: 'create a new comment',
     params: [{ name: 'postId' }],
   })
@@ -38,7 +38,7 @@ export class CommentController {
   }
 
   @ApiEndpoint({
-    type: Comment,
+    type: CommentEntity,
     summary: 'get all comments by post id',
     params: [{ name: 'postId' }],
   })
@@ -48,7 +48,7 @@ export class CommentController {
   }
 
   @ApiEndpoint({
-    type: Comment,
+    type: CommentEntity,
     summary: 'update a comment by id, return updated comment',
     params: [{ name: 'commentId' }],
   })
@@ -66,7 +66,7 @@ export class CommentController {
   }
 
   @ApiEndpoint({
-    type: Comment,
+    type: CommentEntity,
     summary: 'delete a comment by id, return deleted comment',
     params: [{ name: 'commentId' }],
   })

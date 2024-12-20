@@ -10,7 +10,7 @@ import {
   UploadedFile,
 } from '@nestjs/common';
 import { JwtPayloadType } from '../auth/auth.type';
-import { User } from './entities/user.entity';
+import { UserEntity } from './entities/user.entity';
 import { UpdateUserDto } from './user.dto';
 import { UserService } from './user.service';
 
@@ -21,9 +21,11 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @ApiEndpoint({ type: User, summary: 'get current user profile' })
+  @ApiEndpoint({ type: UserEntity, summary: 'get current user profile' })
   @Get('profile')
-  async getProfile(@JwtPayload() { userId }: JwtPayloadType): Promise<User> {
+  async getProfile(
+    @JwtPayload() { userId }: JwtPayloadType,
+  ): Promise<UserEntity> {
     return await this.userService.findOne(userId);
   }
 
@@ -39,7 +41,7 @@ export class UserController {
   }
 
   @ApiEndpoint({
-    type: User,
+    type: UserEntity,
     summary: 'update user profile, return updated profile',
   })
   @Patch('/profile')

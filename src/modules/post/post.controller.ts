@@ -19,7 +19,7 @@ import {
 import { plainToInstance } from 'class-transformer';
 import { JwtPayloadType } from '../auth/auth.type';
 import { CreatePostDto, UpdatePostDto } from './post.dto';
-import { Post as PostEntity } from './post.entity';
+import { PostEntity } from './post.entity';
 import { PostService } from './post.service';
 
 @Controller({

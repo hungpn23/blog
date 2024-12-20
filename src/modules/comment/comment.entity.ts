@@ -10,13 +10,13 @@ import {
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
-import { Post } from '../post/post.entity';
-import { User } from '../user/entities/user.entity';
+import { PostEntity } from '../post/post.entity';
+import { UserEntity } from '../user/entities/user.entity';
 
 @Expose()
 @Entity('comment')
-export class Comment extends AbstractEntity {
-  constructor(data?: Partial<Comment>) {
+export class CommentEntity extends AbstractEntity {
+  constructor(data?: Partial<CommentEntity>) {
     super();
     Object.assign(this, data);
   }
@@ -28,11 +28,13 @@ export class Comment extends AbstractEntity {
   @Column('text')
   content: string;
 
-  @ManyToOne(() => Post, (post) => post.comments, { onDelete: 'CASCADE' })
+  @ManyToOne(() => PostEntity, (post) => post.comments, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'post_id', referencedColumnName: 'id' })
-  post: Relation<Post>;
+  post: Relation<PostEntity>;
 
-  @ManyToOne(() => User, (author) => author.comments, { onDelete: 'CASCADE' })
+  @ManyToOne(() => UserEntity, (author) => author.comments, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'author_id', referencedColumnName: 'id' })
-  author: Relation<User>;
+  author: Relation<UserEntity>;
 }
