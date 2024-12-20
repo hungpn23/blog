@@ -1,3 +1,4 @@
+import { Role } from '@/constants';
 import { Post } from '@/modules/post/post.entity';
 import { Topic } from '@/modules/topic/topic.entity';
 import { User } from '@/modules/user/entities/user.entity';
@@ -21,17 +22,18 @@ export class MainSeeder implements Seeder {
         username: 'admin',
         email: 'admin@admin.com',
         password: 'admin123',
+        role: Role.ADMIN,
       }),
     );
 
     const userFactory = factoryManager.get(User);
-    await userFactory.saveMany(10);
+    await userFactory.saveMany(1);
 
     const postRepo = dataSource.getRepository(Post);
     const postFactory = factoryManager.get(Post);
 
-    const batchSize = 100;
-    const totalPosts = 100;
+    const batchSize = 10;
+    const totalPosts = 10;
     let postPromises: Promise<Post>[] = [];
 
     for (let i = 0; i < totalPosts; i++) {

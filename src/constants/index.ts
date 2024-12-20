@@ -1,6 +1,7 @@
 export const SYSTEM = 'system';
 export const IS_PUBLIC_KEY = 'isPublic';
 export const IS_REFRESH_TOKEN_KEY = 'isRefreshToken';
+export const ROLE_KEY = 'role';
 
 export enum Environment {
   DEVELOPMENT = 'development',
@@ -9,8 +10,8 @@ export enum Environment {
 
 // TODO: authorization
 export enum Role {
-  User = 'user',
-  Admin = 'admin',
+  USER = 'user',
+  ADMIN = 'admin',
 }
 
 export enum AuthError {

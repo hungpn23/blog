@@ -1,7 +1,6 @@
 import { AuthEnvVariables } from '@/configs/auth.config';
-import { AuthError } from '@/constants/index';
+import { AuthError, Role } from '@/constants/index';
 import { AuthException } from '@/exceptions/auth.exception';
-import { type Uuid } from '@/types/branded.type';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -28,9 +27,9 @@ export class AuthService {
     const found = await User.existsBy({ email });
     if (found) throw new AuthException(AuthError.E01);
 
-    const newUser = await User.save(new User(dto));
+    const newUser = await User.save(new User({ ...dto, role: Role.USER }));
 
-    return { userId: newUser.id };
+    return { userId: newUser.id, role: newUser.role };
   }
 
   async login(dto: AuthReqDto) {
@@ -47,9 +46,15 @@ export class AuthService {
     const session = new Session({ signature, user });
     await Session.save(session);
 
+    const payload: JwtPayloadType = {
+      userId: user.id,
+      sessionId: session.id,
+      role: user.role,
+    };
+
     const [accessToken, refreshToken] = await Promise.all([
-      this.createAccessToken({ userId: user.id, sessionId: session.id }),
-      this.createRefreshToken({ sessionId: session.id, signature }),
+      this.createAccessToken(payload),
+      this.createRefreshToken({ ...payload, signature }),
     ]);
 
     return {
@@ -69,22 +74,23 @@ export class AuthService {
     await Session.delete({ id: sessionId });
   }
 
-  async refreshToken(payload: JwtRefreshPayloadType) {
-    const { sessionId, signature } = payload;
+  async refreshToken({ sessionId, signature }: JwtRefreshPayloadType) {
     const session = await Session.findOneOrFail({
       where: { id: sessionId },
       relations: { user: true },
       select: { id: true, signature: true, user: { id: true } },
     });
-    console.log('🚀 ~ AuthService ~ refreshToken ~ session:', session);
 
     if (!session || session.signature !== signature)
       throw new UnauthorizedException();
 
-    const accessToken = await this.createAccessToken({
+    const payload: JwtPayloadType = {
       userId: session.user.id,
       sessionId,
-    });
+      role: session.user.role,
+    };
+
+    const accessToken = await this.createAccessToken(payload);
 
     return { accessToken };
   }
@@ -126,30 +132,20 @@ export class AuthService {
   // ======================================================= //
 
   // *** START PRIVATE ***
-  private async createAccessToken(data: {
-    userId: Uuid;
-    sessionId: Uuid;
-  }): Promise<string> {
-    return await this.jwtService.signAsync(
-      { userId: data.userId, sessionId: data.sessionId },
-      {
-        secret: this.configService.get('AUTH_JWT_SECRET'),
-        expiresIn: this.configService.get('AUTH_JWT_TOKEN_EXPIRES_IN'),
-      },
-    );
+  private async createAccessToken(payload: JwtPayloadType): Promise<string> {
+    return await this.jwtService.signAsync(payload, {
+      secret: this.configService.get('AUTH_JWT_SECRET'),
+      expiresIn: this.configService.get('AUTH_JWT_TOKEN_EXPIRES_IN'),
+    });
   }
 
-  private async createRefreshToken(data: {
-    sessionId: Uuid;
-    signature: string;
-  }): Promise<string> {
-    return await this.jwtService.signAsync(
-      { sessionId: data.sessionId, signature: data.signature },
-      {
-        secret: this.configService.get('AUTH_REFRESH_SECRET'),
-        expiresIn: this.configService.get('AUTH_REFRESH_TOKEN_EXPIRES_IN'),
-      },
-    );
+  private async createRefreshToken(
+    payload: JwtRefreshPayloadType,
+  ): Promise<string> {
+    return await this.jwtService.signAsync(payload, {
+      secret: this.configService.get('AUTH_REFRESH_SECRET'),
+      expiresIn: this.configService.get('AUTH_REFRESH_TOKEN_EXPIRES_IN'),
+    });
   }
 
   private async verifyPassword(

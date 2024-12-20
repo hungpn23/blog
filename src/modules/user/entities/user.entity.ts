@@ -1,3 +1,4 @@
+import { Role } from '@/constants';
 import { AbstractEntity } from '@/database/entities/abstract.entity';
 import { Comment } from '@/modules/comment/comment.entity';
 import { Post } from '@/modules/post/post.entity';
@@ -27,6 +28,9 @@ export class User extends AbstractEntity {
   @ApiProperty({ type: () => String })
   @PrimaryGeneratedColumn('uuid')
   id: Uuid;
+
+  @Column({ type: 'enum', enum: Role, default: Role.USER })
+  role: Role;
 
   @Column({ nullable: true })
   username: string;

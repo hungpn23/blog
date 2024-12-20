@@ -1,3 +1,5 @@
+import { Role } from '@/constants';
+import { UseRole } from '@/decorators/auth/role.decorator';
 import { ApiEndpoint } from '@/decorators/endpoint.decorator';
 import { JwtPayload } from '@/decorators/jwt-payload.decorator';
 import { type Uuid } from '@/types/branded.type';
@@ -10,12 +12,16 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { JwtPayloadType } from '../auth/auth.type';
+import { RoleGuard } from '../auth/guards/role.guard';
 import { CreateTopicDto, UpdateTopicDto } from './topic.dto';
 import { Topic } from './topic.entity';
 import { TopicService } from './topic.service';
 
+@UseRole(Role.ADMIN)
+@UseGuards(RoleGuard)
 @Controller({
   path: 'topic',
   version: '1',

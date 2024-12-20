@@ -7,7 +7,8 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request as ExpressRequest } from 'express';
-import { AuthService } from './auth.service';
+import { AuthService } from '../auth.service';
+import { JwtPayloadType, JwtRefreshPayloadType } from '../auth.type';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -32,7 +33,9 @@ export class AuthGuard implements CanActivate {
       const refreshToken = this.extractTokenFromHeader(request);
       if (!refreshToken) throw new UnauthorizedException();
 
-      request['user'] = this.authService.verifyRefreshToken(refreshToken);
+      request['user'] = this.authService.verifyRefreshToken(
+        refreshToken,
+      ) as JwtRefreshPayloadType;
 
       return true;
     }
@@ -41,7 +44,9 @@ export class AuthGuard implements CanActivate {
     const accessToken = this.extractTokenFromHeader(request);
     if (!accessToken) throw new UnauthorizedException();
 
-    request['user'] = await this.authService.verifyAccessToken(accessToken);
+    request['user'] = (await this.authService.verifyAccessToken(
+      accessToken,
+    )) as JwtPayloadType;
 
     return true;
   }

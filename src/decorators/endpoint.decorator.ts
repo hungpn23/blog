@@ -22,7 +22,7 @@ import {
   getSchemaPath,
 } from '@nestjs/swagger';
 import { STATUS_CODES } from 'node:http';
-import { Public } from './public.decorator';
+import { Public } from './auth/public.decorator';
 import { ApiPaginatedResponse } from './swagger.decorator';
 
 const DEFAULT_STATUS_CODE = HttpStatus.OK;

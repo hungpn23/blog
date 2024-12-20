@@ -1,6 +1,6 @@
+import { RefreshToken } from '@/decorators/auth/refresh-token.decorator';
 import { ApiEndpoint } from '@/decorators/endpoint.decorator';
 import { JwtPayload } from '@/decorators/jwt-payload.decorator';
-import { RefreshToken } from '@/decorators/refresh-token.decorator';
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { ApiExcludeEndpoint } from '@nestjs/swagger';
 import {
