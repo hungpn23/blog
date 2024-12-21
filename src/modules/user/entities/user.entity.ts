@@ -15,6 +15,7 @@ import {
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
+import { FollowEntity } from './follow.entity';
 import { SessionEntity } from './session.entity';
 
 @Expose()
@@ -62,6 +63,12 @@ export class UserEntity extends AbstractEntity {
     cascade: true,
   })
   comments: Relation<CommentEntity[]>;
+
+  @OneToMany(() => FollowEntity, (follow) => follow.follower)
+  followers: Relation<FollowEntity[]>;
+
+  @OneToMany(() => FollowEntity, (follow) => follow.followed)
+  followeds: Relation<FollowEntity[]>; // people who are being followed by others
 
   @BeforeInsert()
   @BeforeUpdate()
