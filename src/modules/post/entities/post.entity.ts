@@ -1,4 +1,5 @@
 import { AbstractEntity } from '@/database/entities/abstract.entity';
+import { CommentEntity } from '@/modules/comment/comment.entity';
 import { TopicEntity } from '@/modules/topic/topic.entity';
 import { UserEntity } from '@/modules/user/entities/user.entity';
 import { type Uuid } from '@/types/branded.type';
@@ -13,8 +14,7 @@ import {
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
-import { CommentEntity } from '../comment/comment.entity';
-import { PostImageEntity } from './entities/post-image.entity';
+import { PostImageEntity } from './post-image.entity';
 
 @Expose()
 @Entity('post')

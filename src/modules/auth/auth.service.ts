@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import argon2 from 'argon2';
 import { Cache } from 'cache-manager';
 import crypto from 'crypto';
+import { DeleteResult } from 'typeorm';
 import { SessionEntity } from '../user/entities/session.entity';
 import { UserEntity } from '../user/entities/user.entity';
 import { AuthReqDto } from './auth.dto';
@@ -59,7 +60,7 @@ export class AuthService {
     ]);
 
     const { exp } = this.verifyRefreshToken(refreshToken);
-    await SessionEntity.save({ ...session, expiresAt: new Date(exp * 1000) });
+    await SessionEntity.save({ ...session, expiresAt: new Date(exp * 1000) }); // bc js Date accepts milliseconds
 
     return {
       userId: user.id,
@@ -68,18 +69,18 @@ export class AuthService {
     };
   }
 
-  async logout(payload: JwtPayloadType): Promise<void> {
+  async logout(payload: JwtPayloadType): Promise<DeleteResult> {
     const { sessionId, exp, userId } = payload;
     const cacheKey = `SESSION_BLACKLIST:${userId}:${sessionId}`;
     const data = true;
-    const ttl = exp * 1000 - Date.now();
+    const ttl = exp * 1000 - Date.now(); // remaining time in milliseconds
     await this.cacheManager.store.set<boolean>(cacheKey, data, ttl);
 
-    await SessionEntity.delete({ id: sessionId });
+    return await SessionEntity.delete({ id: sessionId });
   }
 
   async refreshToken({ sessionId, signature }: JwtRefreshPayloadType) {
-    const session = await SessionEntity.findOneOrFail({
+    const session = await SessionEntity.findOne({
       where: { id: sessionId },
       relations: { user: true },
       select: { id: true, signature: true, user: { id: true } },

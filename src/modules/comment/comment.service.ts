@@ -1,6 +1,6 @@
 import { type Uuid } from '@/types/branded.type';
 import { Injectable } from '@nestjs/common';
-import { PostEntity } from '../post/post.entity';
+import { PostEntity } from '../post/entities/post.entity';
 import { UserEntity } from '../user/entities/user.entity';
 import { CreateCommentDto, UpdateCommentDto } from './comment.dto';
 import { CommentEntity } from './comment.entity';

@@ -18,8 +18,8 @@ import {
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { JwtPayloadType } from '../auth/auth.type';
+import { PostEntity } from './entities/post.entity';
 import { CreatePostDto, UpdatePostDto } from './post.dto';
-import { PostEntity } from './post.entity';
 import { PostService } from './post.service';
 
 @Controller({

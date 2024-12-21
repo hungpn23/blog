@@ -3,6 +3,7 @@ import { ApiEndpoint } from '@/decorators/endpoint.decorator';
 import { JwtPayload } from '@/decorators/jwt-payload.decorator';
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { ApiExcludeEndpoint } from '@nestjs/swagger';
+import { DeleteResult } from 'typeorm';
 import {
   AuthReqDto,
   LoginResDto,
@@ -39,7 +40,7 @@ export class AuthController {
     return await this.authService.login(dto);
   }
 
-  @ApiEndpoint({ summary: 'logout' })
+  @ApiEndpoint({ summary: 'logout', type: DeleteResult })
   @Post('/logout')
   async logout(@JwtPayload() payload: JwtPayloadType) {
     return await this.authService.logout(payload);
@@ -66,12 +67,6 @@ export class AuthController {
   @Post('verify/forgot-password')
   async verifyForgotPassword() {
     return 'verify-forgot-password';
-  }
-
-  @ApiExcludeEndpoint()
-  @Post('reset-password')
-  async resetPassword() {
-    return 'reset-password';
   }
 
   @ApiExcludeEndpoint()

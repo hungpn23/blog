@@ -10,7 +10,7 @@ import {
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
-import { PostEntity } from '../post/post.entity';
+import { PostEntity } from '../post/entities/post.entity';
 import { UserEntity } from '../user/entities/user.entity';
 
 @Expose()

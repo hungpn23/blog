@@ -10,7 +10,7 @@ import {
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
-import { PostEntity } from '../post.entity';
+import { PostEntity } from './post.entity';
 
 @Expose()
 @Entity('post_image')

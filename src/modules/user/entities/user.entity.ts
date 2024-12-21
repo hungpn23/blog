@@ -1,7 +1,7 @@
 import { Role } from '@/constants';
 import { AbstractEntity } from '@/database/entities/abstract.entity';
 import { CommentEntity } from '@/modules/comment/comment.entity';
-import { PostEntity } from '@/modules/post/post.entity';
+import { PostEntity } from '@/modules/post/entities/post.entity';
 import { type Uuid } from '@/types/branded.type';
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import argon2 from 'argon2';
@@ -37,6 +37,9 @@ export class UserEntity extends AbstractEntity {
 
   @Column({ unique: true })
   email: string;
+
+  @Column({ name: 'is_email_verified', type: 'boolean', default: false })
+  isEmailVerified: boolean;
 
   @ApiHideProperty()
   @Exclude()

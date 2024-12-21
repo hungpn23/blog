@@ -1,5 +1,5 @@
 import { Role } from '@/constants';
-import { PostEntity } from '@/modules/post/post.entity';
+import { PostEntity } from '@/modules/post/entities/post.entity';
 import { TopicEntity } from '@/modules/topic/topic.entity';
 import { UserEntity } from '@/modules/user/entities/user.entity';
 import { DataSource } from 'typeorm';

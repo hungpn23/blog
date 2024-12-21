@@ -1,4 +1,4 @@
-import { PostEntity } from '@/modules/post/post.entity';
+import { PostEntity } from '@/modules/post/entities/post.entity';
 import { setSeederFactory } from 'typeorm-extension';
 
 export const PostFactory = setSeederFactory(PostEntity, (faker) => {

@@ -6,8 +6,8 @@ import { Injectable } from '@nestjs/common';
 import { TopicEntity } from '../topic/topic.entity';
 import { UserEntity } from '../user/entities/user.entity';
 import { PostImageEntity } from './entities/post-image.entity';
+import { PostEntity } from './entities/post.entity';
 import { CreatePostDto, UpdatePostDto } from './post.dto';
-import { PostEntity } from './post.entity';
 
 @Injectable()
 export class PostService {
