@@ -3,12 +3,15 @@ export const IS_PUBLIC_KEY = 'isPublic';
 export const IS_REFRESH_TOKEN_KEY = 'isRefreshToken';
 export const ROLE_KEY = 'role';
 
+export enum Provider {
+  CLOUDINARY = 'cloudinary',
+}
+
 export enum Environment {
   DEVELOPMENT = 'development',
   PRODUCTION = 'production',
 }
 
-// TODO: authorization
 export enum Role {
   USER = 'user',
   ADMIN = 'admin',

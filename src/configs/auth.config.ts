@@ -18,7 +18,7 @@ export class AuthEnvVariables {
 }
 
 // config namespace
-export default registerAs<AuthEnvVariables>('app', () => {
+export default registerAs<AuthEnvVariables>('auth', () => {
   validateConfig(process.env, AuthEnvVariables);
 
   return {

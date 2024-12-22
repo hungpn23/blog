@@ -14,7 +14,7 @@ export default async function swaggerConfig(
 
   const config = new DocumentBuilder()
     .setTitle(appName)
-    .setDescription(`### A blog api documentation using NestJS `)
+    .setDescription(`### description for ${appName} `)
     .addServer(
       configService.get('APP_URL', { infer: true }),
       'Application Server',

@@ -1,6 +1,7 @@
 import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -13,6 +14,7 @@ import { ThrottlerEnvVariables } from './configs/throttler.config';
 import { DatabaseNamingStrategy } from './database/name-strategy';
 import { TypeOrmConfigService } from './database/typeorm-config.service';
 import { Modules as ApiModule } from './modules';
+import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -21,7 +23,7 @@ import { Modules as ApiModule } from './modules';
       envFilePath: ['.env'],
       load: [appConfig, databaseConfig],
       cache: true, // speed up the loading process
-      expandVariables: true, // expand variables in .env file
+      expandVariables: true, // support variables in .env file
     }),
 
     TypeOrmModule.forRootAsync({
@@ -73,7 +75,12 @@ import { Modules as ApiModule } from './modules';
     }),
 
     CacheModule.register({ isGlobal: true }),
+
     ScheduleModule.forRoot(),
+
+    EventEmitterModule.forRoot(),
+
+    CloudinaryModule,
 
     ApiModule,
   ],

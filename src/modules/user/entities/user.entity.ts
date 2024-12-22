@@ -64,10 +64,10 @@ export class UserEntity extends AbstractEntity {
   })
   comments: Relation<CommentEntity[]>;
 
-  @OneToMany(() => FollowEntity, (follow) => follow.follower)
+  @OneToMany(() => FollowEntity, (follow) => follow.follower, { cascade: true })
   followers: Relation<FollowEntity[]>;
 
-  @OneToMany(() => FollowEntity, (follow) => follow.followed)
+  @OneToMany(() => FollowEntity, (follow) => follow.followed, { cascade: true })
   followeds: Relation<FollowEntity[]>; // people who are being followed by others
 
   @BeforeInsert()
