@@ -1,6 +1,7 @@
 import { AbstractEntity } from '@/database/entities/abstract.entity';
 import { Uuid } from '@/types/branded.type';
 import { BadRequestException } from '@nestjs/common';
+import { Expose } from 'class-transformer';
 import {
   BeforeInsert,
   BeforeUpdate,
@@ -12,6 +13,7 @@ import {
 } from 'typeorm';
 import { UserEntity } from './user.entity';
 
+@Expose()
 @Entity('follow')
 export class FollowEntity extends AbstractEntity {
   constructor(data?: Partial<FollowEntity>) {

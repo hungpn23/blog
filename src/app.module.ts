@@ -1,4 +1,4 @@
-import { CacheModule } from '@nestjs/cache-manager';
+import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
@@ -6,6 +6,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { IncomingMessage, ServerResponse } from 'http';
+import ms from 'ms';
 import { LoggerModule } from 'nestjs-pino';
 import { DataSource } from 'typeorm';
 import appConfig from './configs/app.config';
@@ -74,7 +75,8 @@ import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
       ],
     }),
 
-    CacheModule.register({ isGlobal: true }),
+    // temporary use in-memory cache
+    CacheModule.register({ ttl: +ms(10), isGlobal: true }),
 
     ScheduleModule.forRoot(),
 
@@ -83,6 +85,12 @@ import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
     CloudinaryModule,
 
     ApiModule,
+  ],
+  providers: [
+    {
+      provide: 'APP_INTERCEPTOR',
+      useClass: CacheInterceptor,
+    },
   ],
 })
 export class AppModule {}

@@ -2,12 +2,18 @@ import { AuthEnvVariables } from '@/configs/auth.config';
 import { AuthError, Role } from '@/constants/index';
 import { AuthException } from '@/exceptions/auth.exception';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import argon2 from 'argon2';
 import { Cache } from 'cache-manager';
 import crypto from 'crypto';
+import ms from 'ms';
 import { DeleteResult } from 'typeorm';
 import { SessionEntity } from '../user/entities/session.entity';
 import { UserEntity } from '../user/entities/user.entity';
@@ -16,6 +22,7 @@ import { JwtPayloadType, JwtRefreshPayloadType } from './auth.type';
 
 @Injectable()
 export class AuthService {
+  private logger = new Logger(AuthService.name);
   constructor(
     private configService: ConfigService<AuthEnvVariables>,
     private jwtService: JwtService,
@@ -46,7 +53,17 @@ export class AuthService {
     if (!isValid) throw new AuthException(AuthError.V02);
 
     const signature = this.createSignature();
-    const session = new SessionEntity({ signature, user });
+    const expiresInMilliseconds = ms(
+      this.configService.get('AUTH_REFRESH_TOKEN_EXPIRES_IN'),
+    );
+
+    const session = await SessionEntity.save(
+      new SessionEntity({
+        signature,
+        user,
+        expiresAt: new Date(Date.now() + expiresInMilliseconds),
+      }),
+    );
 
     const payload: JwtPayloadType = {
       userId: user.id,
@@ -58,10 +75,6 @@ export class AuthService {
       this.createAccessToken(payload),
       this.createRefreshToken({ ...payload, signature }),
     ]);
-
-    const { exp } = this.verifyRefreshToken(refreshToken);
-    await SessionEntity.save({ ...session, expiresAt: new Date(exp * 1000) }); // bc js Date accepts milliseconds
-
     return {
       userId: user.id,
       accessToken,
@@ -72,9 +85,8 @@ export class AuthService {
   async logout(payload: JwtPayloadType): Promise<DeleteResult> {
     const { sessionId, exp, userId } = payload;
     const cacheKey = `SESSION_BLACKLIST:${userId}:${sessionId}`;
-    const data = true;
     const ttl = exp * 1000 - Date.now(); // remaining time in milliseconds
-    await this.cacheManager.store.set<boolean>(cacheKey, data, ttl);
+    await this.cacheManager.store.set<boolean>(cacheKey, true, ttl);
 
     return await SessionEntity.delete({ id: sessionId });
   }
