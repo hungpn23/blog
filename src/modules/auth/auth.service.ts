@@ -1,6 +1,7 @@
 import { AuthEnvVariables } from '@/configs/auth.config';
 import { AuthError, Role } from '@/constants/index';
 import { AuthException } from '@/exceptions/auth.exception';
+import { JwtPayloadType, JwtRefreshPayloadType } from '@/types/auth.type';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import {
   Inject,
@@ -18,7 +19,6 @@ import { DeleteResult } from 'typeorm';
 import { SessionEntity } from '../user/entities/session.entity';
 import { UserEntity } from '../user/entities/user.entity';
 import { AuthReqDto } from './auth.dto';
-import { JwtPayloadType, JwtRefreshPayloadType } from './auth.type';
 
 @Injectable()
 export class AuthService {
@@ -84,9 +84,9 @@ export class AuthService {
 
   async logout(payload: JwtPayloadType): Promise<DeleteResult> {
     const { sessionId, exp, userId } = payload;
-    const cacheKey = `SESSION_BLACKLIST:${userId}:${sessionId}`;
+    const key = `SESSION_BLACKLIST:${userId}:${sessionId}`;
     const ttl = exp * 1000 - Date.now(); // remaining time in milliseconds
-    await this.cacheManager.store.set<boolean>(cacheKey, true, ttl);
+    await this.cacheManager.store.set(key, true, ttl);
 
     return await SessionEntity.delete({ id: sessionId });
   }
@@ -126,8 +126,9 @@ export class AuthService {
       throw new UnauthorizedException(); // token expired or invalid
     }
 
-    const cacheKey = `SESSION_BLACKLIST:${payload.userId}:${payload.sessionId}`;
-    const isSessionBlacklisted = await this.cacheManager.store.get(cacheKey);
+    const key = `SESSION_BLACKLIST:${payload.userId}:${payload.sessionId}`;
+    const isSessionBlacklisted =
+      await this.cacheManager.store.get<boolean>(key);
 
     if (isSessionBlacklisted) {
       await SessionEntity.delete({ user: { id: payload.userId } }); // delete all user's sessions

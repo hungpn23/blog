@@ -1,7 +1,4 @@
-import {
-  JwtPayloadType,
-  JwtRefreshPayloadType,
-} from '@/modules/auth/auth.type';
+import { JwtPayloadType, JwtRefreshPayloadType } from '@/types/auth.type';
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { Request as ExpressRequest } from 'express';
 

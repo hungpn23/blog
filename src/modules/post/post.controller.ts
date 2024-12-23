@@ -3,6 +3,7 @@ import { JwtPayload } from '@/decorators/jwt-payload.decorator';
 import { OffsetPaginatedDto } from '@/dto/offset-pagination/paginated.dto';
 import { OffsetPaginationQueryDto } from '@/dto/offset-pagination/query.dto';
 import { validateImagePipe } from '@/pipes/validate-image.pipe';
+import { JwtPayloadType } from '@/types/auth.type';
 import { type Uuid } from '@/types/branded.type';
 import {
   Body,
@@ -17,7 +18,6 @@ import {
   UploadedFiles,
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { JwtPayloadType } from '../auth/auth.type';
 import { PostEntity } from './entities/post.entity';
 import { CreatePostDto, UpdatePostDto } from './post.dto';
 import { PostService } from './post.service';

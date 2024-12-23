@@ -2,6 +2,7 @@ import { Role } from '@/constants';
 import { UseRole } from '@/decorators/auth/role.decorator';
 import { ApiEndpoint } from '@/decorators/endpoint.decorator';
 import { JwtPayload } from '@/decorators/jwt-payload.decorator';
+import { JwtPayloadType } from '@/types/auth.type';
 import { type Uuid } from '@/types/branded.type';
 import {
   Body,
@@ -14,7 +15,6 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { JwtPayloadType } from '../auth/auth.type';
 import { RoleGuard } from '../auth/guards/role.guard';
 import { CreateTopicDto, UpdateTopicDto } from './topic.dto';
 import { TopicEntity } from './topic.entity';

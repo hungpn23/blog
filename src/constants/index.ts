@@ -5,6 +5,7 @@ export const ROLE_KEY = 'role';
 
 export enum Provider {
   CLOUDINARY = 'cloudinary',
+  REDIS = 'redis',
 }
 
 export enum Environment {

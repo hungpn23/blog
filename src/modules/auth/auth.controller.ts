@@ -1,6 +1,7 @@
 import { RefreshToken } from '@/decorators/auth/refresh-token.decorator';
 import { ApiEndpoint } from '@/decorators/endpoint.decorator';
 import { JwtPayload } from '@/decorators/jwt-payload.decorator';
+import { JwtPayloadType, JwtRefreshPayloadType } from '@/types/auth.type';
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { ApiExcludeEndpoint } from '@nestjs/swagger';
 import { DeleteResult } from 'typeorm';
@@ -11,7 +12,6 @@ import {
   RegisterResDto,
 } from './auth.dto';
 import { AuthService } from './auth.service';
-import { JwtPayloadType, JwtRefreshPayloadType } from './auth.type';
 
 @Controller({
   path: 'auth',

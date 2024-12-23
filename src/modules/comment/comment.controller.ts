@@ -10,7 +10,8 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { JwtPayloadType } from '../auth/auth.type';
+
+import { JwtPayloadType } from '@/types/auth.type';
 import { CreateCommentDto, UpdateCommentDto } from './comment.dto';
 import { CommentEntity } from './comment.entity';
 import { CommentService } from './comment.service';

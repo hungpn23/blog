@@ -1,4 +1,4 @@
-import { JwtPayloadType } from '@/modules/auth/auth.type';
+import { JwtPayloadType } from '@/types/auth.type';
 import { Request } from 'express';
 
 export interface IRequestUser extends Request {

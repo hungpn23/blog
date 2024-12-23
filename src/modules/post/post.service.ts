@@ -2,7 +2,7 @@ import { OffsetPaginatedDto } from '@/dto/offset-pagination/paginated.dto';
 import { OffsetPaginationQueryDto } from '@/dto/offset-pagination/query.dto';
 import { type Uuid } from '@/types/branded.type';
 import paginate from '@/utils/offset-paginate';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { TopicEntity } from '../topic/topic.entity';
 import { UserEntity } from '../user/entities/user.entity';
 import { PostImageEntity } from './entities/post-image.entity';
@@ -11,6 +11,8 @@ import { CreatePostDto, UpdatePostDto } from './post.dto';
 
 @Injectable()
 export class PostService {
+  private logger = new Logger(PostService.name);
+
   async create(
     authorId: Uuid,
     topicId: Uuid,

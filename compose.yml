@@ -48,7 +48,7 @@ services:
     volumes:
       - redis:/data
     environment:
-      REDIS_ARGS: '--requirepass ${REDIS_PASSWORD}'
+      REDIS_ARGS: '--requirepass ${REDIS_DEFAULT_PASSWORD} --user ${REDIS_USERNAME} on >${REDIS_PASSWORD} ${REDIS_PERMISSIONS}'
     networks:
       - nestjs_api
 

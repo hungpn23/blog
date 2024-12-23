@@ -1,6 +1,7 @@
 import { ApiEndpoint, ApiFile } from '@/decorators/endpoint.decorator';
 import { JwtPayload } from '@/decorators/jwt-payload.decorator';
 import { validateImagePipe } from '@/pipes/validate-image.pipe';
+import { JwtPayloadType } from '@/types/auth.type';
 import { Uuid } from '@/types/branded.type';
 import {
   Body,
@@ -12,7 +13,6 @@ import {
   UploadedFile,
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { JwtPayloadType } from '../auth/auth.type';
 import { UserEntity } from './entities/user.entity';
 import { UpdateUserDto } from './user.dto';
 import { UserService } from './user.service';
