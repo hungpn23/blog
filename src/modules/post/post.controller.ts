@@ -92,8 +92,9 @@ export class PostController {
   })
   @Delete(':postId')
   async remove(
+    @JwtPayload() { userId }: JwtPayloadType,
     @Param('postId', ParseUUIDPipe) postId: Uuid,
   ): Promise<PostEntity> {
-    return await this.postService.remove(postId);
+    return await this.postService.remove(userId, postId);
   }
 }

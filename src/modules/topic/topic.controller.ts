@@ -13,15 +13,12 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
-  UseGuards,
 } from '@nestjs/common';
-import { RoleGuard } from '../auth/guards/role.guard';
 import { CreateTopicDto, UpdateTopicDto } from './topic.dto';
 import { TopicEntity } from './topic.entity';
 import { TopicService } from './topic.service';
 
-@UseRole(Role.ADMIN)
-@UseGuards(RoleGuard)
+@UseRole(Role.ADMIN) // apply role guard to all endpoints
 @Controller({
   path: 'topic',
   version: '1',

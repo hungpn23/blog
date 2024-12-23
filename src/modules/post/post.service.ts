@@ -2,7 +2,7 @@ import { OffsetPaginatedDto } from '@/dto/offset-pagination/paginated.dto';
 import { OffsetPaginationQueryDto } from '@/dto/offset-pagination/query.dto';
 import { type Uuid } from '@/types/branded.type';
 import paginate from '@/utils/offset-paginate';
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { TopicEntity } from '../topic/topic.entity';
 import { UserEntity } from '../user/entities/user.entity';
 import { PostImageEntity } from './entities/post-image.entity';
@@ -56,22 +56,32 @@ export class PostService {
     return await PostEntity.findOneByOrFail({ id });
   }
 
-  async update(authorId: Uuid, postId: Uuid, dto: UpdatePostDto) {
-    const [author, found] = await Promise.all([
-      UserEntity.findOneOrFail({ where: { id: authorId } }),
-      PostEntity.findOneOrFail({ where: { id: postId } }),
-    ]);
+  async update(userId: Uuid, postId: Uuid, dto: UpdatePostDto) {
+    const found = await PostEntity.findOneOrFail({
+      where: { id: postId },
+      relations: ['author'],
+    });
+
+    if (found.author.id !== userId)
+      throw new BadRequestException('You are not the author of this post');
 
     return await PostEntity.save(
       Object.assign(found, {
         ...dto,
-        updatedBy: author.username,
+        updatedBy: found.author.username,
       } as PostEntity),
     );
   }
 
-  async remove(postId: Uuid) {
-    const found = await PostEntity.findOneByOrFail({ id: postId });
+  async remove(userId: Uuid, postId: Uuid) {
+    const found = await PostEntity.findOneOrFail({
+      where: { id: postId },
+      relations: ['author'],
+    });
+
+    if (found.author.id !== userId)
+      throw new BadRequestException('You are not the author of this post');
+
     return await PostEntity.remove(found);
   }
 }

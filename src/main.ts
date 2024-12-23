@@ -18,6 +18,7 @@ import swaggerConfig from './configs/swagger.config';
 import { GlobalExceptionFilter } from './filters/global-exception.filter';
 import { AuthService } from './modules/auth/auth.service';
 import { AuthGuard } from './modules/auth/guards/auth.guard';
+import { RoleGuard } from './modules/auth/guards/role.guard';
 import { secureApiDocs } from './utils/secure-docs';
 
 async function bootstrap() {
@@ -47,6 +48,7 @@ async function bootstrap() {
   app.setGlobalPrefix(configService.get('APP_PREFIX'));
 
   app.useGlobalGuards(new AuthGuard(app.get(Reflector), app.get(AuthService)));
+  app.useGlobalGuards(new RoleGuard(app.get(Reflector)));
 
   app.useGlobalPipes(
     new ValidationPipe({

@@ -65,7 +65,6 @@ import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
             singleLine: true,
           },
         },
-        name: 'NestJS',
 
         customReceivedMessage: (req: IncomingMessage) => {
           return `REQUEST(${req.id}) ${req.method} ${req.headers['host']}${req.url}`;

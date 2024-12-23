@@ -66,4 +66,9 @@ export class UserService {
     await SessionEntity.delete({ expiresAt: LessThan(now) });
     this.logger.log('cleaned expired sessions');
   }
+
+  @Cron(CronExpression.EVERY_30_SECONDS)
+  async updateAvatarUrl() {
+    this.logger.log('update avatar url');
+  }
 }

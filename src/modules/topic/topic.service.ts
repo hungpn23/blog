@@ -19,11 +19,11 @@ export class TopicService {
     return await TopicEntity.find();
   }
 
-  async findOne(id: Uuid) {
-    return await TopicEntity.findOneByOrFail({ id });
+  async findOne(topicId: Uuid) {
+    return await TopicEntity.findOneByOrFail({ id: topicId });
   }
 
-  async update(userId: Uuid, topicId: Uuid, dto: UpdateTopicDto) {
+  async update(userId: Uuid, topicId: Uuid, { name }: UpdateTopicDto) {
     const [user, found] = await Promise.all([
       UserEntity.findOneByOrFail({ id: userId }),
       TopicEntity.findOneByOrFail({ id: topicId }),
@@ -31,14 +31,14 @@ export class TopicService {
 
     return await TopicEntity.save(
       Object.assign(found, {
-        name: dto.name,
+        name,
         updatedBy: user.username ?? SYSTEM,
       } as TopicEntity),
     );
   }
 
-  async remove(id: Uuid) {
-    const found = await TopicEntity.findOneByOrFail({ id });
+  async remove(topicId: Uuid) {
+    const found = await TopicEntity.findOneByOrFail({ id: topicId });
     return await TopicEntity.remove(found);
   }
 }
