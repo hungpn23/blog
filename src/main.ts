@@ -2,13 +2,13 @@ import {
   ClassSerializerInterceptor,
   HttpStatus,
   UnprocessableEntityException,
-  ValidationError,
   ValidationPipe,
   VersioningType,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { ValidationError } from 'class-validator';
 import compression from 'compression';
 import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';

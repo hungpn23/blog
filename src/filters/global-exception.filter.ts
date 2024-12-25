@@ -15,7 +15,6 @@ import {
 import { Response } from 'express';
 import { EntityNotFoundError, QueryFailedError } from 'typeorm';
 
-// ** handle all exceptions and log them to debug **
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(GlobalExceptionFilter.name);
@@ -56,7 +55,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       timestamp: new Date().toISOString(),
       statusCode,
       message: 'Validation failed',
-      details: this.getValidationErrorDetails(response.message),
+      details: this.handleValidationErrors(response.message),
     };
 
     return errorResponse as ErrorDto;
@@ -102,6 +101,43 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     } as ErrorDto;
   }
 
+  // https://www.yasint.dev/flatten-error-constraints
+  private handleValidationErrors(errors: ValidationError[]) {
+    const errorDetails: ErrorDetailDto[] = [];
+    for (const error of errors) {
+      this.transformError(error, errorDetails);
+    }
+    return errorDetails;
+  }
+
+  private transformError(
+    error: ValidationError,
+    errorDetails: ErrorDetailDto[],
+  ): void {
+    if (error.children) {
+      for (let child of error.children) {
+        Object.assign(child, {
+          property: `${error.property}.${child.property}`,
+        });
+
+        this.transformError(child, errorDetails);
+      }
+    }
+
+    if (error.constraints) {
+      for (const [code, message] of Object.entries(error.constraints)) {
+        errorDetails.push({
+          property: error.property,
+          code,
+          message,
+        });
+      }
+    }
+  }
+
+  /**
+   * @deprecated
+   */
   private getValidationErrorDetails(errors: ValidationError[]) {
     function extractErrors(error: ValidationError, parentProperty?: string) {
       const property = parentProperty

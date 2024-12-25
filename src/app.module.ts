@@ -25,6 +25,7 @@ import { DatabaseNamingStrategy } from './database/name-strategy';
 import { TypeOrmConfigService } from './database/typeorm-config.service';
 import { Modules as ApiModule } from './modules';
 import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
+import { NotificationGateway } from './notification.gateway';
 
 @Module({
   imports: [
@@ -125,6 +126,7 @@ import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
       provide: 'APP_INTERCEPTOR',
       useClass: CacheInterceptor, // auto cache responses
     },
+    NotificationGateway,
   ],
 })
 export class AppModule {}

@@ -1,50 +1,54 @@
-# Nestjs blog
+# NestJS Blog
 
-A nestjs blog project
+A NestJS blog project.
 
-## Libraries & frameworks
+## Libraries & Frameworks
 
-Nestjs, Typeorm (Mysql), Swagger, Pino
+- NestJS
+- TypeORM (MySQL)
+- Swagger
+- Pino
 
 ## Installation
 
+### Initialize
+
 ```bash
-# Initialize
 git clone https://github.com/hungpn23/blog.git
 cd blog
 cp .env.example .env
 pnpm install
-
-# Docker
-docker pull mysql:8.0
-docker compose up -d
-
-# MySQL replication
-docker exec -it mysql_master mysql -uroot -ppassword
-show master status;
-# copy content in File and Position column
-# paste into master_log_file & master_log_pos in replication.sql
-quit
-docker exec -it mysql_slave mysql -uroot -ppassword
-# copy content in replication.sql and paste into terminal
-start slave;
-show slave status\G;
-# Slave_IO_Running: Yes --> OK
-# Slave_SQL_Running: Yes --> OK
-quit
-
-# Seed database
-pnpm db:create
-pnpm seed:run
-
-# Start application
-pnpm start:dev
 ```
 
-## Checklist
+### Docker
 
-Change configurations in `.env` (optional)
+```bash
+docker pull mysql:8.0
+docker compose up -d
+```
 
-## Related
+### MySQL Replication
 
-[vndevteam](https://github.com/vndevteam/nestjs-boilerplate)
+```bash
+docker exec -it mysql_master mysql -uroot -ppassword
+```
+
+Run the following commands in the MySQL shell:
+
+```sql
+SHOW MASTER STATUS;
+```
+
+Copy the content in the `File` and `Position` columns and paste it into `master_log_file` & `master_log_pos` in `replication.sql`. Then, quit the MySQL shell:
+
+```bash
+quit
+```
+
+Next, run the following command:
+
+```bash
+docker exec -it mysql_slave mysql -uroot -ppassword
+```
+
+Copy the content in `replication.sql` and execute it in the MySQL shell.
