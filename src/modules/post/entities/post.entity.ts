@@ -5,7 +5,11 @@ import { UserEntity } from '@/modules/user/entities/user.entity';
 import { type Uuid } from '@/types/branded.type';
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
+import dayjs from 'dayjs';
+import slugify from 'slugify';
 import {
+  BeforeInsert,
+  BeforeUpdate,
   Column,
   Entity,
   JoinColumn,
@@ -31,8 +35,20 @@ export class PostEntity extends AbstractEntity {
   @Column()
   title: string;
 
+  @Column()
+  slug: string;
+
   @Column({ type: 'text' })
   content: string;
+
+  @Column({ name: 'word_count' })
+  wordCount: number;
+
+  @Column({ name: 'reading_time' })
+  readingTime: number;
+
+  @Column({ name: 'view_count', default: 0 })
+  viewCount: number;
 
   @OneToMany(() => PostImageEntity, (image) => image.post, { cascade: true })
   images: Relation<PostImageEntity[]>;
@@ -47,4 +63,16 @@ export class PostEntity extends AbstractEntity {
   @ManyToOne(() => TopicEntity, (topic) => topic.posts, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'topic_id', referencedColumnName: 'id' })
   topic: Relation<TopicEntity>;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  async calculateExtraInfomation() {
+    this.slug = slugify(this.title, { lower: true, strict: true });
+    this.wordCount = this.content.split(' ').length;
+    this.readingTime = Math.ceil(this.wordCount / 200);
+  }
+
+  formatTimestamp(timestamp: string): string {
+    return dayjs(timestamp).format('HH:mm DD/MM/YYYY');
+  }
 }

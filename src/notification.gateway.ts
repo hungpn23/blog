@@ -8,6 +8,7 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
+  WsException,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { Public } from './decorators/auth/public.decorator';
@@ -29,15 +30,19 @@ export class NotificationGateway
   }
 
   afterInit(server: Server) {
-    this.logger.log('server initialized');
+    server.use((socket, next) => {
+      this.logger.log(socket.handshake.headers);
+      next(new WsException('Unauthorized'));
+    });
+    this.logger.log('================ server initialized ================');
   }
 
   handleConnection(client: Socket, ...args: any[]) {
     this.logger.log(client.id);
-    this.logger.log('connected');
+    this.logger.log('================ connected ================');
   }
 
   handleDisconnect(client: Socket) {
-    this.logger.log('disconnected');
+    this.logger.log('================ disconnected ================');
   }
 }
