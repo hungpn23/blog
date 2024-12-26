@@ -9,7 +9,7 @@ export class CreatePostDto {
   content: string;
 
   @StringValidators({ isArray: true })
-  topics: string[];
+  tags: string[];
 }
 
 export class UpdatePostDto extends PartialType(CreatePostDto) {}

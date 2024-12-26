@@ -1,8 +1,8 @@
 import { StringValidators } from '@/decorators/properties.decorator';
 
-export class CreateTopicDto {
+export class CreateTagDto {
   @StringValidators()
   name: string;
 }
 
-export class UpdateTopicDto extends CreateTopicDto {}
+export class UpdateTagDto extends CreateTagDto {}

@@ -1,6 +1,6 @@
 import { Role } from '@/constants';
 import { PostEntity } from '@/modules/post/entities/post.entity';
-import { TopicEntity } from '@/modules/topic/topic.entity';
+import { TagEntity } from '@/modules/tag/tag.entity';
 import { UserEntity } from '@/modules/user/entities/user.entity';
 import _ from 'lodash';
 import { DataSource } from 'typeorm';
@@ -13,19 +13,19 @@ export class MainSeeder implements Seeder {
   ): Promise<any> {
     console.time('SEEDING TIME');
 
-    const topics = await TopicEntity.save([
-      new TopicEntity({ name: 'javascript' }),
-      new TopicEntity({ name: 'typescript' }),
-      new TopicEntity({ name: 'reactjs' }),
-      new TopicEntity({ name: 'nextjs' }),
-      new TopicEntity({ name: 'nestjs' }),
-      new TopicEntity({ name: 'express' }),
-      new TopicEntity({ name: 'nodejs' }),
-      new TopicEntity({ name: 'docker' }),
-      new TopicEntity({ name: 'git' }),
-      new TopicEntity({ name: 'mysql' }),
-      new TopicEntity({ name: 'redis' }),
-      new TopicEntity({ name: 'cloudinary' }),
+    const tags = await TagEntity.save([
+      new TagEntity({ name: 'javascript' }),
+      new TagEntity({ name: 'typescript' }),
+      new TagEntity({ name: 'reactjs' }),
+      new TagEntity({ name: 'nextjs' }),
+      new TagEntity({ name: 'nestjs' }),
+      new TagEntity({ name: 'express' }),
+      new TagEntity({ name: 'nodejs' }),
+      new TagEntity({ name: 'docker' }),
+      new TagEntity({ name: 'git' }),
+      new TagEntity({ name: 'mysql' }),
+      new TagEntity({ name: 'redis' }),
+      new TagEntity({ name: 'cloudinary' }),
     ]);
 
     const admin = await UserEntity.save(
@@ -50,7 +50,7 @@ export class MainSeeder implements Seeder {
     //     postFactory.make({
     //       createdBy: admin.username,
     //       author: admin,
-    //       topics: _.sampleSize(topics, _.random(1, 6)),
+    //       tags: _.sampleSize(tags, _.random(1, 6)),
     //     }),
     //   );
 
@@ -78,7 +78,7 @@ export class MainSeeder implements Seeder {
           content: `Content of post ${i}`,
           createdBy: admin.username,
           author: admin,
-          topics: _.sampleSize(topics, _.random(1, 6)),
+          tags: _.sampleSize(tags, _.random(1, 6)),
         }),
       );
     }

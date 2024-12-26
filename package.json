@@ -46,7 +46,6 @@
     "class-validator": "^0.14.1",
     "cloudinary": "^2.5.1",
     "compression": "^1.7.5",
-    "dayjs": "^1.11.13",
     "helmet": "^8.0.0",
     "lodash": "^4.17.21",
     "ms": "^2.1.3",

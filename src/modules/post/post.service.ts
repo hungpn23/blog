@@ -3,7 +3,7 @@ import { OffsetPaginationQueryDto } from '@/dto/offset-pagination/query.dto';
 import { type Uuid } from '@/types/branded.type';
 import paginate from '@/utils/offset-paginate';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { TopicEntity } from '../topic/topic.entity';
+import { TagEntity } from '../tag/tag.entity';
 import { UserEntity } from '../user/entities/user.entity';
 import { PostImageEntity } from './entities/post-image.entity';
 import { PostEntity } from './entities/post.entity';
@@ -22,9 +22,9 @@ export class PostService {
       where: { id: authorId },
     });
 
-    const topics = await Promise.all(
-      dto.topics.map(async (name) => {
-        return await TopicEntity.findOneOrFail({ where: { name } });
+    const tags = await Promise.all(
+      dto.tags.map(async (name) => {
+        return await TagEntity.findOneOrFail({ where: { name } });
       }),
     );
 
@@ -34,7 +34,7 @@ export class PostService {
 
     const newPost = new PostEntity({
       ...dto,
-      topics,
+      tags,
       author,
       images: postImages,
       createdBy: author.username ?? author.email,
@@ -45,7 +45,7 @@ export class PostService {
 
   async getMany(query: OffsetPaginationQueryDto) {
     let builder = PostEntity.createQueryBuilder('post')
-      .leftJoinAndSelect('post.topics', 'topics')
+      .leftJoinAndSelect('post.tags', 'tags')
       .select([
         'post.id',
         'post.title',
@@ -56,8 +56,8 @@ export class PostService {
         'post.viewCount',
         'post.createdAt',
         'post.createdBy',
-        'topics.id', // Chỉ định topics.id để đảm bảo lấy đầy đủ thông tin về các topics, nếu không thì sẽ lấy mỗi topic đầu tiên
-        'topics.name',
+        'tags.id', // Chỉ định tags.id để đảm bảo lấy đầy đủ thông tin về các tags, nếu không thì sẽ lấy mỗi tag đầu tiên
+        'tags.name',
       ]);
 
     if (query.search) {
@@ -85,10 +85,10 @@ export class PostService {
     if (found.author.id !== userId)
       throw new BadRequestException('You are not the author of this post');
 
-    if (dto.topics) {
-      found.topics = await Promise.all(
-        dto.topics.map(async (name) => {
-          return await TopicEntity.findOneOrFail({ where: { name } });
+    if (dto.tags) {
+      found.tags = await Promise.all(
+        dto.tags.map(async (name) => {
+          return await TagEntity.findOneOrFail({ where: { name } });
         }),
       );
     }

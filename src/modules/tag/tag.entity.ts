@@ -9,15 +9,14 @@ import {
   Entity,
   JoinTable,
   ManyToMany,
-  OneToMany,
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
 
 @Expose()
-@Entity('topic')
-export class TopicEntity extends AbstractEntity {
-  constructor(data?: Partial<TopicEntity>) {
+@Entity('tag')
+export class TagEntity extends AbstractEntity {
+  constructor(data?: Partial<TagEntity>) {
     super();
     Object.assign(this, data);
   }
@@ -29,11 +28,11 @@ export class TopicEntity extends AbstractEntity {
   @Column({ unique: true })
   name: string;
 
-  @ManyToMany(() => PostEntity, (post) => post.topics, { cascade: true })
+  @ManyToMany(() => PostEntity, (post) => post.tags, { cascade: true })
   @JoinTable({
-    name: 'post_topics', // Tên bảng trung gian
+    name: 'post_tags', // Tên bảng trung gian
     joinColumn: {
-      name: 'topic_id',
+      name: 'tag_id',
       referencedColumnName: 'id',
     },
     inverseJoinColumn: {

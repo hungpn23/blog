@@ -1,11 +1,10 @@
 import { AbstractEntity } from '@/database/entities/abstract.entity';
 import { CommentEntity } from '@/modules/comment/comment.entity';
-import { TopicEntity } from '@/modules/topic/topic.entity';
+import { TagEntity } from '@/modules/tag/tag.entity';
 import { UserEntity } from '@/modules/user/entities/user.entity';
 import { type Uuid } from '@/types/branded.type';
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import dayjs from 'dayjs';
 import slugify from 'slugify';
 import {
   BeforeInsert,
@@ -36,7 +35,7 @@ export class PostEntity extends AbstractEntity {
   @Column()
   title: string;
 
-  @Column()
+  @Column({ unique: true })
   slug: string;
 
   @Column({ type: 'text' })
@@ -61,8 +60,8 @@ export class PostEntity extends AbstractEntity {
   @JoinColumn({ name: 'author_id', referencedColumnName: 'id' })
   author: Relation<UserEntity>;
 
-  @ManyToMany(() => TopicEntity, (topic) => topic.posts)
-  topics: Relation<TopicEntity[]>;
+  @ManyToMany(() => TagEntity, (tag) => tag.posts)
+  tags: Relation<TagEntity[]>;
 
   @BeforeInsert()
   @BeforeUpdate()
@@ -70,9 +69,5 @@ export class PostEntity extends AbstractEntity {
     this.slug = slugify(this.title, { lower: true, strict: true });
     this.wordCount = this.content.split(' ').length;
     this.readingTime = Math.ceil(this.wordCount / 200);
-  }
-
-  formatTimestamp(timestamp: string): string {
-    return dayjs(timestamp).format('HH:mm DD/MM/YYYY');
   }
 }
