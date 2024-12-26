@@ -16,7 +16,7 @@ export class TopicService {
   }
 
   async findAll() {
-    return await TopicEntity.find();
+    return await TopicEntity.find({ select: ['name'] });
   }
 
   async findOne(topicId: Uuid) {
@@ -38,7 +38,7 @@ export class TopicService {
   }
 
   async remove(topicId: Uuid) {
-    const found = await TopicEntity.findOneByOrFail({ id: topicId });
+    const found = await TopicEntity.findOneOrFail({ where: { id: topicId } });
     return await TopicEntity.remove(found);
   }
 }

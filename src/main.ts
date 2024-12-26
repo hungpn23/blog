@@ -71,7 +71,6 @@ async function bootstrap() {
 
   // ================= swagger =================
   secureApiDocs(app.getHttpAdapter());
-  // app.useStaticAssets('served'); // https://trilon.io/blog/nestjs-swagger-tips-tricks#pre-authentication
   await swaggerConfig(app, configService);
 
   // ================= start app =================

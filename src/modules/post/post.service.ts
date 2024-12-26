@@ -15,14 +15,18 @@ export class PostService {
 
   async create(
     authorId: Uuid,
-    topicId: Uuid,
     files: Express.Multer.File[],
     dto: CreatePostDto,
   ) {
-    const [author, topic] = await Promise.all([
-      UserEntity.findOneOrFail({ where: { id: authorId } }),
-      TopicEntity.findOneOrFail({ where: { id: topicId } }),
-    ]);
+    const author = await UserEntity.findOneOrFail({
+      where: { id: authorId },
+    });
+
+    const topics = await Promise.all(
+      dto.topics.map(async (name) => {
+        return await TopicEntity.findOneOrFail({ where: { name } });
+      }),
+    );
 
     const postImages = files.map(
       ({ path }) => new PostImageEntity({ url: path }),
@@ -30,7 +34,7 @@ export class PostService {
 
     const newPost = new PostEntity({
       ...dto,
-      topic,
+      topics,
       author,
       images: postImages,
       createdBy: author.username ?? author.email,
@@ -40,7 +44,22 @@ export class PostService {
   }
 
   async getMany(query: OffsetPaginationQueryDto) {
-    let builder = PostEntity.createQueryBuilder('post');
+    let builder = PostEntity.createQueryBuilder('post')
+      .leftJoinAndSelect('post.topics', 'topics')
+      .select([
+        'post.id',
+        'post.title',
+        'post.slug',
+        'post.content',
+        'post.wordCount',
+        'post.readingTime',
+        'post.viewCount',
+        'post.createdAt',
+        'post.createdBy',
+        'topics.id', // Chỉ định topics.id để đảm bảo lấy đầy đủ thông tin về các topics, nếu không thì sẽ lấy mỗi topic đầu tiên
+        'topics.name',
+      ]);
+
     if (query.search) {
       let search = query.search.replaceAll('-', ' ').trim();
       builder
@@ -49,6 +68,7 @@ export class PostService {
     }
 
     const { entities, metadata } = await paginate<PostEntity>(builder, query);
+
     return new OffsetPaginatedDto<PostEntity>(entities, metadata);
   }
 
@@ -65,11 +85,19 @@ export class PostService {
     if (found.author.id !== userId)
       throw new BadRequestException('You are not the author of this post');
 
+    if (dto.topics) {
+      found.topics = await Promise.all(
+        dto.topics.map(async (name) => {
+          return await TopicEntity.findOneOrFail({ where: { name } });
+        }),
+      );
+    }
+
     return await PostEntity.save(
       Object.assign(found, {
         ...dto,
-        updatedBy: found.author.username,
-      } as PostEntity),
+        updatedBy: found.author.username ?? found.author.email,
+      }),
     );
   }
 

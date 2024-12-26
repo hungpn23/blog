@@ -1,4 +1,5 @@
 import { Role } from '@/constants';
+import { Public } from '@/decorators/auth/public.decorator';
 import { UseRole } from '@/decorators/auth/role.decorator';
 import { ApiEndpoint } from '@/decorators/endpoint.decorator';
 import { JwtPayload } from '@/decorators/jwt-payload.decorator';
@@ -38,6 +39,7 @@ export class TopicController {
     return await this.topicService.create(userId, dto);
   }
 
+  @Public()
   @ApiEndpoint({
     type: TopicEntity,
     summary: 'get all topic',
@@ -47,6 +49,7 @@ export class TopicController {
     return await this.topicService.findAll();
   }
 
+  @Public()
   @ApiEndpoint({
     type: TopicEntity,
     summary: 'get a topic by id',

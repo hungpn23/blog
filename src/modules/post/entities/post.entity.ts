@@ -13,6 +13,7 @@ import {
   Column,
   Entity,
   JoinColumn,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -60,9 +61,8 @@ export class PostEntity extends AbstractEntity {
   @JoinColumn({ name: 'author_id', referencedColumnName: 'id' })
   author: Relation<UserEntity>;
 
-  @ManyToOne(() => TopicEntity, (topic) => topic.posts, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'topic_id', referencedColumnName: 'id' })
-  topic: Relation<TopicEntity>;
+  @ManyToMany(() => TopicEntity, (topic) => topic.posts)
+  topics: Relation<TopicEntity[]>;
 
   @BeforeInsert()
   @BeforeUpdate()

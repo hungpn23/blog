@@ -26,7 +26,6 @@ export default async function swaggerConfig(
 
   SwaggerModule.setup('api-docs', app, document, {
     customSiteTitle: appName,
-    // customJs: '/swagger-custom.js',
     swaggerOptions: {
       // https://trilon.io/blog/nestjs-swagger-tips-tricks#preauth-alternatives
       persistAuthorization: true,

@@ -7,6 +7,8 @@ import { Expose } from 'class-transformer';
 import {
   Column,
   Entity,
+  JoinTable,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
   Relation,
@@ -27,6 +29,17 @@ export class TopicEntity extends AbstractEntity {
   @Column({ unique: true })
   name: string;
 
-  @OneToMany(() => PostEntity, (post) => post.topic, { cascade: true })
+  @ManyToMany(() => PostEntity, (post) => post.topics, { cascade: true })
+  @JoinTable({
+    name: 'post_topics', // Tên bảng trung gian
+    joinColumn: {
+      name: 'topic_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'post_id',
+      referencedColumnName: 'id',
+    },
+  })
   posts: Relation<PostEntity[]>;
 }

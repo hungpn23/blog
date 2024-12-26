@@ -1,3 +1,4 @@
+import { Public } from '@/decorators/auth/public.decorator';
 import { ApiArrayFiles, ApiEndpoint } from '@/decorators/endpoint.decorator';
 import { JwtPayload } from '@/decorators/jwt-payload.decorator';
 import { OffsetPaginatedDto } from '@/dto/offset-pagination/paginated.dto';
@@ -33,20 +34,19 @@ export class PostController {
   @ApiEndpoint({
     type: PostEntity,
     summary: 'create a new file',
-    params: [{ name: 'topicId' }],
   })
-  @Post(':topicId')
+  @Post()
   async create(
     @UploadedFiles(validateImagePipe({ required: false }))
     files: Express.Multer.File[],
     @JwtPayload() { userId }: JwtPayloadType,
     @Body() dto: CreatePostDto | typeof CreatePostDto, // avoid empty object bug
-    @Param('topicId', ParseUUIDPipe) topicId: Uuid,
   ): Promise<PostEntity> {
     dto = plainToInstance(CreatePostDto, dto);
-    return await this.postService.create(userId, topicId, files, dto);
+    return await this.postService.create(userId, files, dto);
   }
 
+  @Public()
   @ApiEndpoint({
     type: PostEntity,
     isPaginated: true,
@@ -59,6 +59,7 @@ export class PostController {
     return await this.postService.getMany(query);
   }
 
+  @Public()
   @ApiEndpoint({
     type: PostEntity,
     summary: 'get a post by id',

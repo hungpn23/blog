@@ -7,11 +7,13 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RedisStore, redisStore } from 'cache-manager-redis-yet';
 import { IncomingMessage, ServerResponse } from 'http';
 import { LoggerModule } from 'nestjs-pino';
+import { join } from 'path';
 import { DataSource } from 'typeorm';
 import appConfig from './configs/app.config';
 import authConfig from './configs/auth.config';
@@ -120,6 +122,11 @@ import { NotificationGateway } from './notification.gateway';
     CloudinaryModule,
 
     ApiModule,
+
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'uploads'),
+      serveRoot: '/uploads',
+    }),
   ],
   providers: [
     {
