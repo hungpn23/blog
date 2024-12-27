@@ -16,6 +16,7 @@ export class CloudinaryEnvVariables {
 
 // config namespace
 export default registerAs<CloudinaryEnvVariables>('cloudinary', () => {
+  console.log('register cloudinary config');
   validateConfig(process.env, CloudinaryEnvVariables);
 
   return {

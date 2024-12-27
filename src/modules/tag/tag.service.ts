@@ -16,7 +16,7 @@ export class TagService {
   }
 
   async findAll() {
-    return await TagEntity.find({ select: ['name'] });
+    return await TagEntity.find({ select: ['name', 'id'] });
   }
 
   async findOne(tagId: Uuid) {

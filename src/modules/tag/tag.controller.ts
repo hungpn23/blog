@@ -19,7 +19,6 @@ import { CreateTagDto, UpdateTagDto } from './tag.dto';
 import { TagEntity } from './tag.entity';
 import { TagService } from './tag.service';
 
-@UseRole(Role.ADMIN) // apply role guard to all endpoints
 @Controller({
   path: 'tag',
   version: '1',
@@ -27,6 +26,7 @@ import { TagService } from './tag.service';
 export class TagController {
   constructor(private tagService: TagService) {}
 
+  @UseRole(Role.ADMIN)
   @ApiEndpoint({
     type: TagEntity,
     summary: 'create a new tag',
@@ -62,6 +62,7 @@ export class TagController {
     return await this.tagService.findOne(tagId);
   }
 
+  @UseRole(Role.ADMIN)
   @ApiEndpoint({
     type: TagEntity,
     summary: 'update a tag by id, return updated tag',
@@ -76,6 +77,7 @@ export class TagController {
     return await this.tagService.update(userId, tagId, dto);
   }
 
+  @UseRole(Role.ADMIN)
   @ApiEndpoint({
     type: TagEntity,
     summary: 'delete a tag by id, return deleted tag',

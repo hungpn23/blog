@@ -15,7 +15,7 @@ import {
   Min,
   MinLength,
 } from 'class-validator';
-import { ToBoolean, ToLowerCase, ToUpperCase } from './transforms.decorator';
+import { ToLowerCase, ToUpperCase } from './transforms.decorator';
 
 type CommonOptions = {
   isArray?: boolean; // to check if prop is an array & to validate each items in array
@@ -122,7 +122,7 @@ export function UrlValidators(
 // }
 
 export function BooleanValidators(options?: CommonOptions): PropertyDecorator {
-  let decorators = [ToBoolean(), IsBoolean({ each: options?.isArray })];
+  let decorators = [IsBoolean({ each: options?.isArray })];
 
   decorators = checkCommonOptions(decorators, options);
 

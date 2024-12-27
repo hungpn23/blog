@@ -5,9 +5,7 @@ export function validateConfig<T extends object>(
   config: Record<string, unknown>,
   envVariablesClass: ClassConstructor<T>,
 ) {
-  const validated = plainToClass(envVariablesClass, config, {
-    enableImplicitConversion: true,
-  });
+  const validated = plainToClass(envVariablesClass, config);
 
   const errors = validateSync(validated, {
     skipMissingProperties: false,

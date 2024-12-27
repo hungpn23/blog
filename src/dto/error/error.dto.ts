@@ -2,9 +2,9 @@ import { OmitType } from '@nestjs/swagger';
 import { ErrorDetailDto } from './error-detail.dto';
 
 export class ErrorDto {
+  timestamp: string;
   statusCode: number;
   message: string;
-  timestamp: string;
   details?: ErrorDetailDto[];
 }
 

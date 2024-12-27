@@ -74,7 +74,7 @@ export class MainSeeder implements Seeder {
     for (let i = 1; i <= totalPosts; i++) {
       posts.push(
         new PostEntity({
-          title: `Post ${i}`,
+          title: `Post ${i} title`,
           content: `Content of post ${i}`,
           createdBy: admin.username,
           author: admin,

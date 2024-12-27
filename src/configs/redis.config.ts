@@ -28,6 +28,7 @@ export class RedisEnvVariables {
 
 // config namespace
 export default registerAs<RedisEnvVariables>('redis', () => {
+  console.log('register redis config');
   validateConfig(process.env, RedisEnvVariables);
 
   return {

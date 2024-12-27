@@ -13,6 +13,7 @@ export class ThrottlerEnvVariables {
 
 // config namespace
 export default registerAs<ThrottlerEnvVariables>('throttler', () => {
+  console.log('register throttler config');
   validateConfig(process.env, ThrottlerEnvVariables);
 
   return {

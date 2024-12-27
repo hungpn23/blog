@@ -1,5 +1,4 @@
 import {
-  BooleanValidators,
   NumberValidators,
   StringValidators,
 } from '@/decorators/properties.decorator';
@@ -29,18 +28,13 @@ export class DatabaseEnvVariables {
   @StringValidators()
   DATABASE_DATABASE_NAME: string;
 
-  @BooleanValidators()
-  DATABASE_SYNCHRONIZE: boolean;
-
-  @BooleanValidators()
-  DATABASE_LOGGING: boolean;
-
   @StringValidators()
   DATABASE_TIMEZONE: string;
 }
 
 // config namespace
 export default registerAs<DatabaseEnvVariables>('database', () => {
+  console.log('register database config');
   validateConfig(process.env, DatabaseEnvVariables);
 
   return {
@@ -51,8 +45,6 @@ export default registerAs<DatabaseEnvVariables>('database', () => {
     DATABASE_USERNAME: process.env.DATABASE_USERNAME,
     DATABASE_PASSWORD: process.env.DATABASE_PASSWORD,
     DATABASE_DATABASE_NAME: process.env.DATABASE_DATABASE_NAME,
-    DATABASE_SYNCHRONIZE: process.env.DATABASE_SYNCHRONIZE === 'true',
-    DATABASE_LOGGING: process.env.DATABASE_LOGGING === 'true',
     DATABASE_TIMEZONE: process.env.DATABASE_TIMEZONE,
   };
 });
