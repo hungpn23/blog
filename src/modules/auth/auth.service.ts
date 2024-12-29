@@ -35,17 +35,21 @@ export class AuthService {
     const found = await UserEntity.existsBy({ email });
     if (found) throw new AuthException(AuthError.E01);
 
-    const newUser = await UserEntity.save(
-      new UserEntity({ ...dto, role: Role.USER }),
-    );
-
-    return { userId: newUser.id, role: newUser.role };
+    await UserEntity.save(new UserEntity({ ...dto, role: Role.USER }));
   }
 
   async login(dto: AuthReqDto) {
     const { email, password } = dto;
     const user = await UserEntity.findOne({
       where: { email },
+      select: [
+        'username',
+        'email',
+        'isEmailVerified',
+        'bio',
+        'avatar',
+        'password', // for validate password
+      ],
     });
 
     const isValid =
@@ -76,7 +80,7 @@ export class AuthService {
       this.createRefreshToken({ ...payload, signature }),
     ]);
     return {
-      userId: user.id,
+      user,
       accessToken,
       refreshToken,
     };
@@ -138,9 +142,11 @@ export class AuthService {
     return payload;
   }
 
-  verifyRefreshToken(refreshToken: string): JwtRefreshPayloadType {
+  async verifyRefreshToken(
+    refreshToken: string,
+  ): Promise<JwtRefreshPayloadType> {
     try {
-      return this.jwtService.verify(refreshToken, {
+      return await this.jwtService.verifyAsync(refreshToken, {
         secret: this.configService.get('AUTH_REFRESH_SECRET'),
       });
     } catch (error) {

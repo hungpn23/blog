@@ -105,7 +105,7 @@ import { NotificationGateway } from './notification.gateway';
           },
           username: configService.get('REDIS_USERNAME', { infer: true }),
           password: configService.get('REDIS_PASSWORD', { infer: true }),
-          ttl: 30000,
+          ttl: 1, // for development only
         });
 
         return {

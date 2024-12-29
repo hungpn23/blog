@@ -24,3 +24,8 @@ export class OffsetPaginationQueryDto {
     return this.page ? (this.page - 1) * this.limit : 0;
   }
 }
+
+export class PostQueryDto extends OffsetPaginationQueryDto {
+  @StringValidators({ required: false })
+  tag?: string;
+}

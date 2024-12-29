@@ -8,7 +8,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { Request as ExpressRequest } from 'express';
 
-import { JwtPayloadType, JwtRefreshPayloadType } from '@/types/auth.type';
+import { JwtPayloadType } from '@/types/auth.type';
 import { AuthService } from '../auth.service';
 
 @Injectable()
@@ -34,9 +34,7 @@ export class AuthGuard implements CanActivate {
       const refreshToken = this.extractTokenFromHeader(request);
       if (!refreshToken) throw new UnauthorizedException();
 
-      request['user'] = this.authService.verifyRefreshToken(
-        refreshToken,
-      ) as JwtRefreshPayloadType;
+      request['user'] = await this.authService.verifyRefreshToken(refreshToken);
 
       return true;
     }

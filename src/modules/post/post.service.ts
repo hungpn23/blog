@@ -1,5 +1,5 @@
 import { OffsetPaginatedDto } from '@/dto/offset-pagination/paginated.dto';
-import { OffsetPaginationQueryDto } from '@/dto/offset-pagination/query.dto';
+import { PostQueryDto } from '@/dto/offset-pagination/query.dto';
 import { type Uuid } from '@/types/branded.type';
 import paginate from '@/utils/offset-paginate';
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
@@ -43,9 +43,8 @@ export class PostService {
     return await PostEntity.save(newPost);
   }
 
-  async getMany(query: OffsetPaginationQueryDto) {
-    let builder = PostEntity.createQueryBuilder('post')
-      .leftJoinAndSelect('post.tags', 'tags')
+  async getMany(query: PostQueryDto) {
+    const builder = PostEntity.createQueryBuilder('post')
       .select([
         'post.id',
         'post.title',
@@ -56,19 +55,35 @@ export class PostService {
         'post.viewCount',
         'post.createdAt',
         'post.createdBy',
-        'tags.id', // Chỉ định tags.id để đảm bảo lấy đầy đủ thông tin về các tags, nếu không thì sẽ lấy mỗi tag đầu tiên
+        'tags.id',
         'tags.name',
-      ]);
+      ])
+      .innerJoin('post.tags', 'tags');
 
-    if (query.search) {
-      let search = query.search.replaceAll('-', ' ').trim();
-      builder
-        .where('post.title LIKE :title', { title: `%${search}%` })
-        .orWhere('post.content LIKE :content', { content: `%${search}%` });
+    if (query.tag && query.tag !== 'undefined') {
+      builder.where((qb) => {
+        return (
+          'post.id IN ' +
+          qb
+            .subQuery()
+            .select('post.id')
+            .from(PostEntity, 'post')
+            .innerJoin('post.tags', 'tag')
+            .where('tag.name = :name', { name: query.tag })
+            .getQuery()
+        );
+      });
     }
 
-    const { entities, metadata } = await paginate<PostEntity>(builder, query);
+    // ** not implemented yet
+    // if (query.search) {
+    //   let search = query.search.replaceAll('-', ' ').trim();
+    //   builder
+    //     .where('post.title LIKE :title', { title: `%${search}%` })
+    //     .orWhere('post.content LIKE :content', { content: `%${search}%` });
+    // }
 
+    const { entities, metadata } = await paginate<PostEntity>(builder, query);
     return new OffsetPaginatedDto<PostEntity>(entities, metadata);
   }
 

@@ -2,7 +2,7 @@ import { Public } from '@/decorators/auth/public.decorator';
 import { ApiArrayFiles, ApiEndpoint } from '@/decorators/endpoint.decorator';
 import { JwtPayload } from '@/decorators/jwt-payload.decorator';
 import { OffsetPaginatedDto } from '@/dto/offset-pagination/paginated.dto';
-import { OffsetPaginationQueryDto } from '@/dto/offset-pagination/query.dto';
+import { PostQueryDto } from '@/dto/offset-pagination/query.dto';
 import { validateImagePipe } from '@/pipes/validate-image.pipe';
 import { JwtPayloadType } from '@/types/auth.type';
 import { type Uuid } from '@/types/branded.type';
@@ -54,7 +54,7 @@ export class PostController {
   })
   @Get()
   async getMany(
-    @Query() query: OffsetPaginationQueryDto,
+    @Query() query: PostQueryDto,
   ): Promise<OffsetPaginatedDto<PostEntity>> {
     return await this.postService.getMany(query);
   }

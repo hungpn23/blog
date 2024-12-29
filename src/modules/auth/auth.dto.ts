@@ -1,9 +1,9 @@
 import { ToLowerCase } from '@/decorators/transforms.decorator';
 import { IsPassword } from '@/decorators/validators/is-password.decorator';
-import { type Uuid } from '@/types/branded.type';
-import { ApiProperty, PickType } from '@nestjs/swagger';
+import { PickType } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { IsEmail, MinLength } from 'class-validator';
+import { UserEntity } from '../user/entities/user.entity';
 
 export class AuthReqDto {
   @ToLowerCase()
@@ -17,14 +17,10 @@ export class AuthReqDto {
 
 @Expose()
 export class AuthResDto {
-  @ApiProperty({ type: () => String })
-  userId: Uuid;
+  user: UserEntity;
   accessToken: string;
   refreshToken: string;
 }
-
-@Expose()
-export class RegisterResDto extends PickType(AuthResDto, ['userId'] as const) {}
 
 @Expose()
 export class LoginResDto extends AuthResDto {}

@@ -1,7 +1,7 @@
 import { AbstractEntity } from '@/database/entities/abstract.entity';
 import { PostEntity } from '@/modules/post/entities/post.entity';
 import { type Uuid } from '@/types/branded.type';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 
 import { Expose } from 'class-transformer';
 import {
@@ -28,6 +28,7 @@ export class TagEntity extends AbstractEntity {
   @Column({ unique: true })
   name: string;
 
+  @ApiHideProperty()
   @ManyToMany(() => PostEntity, (post) => post.tags, { cascade: true })
   @JoinTable({
     name: 'post_tags', // Tên bảng trung gian

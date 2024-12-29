@@ -5,12 +5,7 @@ import { JwtPayloadType, JwtRefreshPayloadType } from '@/types/auth.type';
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { ApiExcludeEndpoint } from '@nestjs/swagger';
 import { DeleteResult } from 'typeorm';
-import {
-  AuthReqDto,
-  LoginResDto,
-  RefreshResDto,
-  RegisterResDto,
-} from './auth.dto';
+import { AuthReqDto, LoginResDto, RefreshResDto } from './auth.dto';
 import { AuthService } from './auth.service';
 
 @Controller({
@@ -23,11 +18,10 @@ export class AuthController {
   @ApiEndpoint({
     isPublic: true,
     summary: 'register a new account',
-    type: RegisterResDto,
   })
   @Post('/register')
-  async register(@Body() dto: AuthReqDto): Promise<RegisterResDto> {
-    return await this.authService.register(dto);
+  async register(@Body() dto: AuthReqDto): Promise<void> {
+    await this.authService.register(dto);
   }
 
   @ApiEndpoint({
