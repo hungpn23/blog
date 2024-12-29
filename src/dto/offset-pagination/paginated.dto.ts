@@ -5,12 +5,12 @@ import { OffsetMetadataDto } from './metadata.dto';
 @Expose()
 export class OffsetPaginatedDto<Data> {
   @ApiProperty({ type: () => [Object] }) // to avoid circular dependency
-  data: Data[];
+  paginatedData: Data[];
 
   metadata: OffsetMetadataDto;
 
-  constructor(data: Data[], metadata: OffsetMetadataDto) {
-    this.data = data;
+  constructor(paginatedData: Data[], metadata: OffsetMetadataDto) {
+    this.paginatedData = paginatedData;
     this.metadata = metadata;
   }
 }

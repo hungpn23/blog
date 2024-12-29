@@ -14,6 +14,7 @@ import { JwtService } from '@nestjs/jwt';
 import argon2 from 'argon2';
 import { Cache } from 'cache-manager';
 import crypto from 'crypto';
+import { Response as ExpressResponse } from 'express';
 import ms from 'ms';
 import { DeleteResult } from 'typeorm';
 import { SessionEntity } from '../user/entities/session.entity';
@@ -38,34 +39,31 @@ export class AuthService {
     await UserEntity.save(new UserEntity({ ...dto, role: Role.USER }));
   }
 
-  async login(dto: AuthReqDto) {
+  async login(dto: AuthReqDto, res: ExpressResponse) {
     const { email, password } = dto;
     const user = await UserEntity.findOne({
       where: { email },
-      select: [
-        'username',
-        'email',
-        'isEmailVerified',
-        'bio',
-        'avatar',
-        'password', // for validate password
-      ],
     });
 
     const isValid =
       user && (await this.verifyPassword(user.password, password));
     if (!isValid) throw new AuthException(AuthError.V02);
 
-    const signature = this.createSignature();
-    const expiresInMilliseconds = ms(
-      this.configService.get('AUTH_REFRESH_TOKEN_EXPIRES_IN'),
+    const accessTokenTtl = this.configService.get('AUTH_JWT_TOKEN_EXPIRES_IN', {
+      infer: true,
+    });
+
+    const refreshTokenTtl = this.configService.get(
+      'AUTH_REFRESH_TOKEN_EXPIRES_IN',
+      { infer: true },
     );
 
+    const signature = this.createSignature();
     const session = await SessionEntity.save(
       new SessionEntity({
         signature,
         user,
-        expiresAt: new Date(Date.now() + expiresInMilliseconds),
+        expiresAt: new Date(Date.now() + ms(refreshTokenTtl)),
       }),
     );
 
@@ -79,11 +77,18 @@ export class AuthService {
       this.createAccessToken(payload),
       this.createRefreshToken({ ...payload, signature }),
     ]);
-    return {
-      user,
-      accessToken,
-      refreshToken,
-    };
+
+    res.cookie('access_token', accessToken, {
+      httpOnly: true,
+      maxAge: ms(accessTokenTtl),
+    });
+
+    res.cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      maxAge: ms(refreshTokenTtl),
+    });
+
+    return await UserEntity.findOneBy({ id: user.id });
   }
 
   async logout(payload: JwtPayloadType): Promise<DeleteResult> {
@@ -95,11 +100,13 @@ export class AuthService {
     return await SessionEntity.delete({ id: sessionId });
   }
 
-  async refreshToken({ sessionId, signature }: JwtRefreshPayloadType) {
+  async refreshToken(
+    { sessionId, signature }: JwtRefreshPayloadType,
+    res: ExpressResponse,
+  ): Promise<void> {
     const session = await SessionEntity.findOne({
       where: { id: sessionId },
       relations: { user: true },
-      select: { id: true, signature: true, user: { id: true } },
     });
 
     if (!session || session.signature !== signature)
@@ -113,7 +120,14 @@ export class AuthService {
 
     const accessToken = await this.createAccessToken(payload);
 
-    return { accessToken };
+    const accessTokenTtl = this.configService.get('AUTH_JWT_TOKEN_EXPIRES_IN', {
+      infer: true,
+    });
+
+    res.cookie('access_token', accessToken, {
+      httpOnly: true,
+      maxAge: ms(accessTokenTtl),
+    });
   }
   // *** END ROUTE ***
 

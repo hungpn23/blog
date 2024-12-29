@@ -25,13 +25,17 @@ export class AuthGuard implements CanActivate {
     ]);
     if (isPublic) return true;
 
+    const request = context.switchToHttp().getRequest<ExpressRequest>();
+
     const isRefreshToken = this.reflector.getAllAndOverride<boolean>(
       IS_REFRESH_TOKEN_KEY,
       [context.getClass(), context.getHandler()],
     );
     if (isRefreshToken) {
-      const request = context.switchToHttp().getRequest<ExpressRequest>();
-      const refreshToken = this.extractTokenFromHeader(request);
+      const refreshToken = this.extractTokenFromCookie(
+        request,
+        'refresh_token',
+      );
       if (!refreshToken) throw new UnauthorizedException();
 
       request['user'] = await this.authService.verifyRefreshToken(refreshToken);
@@ -39,8 +43,7 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest<ExpressRequest>();
-    const accessToken = this.extractTokenFromHeader(request);
+    const accessToken = this.extractTokenFromCookie(request, 'access_token');
     if (!accessToken) throw new UnauthorizedException();
 
     request['user'] = (await this.authService.verifyAccessToken(
@@ -50,8 +53,18 @@ export class AuthGuard implements CanActivate {
     return true;
   }
 
+  /**
+   * @deprecated
+   */
   private extractTokenFromHeader(request: ExpressRequest): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
+  }
+
+  private extractTokenFromCookie(
+    request: ExpressRequest,
+    key: string,
+  ): string | undefined {
+    return request.cookies[key];
   }
 }

@@ -56,7 +56,7 @@ export class PostController {
   async getMany(
     @Query() query: PostQueryDto,
   ): Promise<OffsetPaginatedDto<PostEntity>> {
-    return await this.postService.getMany(query);
+    return await this.postService.getManyV2(query);
   }
 
   @Public()

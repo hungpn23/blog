@@ -15,6 +15,9 @@ export class AuthReqDto {
   password: string;
 }
 
+/**
+ * @deprecated
+ */
 @Expose()
 export class AuthResDto {
   user: UserEntity;
@@ -22,9 +25,15 @@ export class AuthResDto {
   refreshToken: string;
 }
 
+/**
+ * @deprecated
+ */
 @Expose()
 export class LoginResDto extends AuthResDto {}
 
+/**
+ * @deprecated
+ */
 @Expose()
 export class RefreshResDto extends PickType(AuthResDto, [
   'accessToken',

@@ -2,10 +2,12 @@ import { RefreshToken } from '@/decorators/auth/refresh-token.decorator';
 import { ApiEndpoint } from '@/decorators/endpoint.decorator';
 import { JwtPayload } from '@/decorators/jwt-payload.decorator';
 import { JwtPayloadType, JwtRefreshPayloadType } from '@/types/auth.type';
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Res } from '@nestjs/common';
 import { ApiExcludeEndpoint } from '@nestjs/swagger';
+import { Response as ExpressResponse } from 'express';
 import { DeleteResult } from 'typeorm';
-import { AuthReqDto, LoginResDto, RefreshResDto } from './auth.dto';
+import { UserEntity } from '../user/entities/user.entity';
+import { AuthReqDto } from './auth.dto';
 import { AuthService } from './auth.service';
 
 @Controller({
@@ -27,11 +29,14 @@ export class AuthController {
   @ApiEndpoint({
     isPublic: true,
     summary: 'login',
-    type: LoginResDto,
+    type: UserEntity,
   })
   @Post('/login')
-  async login(@Body() dto: AuthReqDto): Promise<LoginResDto> {
-    return await this.authService.login(dto);
+  async login(
+    @Body() dto: AuthReqDto,
+    @Res({ passthrough: true }) res: ExpressResponse,
+  ): Promise<UserEntity> {
+    return await this.authService.login(dto, res);
   }
 
   @ApiEndpoint({ summary: 'logout', type: DeleteResult })
@@ -41,12 +46,13 @@ export class AuthController {
   }
 
   @RefreshToken()
-  @ApiEndpoint({ type: RefreshResDto, summary: 'get new access token' })
+  @ApiEndpoint({ summary: 'get new access token' })
   @Post('/refresh')
   async refreshToken(
     @JwtPayload() payload: JwtRefreshPayloadType,
-  ): Promise<RefreshResDto> {
-    return await this.authService.refreshToken(payload);
+    @Res({ passthrough: true }) res: ExpressResponse,
+  ): Promise<void> {
+    return await this.authService.refreshToken(payload, res);
   }
 
   // TODO auth api

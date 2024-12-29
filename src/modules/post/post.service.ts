@@ -43,6 +43,9 @@ export class PostService {
     return await PostEntity.save(newPost);
   }
 
+  /**
+   * @deprecated
+   */
   async getMany(query: PostQueryDto) {
     const builder = PostEntity.createQueryBuilder('post')
       .select([
@@ -76,6 +79,38 @@ export class PostService {
     }
 
     // ** not implemented yet
+    // if (query.search) {
+    //   let search = query.search.replaceAll('-', ' ').trim();
+    //   builder
+    //     .where('post.title LIKE :title', { title: `%${search}%` })
+    //     .orWhere('post.content LIKE :content', { content: `%${search}%` });
+    // }
+
+    const { entities, metadata } = await paginate<PostEntity>(builder, query);
+    return new OffsetPaginatedDto<PostEntity>(entities, metadata);
+  }
+
+  async getManyV2(query: PostQueryDto) {
+    const builder = PostEntity.createQueryBuilder('post')
+      .innerJoinAndSelect('post.tags', 'tags')
+      .innerJoinAndSelect('post.author', 'author');
+
+    if (query.tag && query.tag !== 'undefined') {
+      builder.where((qb) => {
+        return (
+          'post.id IN ' +
+          qb
+            .subQuery()
+            .select('post.id')
+            .from(PostEntity, 'post')
+            .innerJoin('post.tags', 'tag')
+            .where('tag.name = :name', { name: query.tag })
+            .getQuery()
+        );
+      });
+    }
+
+    // TODO: implement search in fe
     // if (query.search) {
     //   let search = query.search.replaceAll('-', ' ').trim();
     //   builder
