@@ -10,7 +10,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import argon2 from 'argon2';
 import { Cache } from 'cache-manager';
 import crypto from 'crypto';
@@ -39,7 +39,7 @@ export class AuthService {
     await UserEntity.save(new UserEntity({ ...dto, role: Role.USER }));
   }
 
-  async login(dto: AuthReqDto, res: ExpressResponse) {
+  async login(dto: AuthReqDto, res: ExpressResponse): Promise<void> {
     const { email, password } = dto;
     const user = await UserEntity.findOne({
       where: { email },
@@ -78,17 +78,8 @@ export class AuthService {
       this.createRefreshToken({ ...payload, signature }),
     ]);
 
-    res.cookie('access_token', accessToken, {
-      httpOnly: true,
-      maxAge: ms(accessTokenTtl),
-    });
-
-    res.cookie('refresh_token', refreshToken, {
-      httpOnly: true,
-      maxAge: ms(refreshTokenTtl),
-    });
-
-    return await UserEntity.findOneBy({ id: user.id });
+    res.cookie('access_token', accessToken, { maxAge: ms(accessTokenTtl) });
+    res.cookie('refresh_token', refreshToken, { maxAge: ms(refreshTokenTtl) });
   }
 
   async logout(payload: JwtPayloadType): Promise<DeleteResult> {
@@ -124,10 +115,7 @@ export class AuthService {
       infer: true,
     });
 
-    res.cookie('access_token', accessToken, {
-      httpOnly: true,
-      maxAge: ms(accessTokenTtl),
-    });
+    res.cookie('access_token', accessToken, { maxAge: ms(accessTokenTtl) });
   }
   // *** END ROUTE ***
 
@@ -141,7 +129,9 @@ export class AuthService {
         secret: this.configService.get('AUTH_JWT_SECRET'),
       });
     } catch (error) {
-      throw new UnauthorizedException(); // token expired or invalid
+      if (error instanceof TokenExpiredError)
+        throw new UnauthorizedException(AuthError.V04);
+      throw new UnauthorizedException(AuthError.V05);
     }
 
     const key = `SESSION_BLACKLIST:${payload.userId}:${payload.sessionId}`;
@@ -164,7 +154,7 @@ export class AuthService {
         secret: this.configService.get('AUTH_REFRESH_SECRET'),
       });
     } catch (error) {
-      throw new UnauthorizedException(); // token expired or invalid
+      throw new UnauthorizedException(AuthError.V05);
     }
   }
   // *** END GUARD ***

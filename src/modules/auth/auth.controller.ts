@@ -6,7 +6,6 @@ import { Body, Controller, Get, Post, Res } from '@nestjs/common';
 import { ApiExcludeEndpoint } from '@nestjs/swagger';
 import { Response as ExpressResponse } from 'express';
 import { DeleteResult } from 'typeorm';
-import { UserEntity } from '../user/entities/user.entity';
 import { AuthReqDto } from './auth.dto';
 import { AuthService } from './auth.service';
 
@@ -29,13 +28,12 @@ export class AuthController {
   @ApiEndpoint({
     isPublic: true,
     summary: 'login',
-    type: UserEntity,
   })
   @Post('/login')
   async login(
     @Body() dto: AuthReqDto,
     @Res({ passthrough: true }) res: ExpressResponse,
-  ): Promise<UserEntity> {
+  ): Promise<void> {
     return await this.authService.login(dto, res);
   }
 
@@ -47,9 +45,10 @@ export class AuthController {
 
   @RefreshToken()
   @ApiEndpoint({ summary: 'get new access token' })
-  @Post('/refresh')
+  @Post('/refresh-token')
   async refreshToken(
     @JwtPayload() payload: JwtRefreshPayloadType,
+    // passthrough: true to not block automatic handle response by nestjs
     @Res({ passthrough: true }) res: ExpressResponse,
   ): Promise<void> {
     return await this.authService.refreshToken(payload, res);

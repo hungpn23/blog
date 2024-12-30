@@ -20,19 +20,21 @@ export enum Role {
 
 export enum AuthError {
   // Validation
-  V01 = 'user.validation.is_empty',
-  V02 = 'user.validation.is_invalid',
-  V03 = 'user.validation.email_exists',
+  V01 = 'user.validation.empty_input',
+  V02 = 'user.validation.invalid_credentials',
+  V03 = 'user.validation.email_already_exists',
+  V04 = 'user.validation.token_expired',
+  V05 = 'user.validation.invalid_token',
 
   // Error
-  E01 = 'user.error.email_exists',
-  E02 = 'user.error.not_found',
+  E01 = 'user.error.email_already_exists',
+  E02 = 'user.error.user_not_found',
   E03 = 'user.error.blacklist_detected',
 }
 
 export enum ApiError {
-  Unknown = 'api.error.unknown',
-  Exist = 'api.error.entity_exist',
+  Unknown = 'api.error.unknown_error',
+  Exist = 'api.error.entity_already_exists',
   NotFound = 'api.error.entity_not_found',
 }
 

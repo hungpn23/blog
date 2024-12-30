@@ -32,10 +32,7 @@ export class AuthGuard implements CanActivate {
       [context.getClass(), context.getHandler()],
     );
     if (isRefreshToken) {
-      const refreshToken = this.extractTokenFromCookie(
-        request,
-        'refresh_token',
-      );
+      const refreshToken = this.extractTokenFromHeader(request);
       if (!refreshToken) throw new UnauthorizedException();
 
       request['user'] = await this.authService.verifyRefreshToken(refreshToken);
@@ -43,7 +40,7 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
-    const accessToken = this.extractTokenFromCookie(request, 'access_token');
+    const accessToken = this.extractTokenFromHeader(request);
     if (!accessToken) throw new UnauthorizedException();
 
     request['user'] = (await this.authService.verifyAccessToken(
@@ -53,9 +50,6 @@ export class AuthGuard implements CanActivate {
     return true;
   }
 
-  /**
-   * @deprecated
-   */
   private extractTokenFromHeader(request: ExpressRequest): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;

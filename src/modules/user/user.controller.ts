@@ -28,7 +28,7 @@ export class UserController {
   ) {}
 
   @ApiEndpoint({ type: UserEntity, summary: 'get user by id' })
-  @Get('profile')
+  @Get()
   async getProfile(
     @JwtPayload() { userId }: JwtPayloadType,
   ): Promise<UserEntity> {
@@ -50,7 +50,7 @@ export class UserController {
     type: UserEntity,
     summary: 'update user profile, return updated profile',
   })
-  @Patch('profile')
+  @Patch()
   async updateProfile(
     @JwtPayload() { userId }: JwtPayloadType,
     @Body() dto: UpdateUserDto,
