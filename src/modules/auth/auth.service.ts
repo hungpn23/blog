@@ -10,7 +10,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { JwtService, TokenExpiredError } from '@nestjs/jwt';
+import { JwtService } from '@nestjs/jwt';
 import argon2 from 'argon2';
 import { Cache } from 'cache-manager';
 import crypto from 'crypto';
@@ -39,7 +39,7 @@ export class AuthService {
     await UserEntity.save(new UserEntity({ ...dto, role: Role.USER }));
   }
 
-  async login(dto: AuthReqDto, res: ExpressResponse): Promise<void> {
+  async login(dto: AuthReqDto, res: ExpressResponse) {
     const { email, password } = dto;
     const user = await UserEntity.findOne({
       where: { email },
@@ -48,10 +48,6 @@ export class AuthService {
     const isValid =
       user && (await this.verifyPassword(user.password, password));
     if (!isValid) throw new AuthException(AuthError.V02);
-
-    const accessTokenTtl = this.configService.get('AUTH_JWT_TOKEN_EXPIRES_IN', {
-      infer: true,
-    });
 
     const refreshTokenTtl = this.configService.get(
       'AUTH_REFRESH_TOKEN_EXPIRES_IN',
@@ -78,8 +74,7 @@ export class AuthService {
       this.createRefreshToken({ ...payload, signature }),
     ]);
 
-    res.cookie('access_token', accessToken, { maxAge: ms(accessTokenTtl) });
-    res.cookie('refresh_token', refreshToken, { maxAge: ms(refreshTokenTtl) });
+    return { accessToken, refreshToken };
   }
 
   async logout(payload: JwtPayloadType): Promise<DeleteResult> {
@@ -94,7 +89,7 @@ export class AuthService {
   async refreshToken(
     { sessionId, signature }: JwtRefreshPayloadType,
     res: ExpressResponse,
-  ): Promise<void> {
+  ) {
     const session = await SessionEntity.findOne({
       where: { id: sessionId },
       relations: { user: true },
@@ -110,12 +105,7 @@ export class AuthService {
     };
 
     const accessToken = await this.createAccessToken(payload);
-
-    const accessTokenTtl = this.configService.get('AUTH_JWT_TOKEN_EXPIRES_IN', {
-      infer: true,
-    });
-
-    res.cookie('access_token', accessToken, { maxAge: ms(accessTokenTtl) });
+    return { accessToken };
   }
   // *** END ROUTE ***
 
@@ -129,9 +119,7 @@ export class AuthService {
         secret: this.configService.get('AUTH_JWT_SECRET'),
       });
     } catch (error) {
-      if (error instanceof TokenExpiredError)
-        throw new UnauthorizedException(AuthError.V04);
-      throw new UnauthorizedException(AuthError.V05);
+      throw new UnauthorizedException('invalid token');
     }
 
     const key = `SESSION_BLACKLIST:${payload.userId}:${payload.sessionId}`;
@@ -146,15 +134,13 @@ export class AuthService {
     return payload;
   }
 
-  async verifyRefreshToken(
-    refreshToken: string,
-  ): Promise<JwtRefreshPayloadType> {
+  verifyRefreshToken(refreshToken: string): JwtRefreshPayloadType {
     try {
-      return await this.jwtService.verifyAsync(refreshToken, {
+      return this.jwtService.verify(refreshToken, {
         secret: this.configService.get('AUTH_REFRESH_SECRET'),
       });
     } catch (error) {
-      throw new UnauthorizedException(AuthError.V05);
+      throw new UnauthorizedException('session expired');
     }
   }
   // *** END GUARD ***

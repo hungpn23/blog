@@ -1,14 +1,8 @@
 import { IS_PUBLIC_KEY, IS_REFRESH_TOKEN_KEY } from '@/constants/index';
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request as ExpressRequest } from 'express';
 
-import { JwtPayloadType } from '@/types/auth.type';
 import { AuthService } from '../auth.service';
 
 @Injectable()
@@ -31,28 +25,23 @@ export class AuthGuard implements CanActivate {
       IS_REFRESH_TOKEN_KEY,
       [context.getClass(), context.getHandler()],
     );
+
     if (isRefreshToken) {
       const refreshToken = this.extractTokenFromHeader(request);
-      if (!refreshToken) throw new UnauthorizedException();
-
       request['user'] = await this.authService.verifyRefreshToken(refreshToken);
 
       return true;
     }
 
     const accessToken = this.extractTokenFromHeader(request);
-    if (!accessToken) throw new UnauthorizedException();
-
-    request['user'] = (await this.authService.verifyAccessToken(
-      accessToken,
-    )) as JwtPayloadType;
+    request['user'] = await this.authService.verifyAccessToken(accessToken);
 
     return true;
   }
 
   private extractTokenFromHeader(request: ExpressRequest): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
+    return type === 'Bearer' ? token : '';
   }
 
   private extractTokenFromCookie(

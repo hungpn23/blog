@@ -10,7 +10,6 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ValidationError } from 'class-validator';
 import compression from 'compression';
-import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module';
@@ -31,7 +30,6 @@ async function bootstrap() {
   // ================= middlewares =================
   app.use(helmet());
   app.use(compression());
-  app.use(cookieParser());
 
   // ================= configs =================
   const appUrl = configService.get('APP_URL');

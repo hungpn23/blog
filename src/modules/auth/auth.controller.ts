@@ -6,7 +6,7 @@ import { Body, Controller, Get, Post, Res } from '@nestjs/common';
 import { ApiExcludeEndpoint } from '@nestjs/swagger';
 import { Response as ExpressResponse } from 'express';
 import { DeleteResult } from 'typeorm';
-import { AuthReqDto } from './auth.dto';
+import { AuthReqDto, LoginResDto, RefreshResDto } from './auth.dto';
 import { AuthService } from './auth.service';
 
 @Controller({
@@ -28,12 +28,13 @@ export class AuthController {
   @ApiEndpoint({
     isPublic: true,
     summary: 'login',
+    type: LoginResDto,
   })
   @Post('/login')
   async login(
     @Body() dto: AuthReqDto,
     @Res({ passthrough: true }) res: ExpressResponse,
-  ): Promise<void> {
+  ): Promise<LoginResDto> {
     return await this.authService.login(dto, res);
   }
 
@@ -44,13 +45,13 @@ export class AuthController {
   }
 
   @RefreshToken()
-  @ApiEndpoint({ summary: 'get new access token' })
+  @ApiEndpoint({ summary: 'get new access token', type: RefreshResDto })
   @Post('/refresh-token')
   async refreshToken(
     @JwtPayload() payload: JwtRefreshPayloadType,
     // passthrough: true to not block automatic handle response by nestjs
     @Res({ passthrough: true }) res: ExpressResponse,
-  ): Promise<void> {
+  ): Promise<RefreshResDto> {
     return await this.authService.refreshToken(payload, res);
   }
 

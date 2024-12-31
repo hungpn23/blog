@@ -23,8 +23,9 @@ export enum AuthError {
   V01 = 'user.validation.empty_input',
   V02 = 'user.validation.invalid_credentials',
   V03 = 'user.validation.email_already_exists',
-  V04 = 'user.validation.token_expired',
-  V05 = 'user.validation.invalid_token',
+  V04 = 'user.validation.access_token_expired',
+  V05 = 'user.validation.invalid_access_token',
+  V06 = 'user.validation.invalid_refresh_token',
 
   // Error
   E01 = 'user.error.email_already_exists',
