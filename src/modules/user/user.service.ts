@@ -32,8 +32,13 @@ export class UserService {
   async update(userId: Uuid, dto: UpdateUserDto) {
     const found = await UserEntity.findOneOrFail({ where: { id: userId } });
 
+    console.log('before:::', found);
+
+    const updated = Object.assign(found, { ...dto, updatedBy: dto.username });
+    console.log('updated', updated);
+
     return await UserEntity.save(
-      Object.assign(found, { ...dto, updatedBy: dto.username } as UserEntity),
+      Object.assign(found, { ...dto, updatedBy: dto.username }),
     );
   }
 
@@ -67,8 +72,8 @@ export class UserService {
     this.logger.log('cleaned expired sessions');
   }
 
-  @Cron(CronExpression.EVERY_30_SECONDS)
-  async updateAvatarUrl() {
-    this.logger.log('update avatar url');
-  }
+  // @Cron(CronExpression.EVERY_30_SECONDS)
+  // async updateAvatarUrl() {
+  //   this.logger.log('update avatar url');
+  // }
 }

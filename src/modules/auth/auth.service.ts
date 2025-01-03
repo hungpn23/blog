@@ -36,6 +36,8 @@ export class AuthService {
     const found = await UserEntity.existsBy({ email });
     if (found) throw new AuthException(AuthError.E01);
 
+    dto.password = await argon2.hash(dto.password);
+
     await UserEntity.save(new UserEntity({ ...dto, role: Role.USER }));
   }
 

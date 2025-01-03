@@ -28,7 +28,7 @@ export class AuthGuard implements CanActivate {
 
     if (isRefreshToken) {
       const refreshToken = this.extractTokenFromHeader(request);
-      request['user'] = await this.authService.verifyRefreshToken(refreshToken);
+      request['user'] = this.authService.verifyRefreshToken(refreshToken);
 
       return true;
     }
@@ -48,6 +48,6 @@ export class AuthGuard implements CanActivate {
     request: ExpressRequest,
     key: string,
   ): string | undefined {
-    return request.cookies[key];
+    return request.cookies?.key || '';
   }
 }

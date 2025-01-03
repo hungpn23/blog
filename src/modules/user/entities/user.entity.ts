@@ -4,11 +4,8 @@ import { CommentEntity } from '@/modules/comment/comment.entity';
 import { PostEntity } from '@/modules/post/entities/post.entity';
 import { type Uuid } from '@/types/branded.type';
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
-import argon2 from 'argon2';
 import { Exclude, Expose } from 'class-transformer';
 import {
-  BeforeInsert,
-  BeforeUpdate,
   Column,
   Entity,
   OneToMany,
@@ -47,7 +44,7 @@ export class UserEntity extends AbstractEntity {
   @Column()
   password: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'text', nullable: true })
   bio?: string;
 
   @Column({ nullable: true })
@@ -70,9 +67,9 @@ export class UserEntity extends AbstractEntity {
   @OneToMany(() => FollowEntity, (follow) => follow.followed, { cascade: true })
   followeds: Relation<FollowEntity[]>; // people who are being followed by others
 
-  @BeforeInsert()
-  @BeforeUpdate()
-  async hashPassword() {
-    this.password = await argon2.hash(this.password);
-  }
+  // @BeforeInsert()
+  // @BeforeUpdate()
+  // async hashPassword() {
+  //   this.password = await argon2.hash(this.password);
+  // }
 }
