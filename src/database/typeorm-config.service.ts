@@ -11,24 +11,30 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
   createTypeOrmOptions(): TypeOrmModuleOptions {
     return {
       type: this.configService.get('DATABASE_TYPE'),
-      replication: {
-        master: {
-          host: this.configService.get('DATABASE_HOST'),
-          port: this.configService.get('DATABASE_MASTER_PORT'),
-          username: this.configService.get('DATABASE_USERNAME'),
-          password: this.configService.get('DATABASE_PASSWORD'),
-          database: this.configService.get('DATABASE_DATABASE_NAME'),
-        },
-        slaves: [
-          {
-            host: this.configService.get('DATABASE_HOST'),
-            port: this.configService.get('DATABASE_SLAVE_PORT'),
-            username: this.configService.get('DATABASE_USERNAME'),
-            password: this.configService.get('DATABASE_PASSWORD'),
-            database: this.configService.get('DATABASE_DATABASE_NAME'),
-          },
-        ],
-      },
+      // replication: {
+      //   master: {
+      //     host: this.configService.get('DATABASE_HOST'),
+      //     port: this.configService.get('DATABASE_MASTER_PORT'),
+      //     username: this.configService.get('DATABASE_USERNAME'),
+      //     password: this.configService.get('DATABASE_PASSWORD'),
+      //     database: this.configService.get('DATABASE_DATABASE_NAME'),
+      //   },
+      //   slaves: [
+      //     {
+      //       host: this.configService.get('DATABASE_HOST'),
+      //       port: this.configService.get('DATABASE_SLAVE_PORT'),
+      //       username: this.configService.get('DATABASE_USERNAME'),
+      //       password: this.configService.get('DATABASE_PASSWORD'),
+      //       database: this.configService.get('DATABASE_DATABASE_NAME'),
+      //     },
+      //   ],
+      // },
+      host: process.env.DATABASE_HOST,
+      port: +process.env.DATABASE_MASTER_PORT,
+      username: process.env.DATABASE_USERNAME,
+      password: process.env.DATABASE_PASSWORD,
+      database: process.env.DATABASE_DATABASE_NAME,
+
       synchronize: true,
       logging: true,
       timezone: this.configService.get('DATABASE_TIMEZONE'),

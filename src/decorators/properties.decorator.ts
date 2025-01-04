@@ -3,6 +3,7 @@ import { Type } from 'class-transformer';
 import {
   IsBoolean,
   IsDefined,
+  IsEmail,
   IsEnum,
   IsInt,
   IsNumber,
@@ -129,18 +130,16 @@ export function BooleanValidators(options?: CommonOptions): PropertyDecorator {
   return applyDecorators(...decorators);
 }
 
-// export function EmailDecorators(
-//   options?: StringOptions,
-// ): PropertyDecorator {
-//   let decorators = [
-//     IsEmail(),
-//     StringValidators({ toLowerCase: true, ...options }),
-//   ];
+export function EmailValidators(options?: StringOptions): PropertyDecorator {
+  let decorators = [
+    IsEmail(),
+    StringValidators({ toLowerCase: true, ...options }),
+  ];
 
-//   decorators = checkCommonOptions(decorators, options);
+  decorators = checkCommonOptions(decorators, options);
 
-//   return applyDecorators(...decorators);
-// }
+  return applyDecorators(...decorators);
+}
 
 // export function UUIDDecorators(
 //   options?: CommonOptions,

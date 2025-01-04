@@ -46,15 +46,12 @@ export class UserController {
     return await this.userService.uploadAvatar(userId, file.path);
   }
 
-  @ApiEndpoint({
-    type: UserEntity,
-    summary: 'update user profile, return updated profile',
-  })
+  @ApiEndpoint({ summary: 'update user profile, return updated profile' })
   @Patch()
   async updateProfile(
     @JwtPayload() { userId }: JwtPayloadType,
     @Body() dto: UpdateUserDto,
-  ) {
+  ): Promise<void> {
     return await this.userService.update(userId, dto);
   }
 

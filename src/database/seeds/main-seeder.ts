@@ -2,6 +2,7 @@ import { Role } from '@/constants';
 import { PostEntity } from '@/modules/post/entities/post.entity';
 import { TagEntity } from '@/modules/tag/tag.entity';
 import { UserEntity } from '@/modules/user/entities/user.entity';
+import argon2 from 'argon2';
 import _ from 'lodash';
 import { DataSource } from 'typeorm';
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
@@ -32,7 +33,7 @@ export class MainSeeder implements Seeder {
       new UserEntity({
         username: 'admin',
         email: 'admin@admin.com',
-        password: 'admin123',
+        password: await argon2.hash('admin123'),
         role: Role.ADMIN,
       }),
     );

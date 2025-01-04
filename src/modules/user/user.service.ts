@@ -30,15 +30,11 @@ export class UserService {
   }
 
   async update(userId: Uuid, dto: UpdateUserDto) {
+    console.log(dto);
     const found = await UserEntity.findOneOrFail({ where: { id: userId } });
 
-    console.log('before:::', found);
-
-    const updated = Object.assign(found, { ...dto, updatedBy: dto.username });
-    console.log('updated', updated);
-
-    return await UserEntity.save(
-      Object.assign(found, { ...dto, updatedBy: dto.username }),
+    await UserEntity.save(
+      Object.assign(found, { ...dto, updatedBy: found.username }),
     );
   }
 
