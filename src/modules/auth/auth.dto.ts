@@ -1,17 +1,15 @@
-import { ToLowerCase } from '@/decorators/transforms.decorator';
-import { IsPassword } from '@/decorators/validators/is-password.decorator';
+import {
+  EmailValidators,
+  PasswordValidators,
+} from '@/decorators/properties.decorator';
 import { PickType } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsEmail, MinLength } from 'class-validator';
 
-// TODO: implement validator decoratos
 export class AuthReqDto {
-  @ToLowerCase()
-  @IsEmail()
+  @EmailValidators()
   email: string;
 
-  @IsPassword()
-  @MinLength(8)
+  @PasswordValidators()
   password: string;
 }
 

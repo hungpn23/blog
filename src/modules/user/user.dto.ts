@@ -2,6 +2,7 @@ import {
   EmailValidators,
   StringValidators,
 } from '@/decorators/properties.decorator';
+import { Expose } from 'class-transformer';
 
 export class UpdateUserDto {
   @StringValidators({ required: false })
@@ -12,4 +13,9 @@ export class UpdateUserDto {
 
   @StringValidators({ required: false })
   bio?: string;
+}
+
+@Expose()
+export class UploadAvatarResponseDto {
+  avatar: string;
 }

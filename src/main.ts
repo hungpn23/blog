@@ -32,7 +32,7 @@ async function bootstrap() {
   app.use(compression());
 
   // ================= configs =================
-  const appUrl = configService.get('APP_URL');
+  const appUrl = configService.get('APP_URL', { infer: true });
   app.enableCors({
     origin: [appUrl, 'http://localhost:5173'],
     methods: ['GET', 'PUT', 'PATCH', 'POST', 'DELETE'],
@@ -45,7 +45,7 @@ async function bootstrap() {
   const logger = app.get(Logger);
   app.useLogger(logger);
 
-  app.setGlobalPrefix(configService.get('APP_PREFIX'));
+  app.setGlobalPrefix(configService.get('APP_PREFIX', { infer: true }));
 
   app.useGlobalGuards(new AuthGuard(app.get(Reflector), app.get(AuthService)));
   app.useGlobalGuards(new RoleGuard(app.get(Reflector)));
@@ -76,7 +76,7 @@ async function bootstrap() {
   await swaggerConfig(app, configService);
 
   // ================= start app =================
-  await app.listen(configService.get('APP_PORT'));
+  await app.listen(configService.get('APP_PORT', { infer: true }));
   logger.log(`🚀🚀🚀 App is running on: ${appUrl}`);
 }
 

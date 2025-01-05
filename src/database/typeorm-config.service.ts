@@ -13,19 +13,19 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
       type: this.configService.get('DATABASE_TYPE'),
       // replication: {
       //   master: {
-      //     host: this.configService.get('DATABASE_HOST'),
-      //     port: this.configService.get('DATABASE_MASTER_PORT'),
-      //     username: this.configService.get('DATABASE_USERNAME'),
-      //     password: this.configService.get('DATABASE_PASSWORD'),
-      //     database: this.configService.get('DATABASE_DATABASE_NAME'),
+      //     host: this.configService.get('DATABASE_HOST', { infer: true }),
+      //     port: this.configService.get('DATABASE_MASTER_PORT', { infer: true }),
+      //     username: this.configService.get('DATABASE_USERNAME', { infer: true }),
+      //     password: this.configService.get('DATABASE_PASSWORD', { infer: true }),
+      //     database: this.configService.get('DATABASE_DATABASE_NAME', { infer: true }),
       //   },
       //   slaves: [
       //     {
-      //       host: this.configService.get('DATABASE_HOST'),
-      //       port: this.configService.get('DATABASE_SLAVE_PORT'),
-      //       username: this.configService.get('DATABASE_USERNAME'),
-      //       password: this.configService.get('DATABASE_PASSWORD'),
-      //       database: this.configService.get('DATABASE_DATABASE_NAME'),
+      //       host: this.configService.get('DATABASE_HOST', { infer: true }),
+      //       port: this.configService.get('DATABASE_SLAVE_PORT', { infer: true }),
+      //       username: this.configService.get('DATABASE_USERNAME', { infer: true }),
+      //       password: this.configService.get('DATABASE_PASSWORD', { infer: true }),
+      //       database: this.configService.get('DATABASE_DATABASE_NAME', { infer: true }),
       //     },
       //   ],
       // },
@@ -37,7 +37,7 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
 
       synchronize: true,
       logging: true,
-      timezone: this.configService.get('DATABASE_TIMEZONE'),
+      timezone: this.configService.get('DATABASE_TIMEZONE', { infer: true }),
       entities: [__dirname + '/../**/*.entity{.ts,.js}'],
       migrations: [__dirname + '/../**/migrations/**/*.{.ts,.js}'],
     } as MysqlConnectionOptions as TypeOrmModuleOptions;

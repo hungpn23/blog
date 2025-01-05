@@ -17,6 +17,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { ToLowerCase, ToUpperCase } from './transforms.decorator';
+import { IsPassword } from './validators/is-password.decorator';
 
 type CommonOptions = {
   isArray?: boolean; // to check if prop is an array & to validate each items in array
@@ -109,18 +110,16 @@ export function UrlValidators(
 //   return applyDecorators(...decorators);
 // }
 
-// export function PasswordDecorators(
-//   options?: StringOptions,
-// ): PropertyDecorator {
-//   let decorators = [
-//     StringValidators({ ...options, minLength: 6 }),
-//     IsPassword(),
-//   ];
+export function PasswordValidators(options?: StringOptions): PropertyDecorator {
+  let decorators = [
+    StringValidators({ ...options, minLength: 8 }),
+    IsPassword(),
+  ];
 
-//   decorators = checkCommonOptions(decorators, options);
+  decorators = checkCommonOptions(decorators, options);
 
-//   return applyDecorators(...decorators);
-// }
+  return applyDecorators(...decorators);
+}
 
 export function BooleanValidators(options?: CommonOptions): PropertyDecorator {
   let decorators = [IsBoolean({ each: options?.isArray })];

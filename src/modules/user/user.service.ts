@@ -27,10 +27,10 @@ export class UserService {
 
   async uploadAvatar(userId: Uuid, filePath: string) {
     await UserEntity.update({ id: userId }, { avatar: filePath });
+    return { avatar: filePath };
   }
 
   async update(userId: Uuid, dto: UpdateUserDto) {
-    console.log(dto);
     const found = await UserEntity.findOneOrFail({ where: { id: userId } });
 
     await UserEntity.save(

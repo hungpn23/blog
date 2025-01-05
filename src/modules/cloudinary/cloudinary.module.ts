@@ -12,9 +12,13 @@ import { CloudinaryService } from './cloudinary.service';
       provide: Provider.CLOUDINARY,
       useFactory: (configService: ConfigService<CloudinaryEnvVariables>) => {
         return cloudinary.config({
-          cloud_name: configService.get('CLOUDINARY_CLOUD_NAME'),
-          api_key: configService.get('CLOUDINARY_API_KEY'),
-          api_secret: configService.get('CLOUDINARY_API_SECRET'),
+          cloud_name: configService.get('CLOUDINARY_CLOUD_NAME', {
+            infer: true,
+          }),
+          api_key: configService.get('CLOUDINARY_API_KEY', { infer: true }),
+          api_secret: configService.get('CLOUDINARY_API_SECRET', {
+            infer: true,
+          }),
         });
       },
       inject: [ConfigService],

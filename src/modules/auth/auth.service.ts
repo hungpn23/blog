@@ -118,7 +118,7 @@ export class AuthService {
     let payload: JwtPayloadType;
     try {
       payload = this.jwtService.verify(accessToken, {
-        secret: this.configService.get('AUTH_JWT_SECRET'),
+        secret: this.configService.get('AUTH_JWT_SECRET', { infer: true }),
       });
     } catch (error) {
       throw new UnauthorizedException('invalid token');
@@ -139,7 +139,7 @@ export class AuthService {
   verifyRefreshToken(refreshToken: string): JwtRefreshPayloadType {
     try {
       return this.jwtService.verify(refreshToken, {
-        secret: this.configService.get('AUTH_REFRESH_SECRET'),
+        secret: this.configService.get('AUTH_REFRESH_SECRET', { infer: true }),
       });
     } catch (error) {
       throw new UnauthorizedException('session expired');
@@ -152,8 +152,10 @@ export class AuthService {
   // *** START PRIVATE ***
   private async createAccessToken(payload: JwtPayloadType): Promise<string> {
     return await this.jwtService.signAsync(payload, {
-      secret: this.configService.get('AUTH_JWT_SECRET'),
-      expiresIn: this.configService.get('AUTH_JWT_TOKEN_EXPIRES_IN'),
+      secret: this.configService.get('AUTH_JWT_SECRET', { infer: true }),
+      expiresIn: this.configService.get('AUTH_JWT_TOKEN_EXPIRES_IN', {
+        infer: true,
+      }),
     });
   }
 
@@ -161,8 +163,10 @@ export class AuthService {
     payload: JwtRefreshPayloadType,
   ): Promise<string> {
     return await this.jwtService.signAsync(payload, {
-      secret: this.configService.get('AUTH_REFRESH_SECRET'),
-      expiresIn: this.configService.get('AUTH_REFRESH_TOKEN_EXPIRES_IN'),
+      secret: this.configService.get('AUTH_REFRESH_SECRET', { infer: true }),
+      expiresIn: this.configService.get('AUTH_REFRESH_TOKEN_EXPIRES_IN', {
+        infer: true,
+      }),
     });
   }
 
