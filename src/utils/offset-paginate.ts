@@ -7,9 +7,9 @@ export default async function paginate<Entity extends AbstractEntity>(
   builder: SelectQueryBuilder<Entity>,
   query: OffsetPaginationQueryDto,
 ) {
-  const { offset, limit, order } = query;
+  const { skip, take, order } = query;
 
-  builder.skip(offset).take(limit).orderBy(`${builder.alias}.createdAt`, order);
+  builder.skip(skip).take(take).orderBy(`${builder.alias}.createdAt`, order);
 
   const [entities, totalRecords] = await builder.getManyAndCount();
 

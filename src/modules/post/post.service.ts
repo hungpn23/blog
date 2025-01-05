@@ -43,10 +43,7 @@ export class PostService {
     return await PostEntity.save(newPost);
   }
 
-  /**
-   * @deprecated
-   */
-  async getMany(query: PostQueryDto) {
+  async getMany(authorId: Uuid, query: PostQueryDto) {
     const builder = PostEntity.createQueryBuilder('post')
       .select([
         'post.id',
@@ -54,8 +51,50 @@ export class PostService {
         'post.slug',
         'post.content',
         'post.wordCount',
-        'post.readingTime',
         'post.viewCount',
+        'post.readingTime',
+        'post.createdAt',
+        'tags.id',
+        'tags.name',
+      ])
+      .innerJoin('post.tags', 'tags')
+      .innerJoin('post.author', 'author')
+      .where('author.id = :authorId', { authorId });
+
+    if (query.tag && query.tag !== 'undefined') {
+      const subQb = PostEntity.createQueryBuilder('filtered_post')
+        .select('filtered_post.id')
+        .innerJoin('filtered_post.tags', 'tag')
+        .where('tag.name = :tagName', { tagName: query.tag });
+
+      builder
+        .where(`post.id IN (${subQb.getQuery()})`)
+        .setParameters(subQb.getParameters());
+    }
+
+    // TODO: implement search in fe
+    if (query.search) {
+      let search = query.search.trim();
+      builder
+        .where('post.title LIKE :title', { title: `%${search}%` })
+        .orWhere('post.content LIKE :content', { content: `%${search}%` });
+    }
+
+    const { entities, metadata } = await paginate<PostEntity>(builder, query);
+
+    return new OffsetPaginatedDto<PostEntity>(entities, metadata);
+  }
+
+  async getAll(query: PostQueryDto) {
+    const builder = PostEntity.createQueryBuilder('post')
+      .select([
+        'post.id',
+        'post.title',
+        'post.slug',
+        'post.content',
+        'post.wordCount',
+        'post.viewCount',
+        'post.readingTime',
         'post.createdAt',
         'post.createdBy',
         'tags.id',
@@ -64,61 +103,26 @@ export class PostService {
       .innerJoin('post.tags', 'tags');
 
     if (query.tag && query.tag !== 'undefined') {
-      builder.where((qb) => {
-        return (
-          'post.id IN ' +
-          qb
-            .subQuery()
-            .select('post.id')
-            .from(PostEntity, 'post')
-            .innerJoin('post.tags', 'tag')
-            .where('tag.name = :name', { name: query.tag })
-            .getQuery()
-        );
-      });
-    }
+      const subQb = PostEntity.createQueryBuilder('filtered_post')
+        .select('filtered_post.id')
+        .innerJoin('filtered_post.tags', 'tag')
+        .where('tag.name = :tagName', { tagName: query.tag });
 
-    // ** not implemented yet
-    // if (query.search) {
-    //   let search = query.search.replaceAll('-', ' ').trim();
-    //   builder
-    //     .where('post.title LIKE :title', { title: `%${search}%` })
-    //     .orWhere('post.content LIKE :content', { content: `%${search}%` });
-    // }
-
-    const { entities, metadata } = await paginate<PostEntity>(builder, query);
-    return new OffsetPaginatedDto<PostEntity>(entities, metadata);
-  }
-
-  async getManyV2(query: PostQueryDto) {
-    const builder = PostEntity.createQueryBuilder('post')
-      .innerJoinAndSelect('post.tags', 'tags')
-      .innerJoinAndSelect('post.author', 'author');
-
-    if (query.tag && query.tag !== 'undefined') {
-      builder.where((qb) => {
-        return (
-          'post.id IN ' +
-          qb
-            .subQuery()
-            .select('post.id')
-            .from(PostEntity, 'post')
-            .innerJoin('post.tags', 'tag')
-            .where('tag.name = :name', { name: query.tag })
-            .getQuery()
-        );
-      });
+      builder
+        .where(`post.id IN (${subQb.getQuery()})`)
+        .setParameters(subQb.getParameters());
     }
 
     // TODO: implement search in fe
-    // if (query.search) {
-    //   let search = query.search.replaceAll('-', ' ').trim();
-    //   builder
-    //     .where('post.title LIKE :title', { title: `%${search}%` })
-    //     .orWhere('post.content LIKE :content', { content: `%${search}%` });
-    // }
+    if (query.search) {
+      let search = query.search.trim();
+      builder
+        .where('post.title LIKE :title', { title: `%${search}%` })
+        .orWhere('post.content LIKE :content', { content: `%${search}%` });
+    }
 
     const { entities, metadata } = await paginate<PostEntity>(builder, query);
+
     return new OffsetPaginatedDto<PostEntity>(entities, metadata);
   }
 

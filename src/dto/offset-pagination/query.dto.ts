@@ -11,7 +11,7 @@ export class OffsetPaginationQueryDto {
   page?: number = 1;
 
   @NumberValidators({ isInt: true, min: 10, required: false })
-  limit?: number = 10;
+  take?: number = 10;
 
   @EnumValidators(Order, { required: false })
   @ApiProperty({ type: () => Order, default: Order.DESC })
@@ -20,8 +20,8 @@ export class OffsetPaginationQueryDto {
   @StringValidators({ required: false })
   search?: string;
 
-  get offset() {
-    return this.page ? (this.page - 1) * this.limit : 0;
+  get skip() {
+    return this.page ? (this.page - 1) * this.take : 0;
   }
 }
 

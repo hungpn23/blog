@@ -3,7 +3,7 @@ import { OffsetPaginationQueryDto } from './query.dto';
 
 @Expose()
 export class OffsetMetadataDto {
-  limit: number;
+  take: number;
   totalRecords: number;
   totalPages: number;
   currentPage: number;
@@ -15,12 +15,11 @@ export class OffsetMetadataDto {
     // !! temp solution for double init class instance
     query: OffsetPaginationQueryDto = new OffsetPaginationQueryDto(),
   ) {
-    console.log('🚀 ~ OffsetMetadataDto ~ query:', query);
-    this.limit = query.limit;
+    this.take = query.take;
 
     this.totalRecords = totalRecords;
 
-    this.totalPages = this.limit > 0 ? Math.ceil(totalRecords / this.limit) : 0;
+    this.totalPages = this.take > 0 ? Math.ceil(totalRecords / this.take) : 0;
 
     this.currentPage = query.page;
 

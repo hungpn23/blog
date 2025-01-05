@@ -1,4 +1,3 @@
-import { Public } from '@/decorators/auth/public.decorator';
 import { ApiArrayFiles, ApiEndpoint } from '@/decorators/endpoint.decorator';
 import { JwtPayload } from '@/decorators/jwt-payload.decorator';
 import { OffsetPaginatedDto } from '@/dto/offset-pagination/paginated.dto';
@@ -46,21 +45,34 @@ export class PostController {
     return await this.postService.create(userId, files, dto);
   }
 
-  @Public()
   @ApiEndpoint({
     type: PostEntity,
     isPaginated: true,
-    summary: 'get paginated post',
+    summary: 'get paginated author posts by authorId',
   })
   @Get()
-  async getMany(
+  async getManyByAuthorId(
+    @JwtPayload() { userId }: JwtPayloadType,
     @Query() query: PostQueryDto,
-  ): Promise<OffsetPaginatedDto<PostEntity>> {
-    return await this.postService.getManyV2(query);
+  ) {
+    return await this.postService.getMany(userId, query);
   }
 
-  @Public()
   @ApiEndpoint({
+    isPublic: true,
+    isPaginated: true,
+    type: PostEntity,
+    summary: 'get all paginated posts',
+  })
+  @Get('all')
+  async getAll(
+    @Query() query: PostQueryDto,
+  ): Promise<OffsetPaginatedDto<PostEntity>> {
+    return await this.postService.getAll(query);
+  }
+
+  @ApiEndpoint({
+    isPublic: true,
     type: PostEntity,
     summary: 'get a post by id',
     params: [{ name: 'postId' }],

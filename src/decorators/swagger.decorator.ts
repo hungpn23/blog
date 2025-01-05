@@ -2,10 +2,6 @@ import { OffsetPaginatedDto } from '@/dto/offset-pagination/paginated.dto';
 import { applyDecorators, Type } from '@nestjs/common';
 import { ApiExtraModels, ApiOkResponse, getSchemaPath } from '@nestjs/swagger';
 
-// export type PaginatedOptions = Required<
-//   Pick<EndpointOptions, 'type' | 'paginationType'>
-// >;
-
 export function ApiPaginatedResponse<DataDto extends Type<unknown>>(
   data: DataDto,
 ): MethodDecorator {

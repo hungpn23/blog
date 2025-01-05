@@ -4,8 +4,8 @@ import { TagEntity } from '@/modules/tag/tag.entity';
 import { UserEntity } from '@/modules/user/entities/user.entity';
 import argon2 from 'argon2';
 import _ from 'lodash';
-import { DataSource } from 'typeorm';
-import { Seeder, SeederFactoryManager } from 'typeorm-extension';
+import { DataSource, Repository } from 'typeorm';
+import { Seeder, SeederFactory, SeederFactoryManager } from 'typeorm-extension';
 
 export class MainSeeder implements Seeder {
   async run(
@@ -13,8 +13,27 @@ export class MainSeeder implements Seeder {
     factoryManager: SeederFactoryManager,
   ): Promise<any> {
     console.time('SEEDING TIME');
+    const postRepo = dataSource.getRepository(PostEntity);
+    const postFactory = factoryManager.get(PostEntity);
 
-    const tags = await TagEntity.save([
+    // const userRepo = dataSource.getRepository(UserEntity);
+    const userFactory = factoryManager.get(UserEntity);
+
+    const tags = await this.seedTags();
+
+    await this.seedAdminAndPosts(tags, postRepo, postFactory);
+
+    const users = await userFactory.saveMany(10);
+
+    for (const user of users) {
+      await this.seedPosts(user, tags, postRepo, postFactory);
+    }
+
+    console.timeEnd('SEEDING TIME');
+  }
+
+  private async seedTags() {
+    return await TagEntity.save([
       new TagEntity({ name: 'javascript' }),
       new TagEntity({ name: 'typescript' }),
       new TagEntity({ name: 'reactjs' }),
@@ -28,7 +47,29 @@ export class MainSeeder implements Seeder {
       new TagEntity({ name: 'redis' }),
       new TagEntity({ name: 'cloudinary' }),
     ]);
+  }
 
+  private async seedPosts(
+    user: UserEntity,
+    tags: TagEntity[],
+    postRepo: Repository<PostEntity>,
+    postFactory: SeederFactory<PostEntity>,
+  ) {
+    const totalPosts = 100;
+
+    let postPromises: Promise<PostEntity>[] = [];
+    for (let i = 1; i <= totalPosts; i++) {
+      postPromises.push(this.makePost(user, tags, postFactory));
+    }
+
+    await this.savePostPromises(postPromises, postRepo);
+  }
+
+  private async seedAdminAndPosts(
+    tags: TagEntity[],
+    postRepo: Repository<PostEntity>,
+    postFactory: SeederFactory<PostEntity>,
+  ) {
     const admin = await UserEntity.save(
       new UserEntity({
         username: 'admin',
@@ -38,54 +79,41 @@ export class MainSeeder implements Seeder {
       }),
     );
 
-    // //  use factory for seeding many posts
-    // const postRepo = dataSource.getRepository(PostEntity);
-    // const postFactory = factoryManager.get(PostEntity);
+    const batchSize = 100;
+    const totalPosts = 1000;
 
-    // const batchSize = 10;
-    // const totalPosts = 100;
-
-    // let postPromises: Promise<PostEntity>[] = [];
-    // for (let i = 1; i <= totalPosts; i++) {
-    //   postPromises.push(
-    //     postFactory.make({
-    //       createdBy: admin.username,
-    //       author: admin,
-    //       tags: _.sampleSize(tags, _.random(1, 6)),
-    //     }),
-    //   );
-
-    //   if (postPromises.length === batchSize) {
-    //     console.log(`adding ${postPromises.length} posts...`);
-    //     const posts = await Promise.all(postPromises);
-    //     await postRepo.save(posts);
-    //     postPromises = [];
-    //   }
-    // }
-
-    // // add remaining posts
-    // if (postPromises.length > 0) {
-    //   const posts = await Promise.all(postPromises);
-    //   await postRepo.save(posts);
-    // }
-
-    // use post entity
-    const totalPosts = 100;
-    const posts = [];
+    let postPromises: Promise<PostEntity>[] = [];
     for (let i = 1; i <= totalPosts; i++) {
-      posts.push(
-        new PostEntity({
-          title: `Post ${i} title`,
-          content: `Content of post ${i}`,
-          createdBy: admin.username,
-          author: admin,
-          tags: _.sampleSize(tags, _.random(1, 6)),
-        }),
-      );
+      postPromises.push(this.makePost(admin, tags, postFactory));
+
+      if (postPromises.length === batchSize) {
+        console.log(`adding ${postPromises.length} posts of admin...`);
+        this.savePostPromises(postPromises, postRepo);
+        postPromises = [];
+      }
     }
 
-    await PostEntity.save(posts);
+    // add remaining posts
+    if (postPromises.length > 0) this.savePostPromises(postPromises, postRepo);
+  }
 
-    console.timeEnd('SEEDING TIME');
+  private async savePostPromises(
+    postPromises: Promise<PostEntity>[],
+    postRepo: Repository<PostEntity>,
+  ) {
+    const posts = await Promise.all(postPromises);
+    await postRepo.save(posts);
+  }
+
+  private async makePost(
+    user: UserEntity,
+    tags: TagEntity[],
+    postFactory: SeederFactory<PostEntity>,
+  ) {
+    return postFactory.make({
+      createdBy: user.username,
+      author: user,
+      tags: _.sampleSize(tags, _.random(1, 6)),
+    });
   }
 }

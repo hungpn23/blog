@@ -1,5 +1,4 @@
 import { Role } from '@/constants';
-import { Public } from '@/decorators/auth/public.decorator';
 import { UseRole } from '@/decorators/auth/role.decorator';
 import { ApiEndpoint } from '@/decorators/endpoint.decorator';
 import { JwtPayload } from '@/decorators/jwt-payload.decorator';
@@ -39,18 +38,18 @@ export class TagController {
     return await this.tagService.create(userId, dto);
   }
 
-  @Public()
   @ApiEndpoint({
+    isPublic: true,
     type: TagEntity,
     summary: 'get all tag',
   })
-  @Get()
+  @Get('all')
   async findAll(): Promise<TagEntity[]> {
     return await this.tagService.findAll();
   }
 
-  @Public()
   @ApiEndpoint({
+    isPublic: true,
     type: TagEntity,
     summary: 'get a tag by id',
     params: [{ name: 'tagId' }],

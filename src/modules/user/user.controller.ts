@@ -1,3 +1,5 @@
+import { Role } from '@/constants';
+import { UseRole } from '@/decorators/auth/role.decorator';
 import { ApiEndpoint, ApiFile } from '@/decorators/endpoint.decorator';
 import { JwtPayload } from '@/decorators/jwt-payload.decorator';
 import { validateImagePipe } from '@/pipes/validate-image.pipe';
@@ -29,10 +31,15 @@ export class UserController {
 
   @ApiEndpoint({ type: UserEntity, summary: 'get user by id' })
   @Get()
-  async getProfile(
-    @JwtPayload() { userId }: JwtPayloadType,
-  ): Promise<UserEntity> {
+  async getOne(@JwtPayload() { userId }: JwtPayloadType): Promise<UserEntity> {
     return await this.userService.findOne(userId);
+  }
+
+  @UseRole(Role.ADMIN)
+  @ApiEndpoint({ type: UserEntity, summary: 'get all users' })
+  @Get('all')
+  async getAll(): Promise<UserEntity[]> {
+    return await this.userService.findAll();
   }
 
   @ApiFile('avatar')

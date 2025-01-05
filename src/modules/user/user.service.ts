@@ -25,6 +25,10 @@ export class UserService {
     });
   }
 
+  async findAll(): Promise<UserEntity[]> {
+    return await UserEntity.find();
+  }
+
   async uploadAvatar(userId: Uuid, filePath: string) {
     await UserEntity.update({ id: userId }, { avatar: filePath });
     return { avatar: filePath };
