@@ -1,6 +1,5 @@
 import { StringValidators } from '@/decorators/properties.decorator';
 import { validateConfig } from '@/utils/validate-config';
-import { registerAs } from '@nestjs/config';
 import process from 'node:process';
 
 export class CloudinaryEnvVariables {
@@ -14,9 +13,8 @@ export class CloudinaryEnvVariables {
   CLOUDINARY_API_SECRET: string;
 }
 
-// config namespace
-export default registerAs<CloudinaryEnvVariables>('cloudinary', () => {
-  console.log('register cloudinary config');
+// config factory
+export default () => {
   validateConfig(process.env, CloudinaryEnvVariables);
 
   return {
@@ -24,4 +22,4 @@ export default registerAs<CloudinaryEnvVariables>('cloudinary', () => {
     CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
     CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
   };
-});
+};

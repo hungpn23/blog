@@ -5,14 +5,13 @@ export function validateConfig<T extends object>(
   config: Record<string, unknown>,
   envVariablesClass: ClassConstructor<T>,
 ) {
-  const validated = plainToClass(envVariablesClass, config);
+  const transformed = plainToClass(envVariablesClass, config);
 
-  const errors = validateSync(validated, {
+  const errors = validateSync(transformed, {
     skipMissingProperties: false,
   });
 
-  if (errors.length > 0) {
-    throw new Error(errors.toString());
-  }
-  return validated;
+  if (errors.length > 0) throw new Error(errors.toString());
+
+  return transformed;
 }

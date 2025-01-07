@@ -3,7 +3,6 @@ import {
   StringValidators,
 } from '@/decorators/properties.decorator';
 import { validateConfig } from '@/utils/validate-config';
-import { registerAs } from '@nestjs/config';
 import process from 'node:process';
 
 export class RedisEnvVariables {
@@ -26,17 +25,16 @@ export class RedisEnvVariables {
   REDIS_PERMISSIONS: string;
 }
 
-// config namespace
-export default registerAs<RedisEnvVariables>('redis', () => {
-  console.log('register redis config');
+// config factory
+export default () => {
   validateConfig(process.env, RedisEnvVariables);
 
   return {
     REDIS_HOST: process.env.REDIS_HOST,
-    REDIS_PORT: +process.env.REDIS_PORT as number,
+    REDIS_PORT: +process.env.REDIS_PORT,
     REDIS_USERNAME: process.env.REDIS_USERNAME,
     REDIS_PASSWORD: process.env.REDIS_PASSWORD,
     REDIS_DEFAULT_PASSWORD: process.env.REDIS_DEFAULT_PASSWORD,
     REDIS_PERMISSIONS: process.env.REDIS_PERMISSIONS,
   };
-});
+};

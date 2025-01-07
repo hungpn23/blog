@@ -3,7 +3,6 @@ import {
   StringValidators,
 } from '@/decorators/properties.decorator';
 import { validateConfig } from '@/utils/validate-config';
-import { registerAs } from '@nestjs/config';
 import process from 'node:process';
 
 export class DatabaseEnvVariables {
@@ -32,19 +31,18 @@ export class DatabaseEnvVariables {
   DATABASE_TIMEZONE: string;
 }
 
-// config namespace
-export default registerAs<DatabaseEnvVariables>('database', () => {
-  console.log('register database config');
+// config factory
+export default () => {
   validateConfig(process.env, DatabaseEnvVariables);
 
   return {
     DATABASE_TYPE: process.env.DATABASE_TYPE,
     DATABASE_HOST: process.env.DATABASE_HOST,
-    DATABASE_MASTER_PORT: +process.env.DATABASE_MASTER_PORT as number,
-    DATABASE_SLAVE_PORT: +process.env.DATABASE_SLAVE_PORT as number,
+    DATABASE_MASTER_PORT: +process.env.DATABASE_MASTER_PORT,
+    DATABASE_SLAVE_PORT: +process.env.DATABASE_SLAVE_PORT,
     DATABASE_USERNAME: process.env.DATABASE_USERNAME,
     DATABASE_PASSWORD: process.env.DATABASE_PASSWORD,
     DATABASE_DATABASE_NAME: process.env.DATABASE_DATABASE_NAME,
     DATABASE_TIMEZONE: process.env.DATABASE_TIMEZONE,
   };
-});
+};

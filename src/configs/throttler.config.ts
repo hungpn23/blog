@@ -1,6 +1,5 @@
 import { NumberValidators } from '@/decorators/properties.decorator';
 import { validateConfig } from '@/utils/validate-config';
-import { registerAs } from '@nestjs/config';
 import process from 'node:process';
 
 export class ThrottlerEnvVariables {
@@ -11,13 +10,12 @@ export class ThrottlerEnvVariables {
   THROTTLER_LIMIT: number;
 }
 
-// config namespace
-export default registerAs<ThrottlerEnvVariables>('throttler', () => {
-  console.log('register throttler config');
+// config factory
+export default () => {
   validateConfig(process.env, ThrottlerEnvVariables);
 
   return {
-    THROTTLER_TTL_IN_SECONDS: +process.env.THROTTLER_TTL_IN_SECONDS as number,
-    THROTTLER_LIMIT: +process.env.THROTTLER_LIMIT as number,
+    THROTTLER_TTL_IN_SECONDS: +process.env.THROTTLER_TTL_IN_SECONDS,
+    THROTTLER_LIMIT: +process.env.THROTTLER_LIMIT,
   };
-});
+};

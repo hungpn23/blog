@@ -6,7 +6,6 @@ import {
   UrlValidators,
 } from '@/decorators/properties.decorator';
 import { validateConfig } from '@/utils/validate-config';
-import { registerAs } from '@nestjs/config';
 import process from 'node:process';
 
 export class AppEnvVariables {
@@ -26,15 +25,15 @@ export class AppEnvVariables {
   APP_PREFIX: string;
 }
 
-// config namespace
-export default registerAs<AppEnvVariables>('app', () => {
+// config factory
+export default () => {
   validateConfig(process.env, AppEnvVariables);
 
   return {
     NODE_ENV: process.env.NODE_ENV as Environment,
     APP_NAME: process.env.APP_NAME,
-    APP_PORT: +process.env.APP_PORT as number,
+    APP_PORT: +process.env.APP_PORT,
     APP_URL: process.env.APP_URL,
     APP_PREFIX: process.env.API_PREFIX,
   };
-});
+};

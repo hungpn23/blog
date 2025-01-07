@@ -27,7 +27,6 @@ import { DatabaseNamingStrategy } from './database/name-strategy';
 import { TypeOrmConfigService } from './database/typeorm-config.service';
 import { Modules as ApiModule } from './modules';
 import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
-import { NotificationGateway } from './notification.gateway';
 
 @Module({
   imports: [
@@ -35,6 +34,7 @@ import { NotificationGateway } from './notification.gateway';
       isGlobal: true,
       envFilePath: ['.env'],
       load: [
+        // load config factories
         appConfig,
         databaseConfig,
         throttlerConfig,
@@ -105,7 +105,7 @@ import { NotificationGateway } from './notification.gateway';
           },
           username: configService.get('REDIS_USERNAME', { infer: true }),
           password: configService.get('REDIS_PASSWORD', { infer: true }),
-          ttl: 1, // for development only
+          ttl: 30,
         });
 
         return {
@@ -128,12 +128,12 @@ import { NotificationGateway } from './notification.gateway';
       serveRoot: '/uploads',
     }),
   ],
+
   providers: [
     {
       provide: 'APP_INTERCEPTOR',
       useClass: CacheInterceptor, // auto cache responses
     },
-    NotificationGateway,
   ],
 })
 export class AppModule {}
