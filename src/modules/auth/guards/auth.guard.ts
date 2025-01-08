@@ -13,17 +13,14 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-      context.getClass(),
-      context.getHandler(),
-    ]);
-    if (isPublic) return true;
-
     const request = context.switchToHttp().getRequest<ExpressRequest>();
 
-    const isRefreshToken = this.reflector.getAllAndOverride<boolean>(
+    const isPublic = this.getMetadata<boolean>(context, IS_PUBLIC_KEY);
+    if (isPublic) return true;
+
+    const isRefreshToken = this.getMetadata<boolean>(
+      context,
       IS_REFRESH_TOKEN_KEY,
-      [context.getClass(), context.getHandler()],
     );
 
     if (isRefreshToken) {
@@ -44,10 +41,10 @@ export class AuthGuard implements CanActivate {
     return type === 'Bearer' ? token : '';
   }
 
-  private extractTokenFromCookie(
-    request: ExpressRequest,
-    key: string,
-  ): string | undefined {
-    return request.cookies?.key || '';
+  private getMetadata<TValue>(context: ExecutionContext, metadataKey: any) {
+    return this.reflector.getAllAndOverride<TValue>(metadataKey, [
+      context.getClass(),
+      context.getHandler(),
+    ]);
   }
 }

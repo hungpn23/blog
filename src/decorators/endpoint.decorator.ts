@@ -1,5 +1,5 @@
+import { MAX_FILES_UPLOAD } from '@/constants';
 import { CommonErrorDto, ErrorDto } from '@/dto/error/error.dto';
-import { multerStorage } from '@/utils/multer-storage';
 import {
   applyDecorators,
   HttpCode,
@@ -43,13 +43,10 @@ export function ApiEndpoint(options: EndpointOptions = {}): MethodDecorator {
 
   const decorators: MethodDecorator[] = [];
 
-  // runtime
+  // for runtime and serialize response
   decorators.push(SerializeOptions({ type: options?.type }));
   decorators.push(HttpCode(statusCode));
 
-  // documentation
-
-  // TODO: markdown description https://trilon.io/blog/nestjs-swagger-tips-tricks
   if (options?.summary)
     decorators.push(ApiOperation({ summary: options?.summary }));
 
@@ -95,9 +92,7 @@ export function ApiEndpoint(options: EndpointOptions = {}): MethodDecorator {
 
 export function ApiFile(fileName: string): MethodDecorator {
   return applyDecorators(
-    UseInterceptors(
-      FileInterceptor(fileName, { storage: multerStorage(`${fileName}s`) }),
-    ),
+    UseInterceptors(FileInterceptor(fileName)),
     ApiConsumes('multipart/form-data'),
     ApiBody({
       schema: {
@@ -116,15 +111,11 @@ export function ApiFile(fileName: string): MethodDecorator {
 
 export function ApiArrayFiles(
   fileName: string,
-  extraModels: Function,
-  maxCount: number = 3,
+  extraModels: Function, // function constructor
+  maxCount: number = MAX_FILES_UPLOAD,
 ): MethodDecorator {
   return applyDecorators(
-    UseInterceptors(
-      FilesInterceptor(fileName, maxCount, {
-        storage: multerStorage(fileName),
-      }),
-    ),
+    UseInterceptors(FilesInterceptor(fileName, maxCount)),
     ApiConsumes('multipart/form-data'),
     ApiExtraModels(extraModels),
     ApiBody({

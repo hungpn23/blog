@@ -67,8 +67,6 @@ async function bootstrap() {
     }),
   );
 
-  // app.useGlobalInterceptors(new ResponseTransformInterceptor());
-
   app.useGlobalFilters(new GlobalExceptionFilter());
 
   // ================= swagger =================

@@ -1,10 +1,6 @@
 import { type Uuid } from '@/types/branded.type';
 import { Injectable, Logger } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { Cron, CronExpression } from '@nestjs/schedule';
-import { LessThan } from 'typeorm';
 import { FollowEntity } from './entities/follow.entity';
-import { SessionEntity } from './entities/session.entity';
 import { UserEntity } from './entities/user.entity';
 import { UpdateUserDto } from './user.dto';
 
@@ -16,8 +12,6 @@ type FollowParams = {
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name);
-
-  constructor(private eventEmitter: EventEmitter2) {}
 
   async findOne(userId: Uuid): Promise<UserEntity> {
     return await UserEntity.findOneOrFail({
@@ -48,9 +42,6 @@ export class UserService {
       await UserEntity.findOneByOrFail({ id: followedId }),
     ]);
 
-    // TODO: real-time notification
-    this.eventEmitter.emit('user.follow', { follower, followed });
-
     await FollowEntity.save(new FollowEntity({ follower, followed }));
   }
 
@@ -59,21 +50,6 @@ export class UserService {
       where: { follower: { id: followerId }, followed: { id: followedId } },
     });
 
-    // TODO: real-time notification
-    this.eventEmitter.emit('user.follow');
-
     await FollowEntity.remove(follow);
   }
-
-  @Cron(CronExpression.EVERY_MINUTE)
-  async cleanSessions() {
-    const now = new Date();
-    await SessionEntity.delete({ expiresAt: LessThan(now) });
-    this.logger.log('cleaned expired sessions');
-  }
-
-  // @Cron(CronExpression.EVERY_30_SECONDS)
-  // async updateAvatarUrl() {
-  //   this.logger.log('update avatar url');
-  // }
 }

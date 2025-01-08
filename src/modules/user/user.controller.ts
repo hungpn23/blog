@@ -14,7 +14,6 @@ import {
   Post,
   UploadedFile,
 } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { UserEntity } from './entities/user.entity';
 import { UpdateUserDto, UploadAvatarResponseDto } from './user.dto';
 import { UserService } from './user.service';
@@ -24,10 +23,7 @@ import { UserService } from './user.service';
   version: '1',
 })
 export class UserController {
-  constructor(
-    private userService: UserService,
-    private eventEmitter: EventEmitter2,
-  ) {}
+  constructor(private userService: UserService) {}
 
   @ApiEndpoint({ type: UserEntity, summary: 'get user by id' })
   @Get()
@@ -53,6 +49,7 @@ export class UserController {
     file: Express.Multer.File,
     @JwtPayload() { userId }: JwtPayloadType,
   ): Promise<UploadAvatarResponseDto> {
+    console.log(file);
     return await this.userService.uploadAvatar(userId, file.path);
   }
 

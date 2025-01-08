@@ -5,13 +5,14 @@ import {
 } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { EventEmitterModule } from '@nestjs/event-emitter';
+import { APP_GUARD } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RedisStore, redisStore } from 'cache-manager-redis-yet';
 import { IncomingMessage, ServerResponse } from 'http';
+import ms from 'ms';
 import { LoggerModule } from 'nestjs-pino';
 import { join } from 'path';
 import { DataSource } from 'typeorm';
@@ -88,7 +89,9 @@ import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService<ThrottlerEnvVariables>) => [
         {
-          ttl: configService.get('THROTTLER_TTL_IN_SECONDS', { infer: true }),
+          ttl: +ms(
+            configService.get('THROTTLER_TTL_IN_SECONDS', { infer: true }),
+          ),
           limit: configService.get('THROTTLER_LIMIT', { infer: true }),
         },
       ],
@@ -105,7 +108,7 @@ import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
           },
           username: configService.get('REDIS_USERNAME', { infer: true }),
           password: configService.get('REDIS_PASSWORD', { infer: true }),
-          ttl: 30,
+          ttl: 30000,
         });
 
         return {
@@ -117,22 +120,24 @@ import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 
     ScheduleModule.forRoot(),
 
-    EventEmitterModule.forRoot(),
-
     CloudinaryModule,
-
-    ApiModule,
 
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'uploads'),
       serveRoot: '/uploads',
     }),
+
+    ApiModule,
   ],
 
   providers: [
     {
       provide: 'APP_INTERCEPTOR',
       useClass: CacheInterceptor, // auto cache responses
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
   ],
 })

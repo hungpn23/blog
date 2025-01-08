@@ -16,7 +16,6 @@ export class MainSeeder implements Seeder {
     const postRepo = dataSource.getRepository(PostEntity);
     const postFactory = factoryManager.get(PostEntity);
 
-    // const userRepo = dataSource.getRepository(UserEntity);
     const userFactory = factoryManager.get(UserEntity);
 
     const tags = await this.seedTags();
@@ -87,7 +86,7 @@ export class MainSeeder implements Seeder {
       postPromises.push(this.makePost(admin, tags, postFactory));
 
       if (postPromises.length === batchSize) {
-        console.log(`adding ${postPromises.length} posts of admin...`);
+        console.log(`>>> Adding ${postPromises.length} posts of admin...`);
         this.savePostPromises(postPromises, postRepo);
         postPromises = [];
       }

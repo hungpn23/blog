@@ -72,7 +72,6 @@ export class PostService {
         .setParameters(subQb.getParameters());
     }
 
-    // TODO: implement search in fe
     if (query.search) {
       let search = query.search.trim();
       builder
@@ -86,6 +85,8 @@ export class PostService {
   }
 
   async getAll(query: PostQueryDto) {
+    this.logger.log('>>>>>>> THIS QUERY WILL BE CACHED IN 30 SECONDS <<<<<<<<');
+
     const builder = PostEntity.createQueryBuilder('post')
       .select([
         'post.id',
@@ -113,7 +114,6 @@ export class PostService {
         .setParameters(subQb.getParameters());
     }
 
-    // TODO: implement search in fe
     if (query.search) {
       let search = query.search.trim();
       builder
