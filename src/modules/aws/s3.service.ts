@@ -1,15 +1,15 @@
 import { S3EnvVariables } from '@/configs/s3.config';
-import { Seconds } from '@/types/branded.type';
 import { generateFileName } from '@/utils/generate-file-name';
 import {
   DeleteObjectCommand,
-  GetObjectCommand,
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { CloudfrontService } from './cloudfront.service';
+
+// https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/Package/-aws-sdk-cloudfront-signer/
 
 @Injectable()
 export class S3Service {
@@ -18,7 +18,10 @@ export class S3Service {
   private s3Client: S3Client;
   private bucketName: string;
 
-  constructor(private configService: ConfigService<S3EnvVariables>) {
+  constructor(
+    private configService: ConfigService<S3EnvVariables>,
+    private cloudfrontService: CloudfrontService,
+  ) {
     this.s3Client = new S3Client({
       region: this.configService.get('S3_REGION', { infer: true }),
       credentials: {
@@ -46,18 +49,6 @@ export class S3Service {
     return fileName;
   }
 
-  async getFileUrl(
-    fileName: string,
-    expiresIn = (24 * 60 * 60) as Seconds,
-  ): Promise<string> {
-    const command = new GetObjectCommand({
-      Bucket: this.bucketName,
-      Key: fileName,
-    });
-
-    return await getSignedUrl(this.s3Client, command, { expiresIn });
-  }
-
   async deleteFile(fileName: string): Promise<void> {
     await this.s3Client.send(
       new DeleteObjectCommand({
@@ -65,5 +56,8 @@ export class S3Service {
         Key: fileName,
       }),
     );
+
+    // invalidate cloudfront cache
+    await this.cloudfrontService.invalidateCache(fileName);
   }
 }

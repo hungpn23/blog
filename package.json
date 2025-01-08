@@ -22,7 +22,9 @@
     "seed:create": "env-cmd ts-node ./node_modules/typeorm-extension/bin/cli.cjs seed:create"
   },
   "dependencies": {
+    "@aws-sdk/client-cloudfront": "^3.723.0",
     "@aws-sdk/client-s3": "^3.723.0",
+    "@aws-sdk/cloudfront-signer": "^3.723.0",
     "@aws-sdk/s3-request-presigner": "^3.723.0",
     "@nestjs/cache-manager": "^2.3.0",
     "@nestjs/common": "^10.4.15",

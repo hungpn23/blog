@@ -17,9 +17,11 @@ import { join } from 'path';
 import { DataSource } from 'typeorm';
 import appConfig from './configs/app.config';
 import authConfig from './configs/auth.config';
+import cloudfrontConfig from './configs/cloudfront.config';
 import cloudinaryConfig from './configs/cloudinary.config';
 import databaseConfig from './configs/database.config';
 import redisConfig, { RedisEnvVariables } from './configs/redis.config';
+import s3Config from './configs/s3.config';
 import throttlerConfig, {
   ThrottlerEnvVariables,
 } from './configs/throttler.config';
@@ -35,13 +37,15 @@ import { Milliseconds } from './types/branded.type';
       isGlobal: true,
       envFilePath: ['.env'],
       load: [
-        // load config factories
+        // load config factories to validate and transform the config values
         appConfig,
         databaseConfig,
         throttlerConfig,
         authConfig,
         cloudinaryConfig,
         redisConfig,
+        s3Config,
+        cloudfrontConfig,
       ],
       cache: true, // speed up the loading process
       expandVariables: true, // support variables in .env file

@@ -14,6 +14,9 @@ export class S3EnvVariables {
 
   @StringValidators()
   S3_SECRET_KEY: string;
+
+  @StringValidators()
+  CLOUDFRONT_DISTRIBUTION_DOMAIN: string;
 }
 
 // config factory
@@ -25,5 +28,6 @@ export default () => {
     S3_REGION: process.env.S3_REGION,
     S3_ACCESS_KEY: process.env.S3_ACCESS_KEY,
     S3_SECRET_KEY: process.env.S3_SECRET_KEY,
+    CLOUDFRONT_DISTRIBUTION_DOMAIN: process.env.CLOUDFRONT_DISTRIBUTION_DOMAIN,
   };
 };

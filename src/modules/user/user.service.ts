@@ -1,7 +1,7 @@
-import { Seconds, type Uuid } from '@/types/branded.type';
+import { Milliseconds, type Uuid } from '@/types/branded.type';
 import { Injectable, Logger } from '@nestjs/common';
 import sharp from 'sharp';
-import { DataSource } from 'typeorm';
+import { CloudfrontService } from '../aws/cloudfront.service';
 import { S3Service } from '../aws/s3.service';
 import { FollowEntity } from './entities/follow.entity';
 import { UserEntity } from './entities/user.entity';
@@ -18,13 +18,20 @@ export class UserService {
 
   constructor(
     private s3Service: S3Service,
-    private dataSource: DataSource,
+    private cloudfrontService: CloudfrontService,
   ) {}
 
   async findOne(userId: Uuid): Promise<UserEntity> {
-    return await UserEntity.findOneOrFail({
+    const user = await UserEntity.findOneOrFail({
       where: { id: userId },
     });
+
+    user.avatar = this.cloudfrontService.getFileUrl(
+      user.avatar,
+      (7 * 24 * 60 * 60 * 1000) as Milliseconds,
+    );
+
+    return user;
   }
 
   async findAll(): Promise<UserEntity[]> {
@@ -57,9 +64,9 @@ export class UserService {
     );
 
     return {
-      avatarUrl: await this.s3Service.getFileUrl(
+      avatarUrl: this.cloudfrontService.getFileUrl(
         fileName,
-        (7 * 24 * 60 * 60) as Seconds, // 7 days
+        (7 * 24 * 60 * 60 * 1000) as Milliseconds,
       ),
     } as UploadAvatarResponseDto;
   }
