@@ -8,6 +8,7 @@ import { Uuid } from '@/types/branded.type';
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -38,6 +39,18 @@ export class UserController {
     return await this.userService.findAll();
   }
 
+  @ApiEndpoint({
+    type: UserEntity,
+    summary: 'update user profile, return updated profile',
+  })
+  @Patch()
+  async updateProfile(
+    @JwtPayload() { userId }: JwtPayloadType,
+    @Body() dto: UpdateUserDto,
+  ): Promise<UserEntity> {
+    return await this.userService.update(userId, dto);
+  }
+
   @ApiFile('avatar')
   @ApiEndpoint({
     type: UploadAvatarResponseDto,
@@ -49,17 +62,13 @@ export class UserController {
     file: Express.Multer.File,
     @JwtPayload() { userId }: JwtPayloadType,
   ): Promise<UploadAvatarResponseDto> {
-    console.log(file);
-    return await this.userService.uploadAvatar(userId, file.path);
+    return await this.userService.uploadAvatar(userId, file);
   }
 
-  @ApiEndpoint({ summary: 'update user profile, return updated profile' })
-  @Patch()
-  async updateProfile(
-    @JwtPayload() { userId }: JwtPayloadType,
-    @Body() dto: UpdateUserDto,
-  ): Promise<void> {
-    return await this.userService.update(userId, dto);
+  @ApiEndpoint({ summary: 'delete user avatar' })
+  @Delete('delete-avatar')
+  async deleteAvatar(@JwtPayload() { userId }: JwtPayloadType): Promise<void> {
+    await this.userService.deleteAvatar(userId);
   }
 
   @ApiEndpoint({ summary: 'follow a user' })

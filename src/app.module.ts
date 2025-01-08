@@ -12,7 +12,6 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RedisStore, redisStore } from 'cache-manager-redis-yet';
 import { IncomingMessage, ServerResponse } from 'http';
-import ms from 'ms';
 import { LoggerModule } from 'nestjs-pino';
 import { join } from 'path';
 import { DataSource } from 'typeorm';
@@ -28,6 +27,7 @@ import { DatabaseNamingStrategy } from './database/name-strategy';
 import { TypeOrmConfigService } from './database/typeorm-config.service';
 import { Modules as ApiModule } from './modules';
 import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
+import { Milliseconds } from './types/branded.type';
 
 @Module({
   imports: [
@@ -89,9 +89,7 @@ import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService<ThrottlerEnvVariables>) => [
         {
-          ttl: +ms(
-            configService.get('THROTTLER_TTL_IN_SECONDS', { infer: true }),
-          ),
+          ttl: configService.get('THROTTLER_TTL', { infer: true }),
           limit: configService.get('THROTTLER_LIMIT', { infer: true }),
         },
       ],
@@ -108,7 +106,7 @@ import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
           },
           username: configService.get('REDIS_USERNAME', { infer: true }),
           password: configService.get('REDIS_PASSWORD', { infer: true }),
-          ttl: 30000,
+          ttl: 30000 as Milliseconds,
         });
 
         return {

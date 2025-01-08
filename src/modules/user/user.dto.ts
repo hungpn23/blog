@@ -17,5 +17,5 @@ export class UpdateUserDto {
 
 @Expose()
 export class UploadAvatarResponseDto {
-  avatar: string;
+  avatarUrl: string;
 }
