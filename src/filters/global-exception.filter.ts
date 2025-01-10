@@ -89,7 +89,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     return {
       timestamp: new Date().toISOString(),
       statusCode: HttpStatus.NOT_FOUND,
-      message: ApiError.NotFound,
+      message: error.message,
     } as ErrorDto;
   }
 
@@ -115,7 +115,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     errorDetails: ErrorDetailDto[],
   ): void {
     if (error.children) {
-      for (let child of error.children) {
+      for (const child of error.children) {
         Object.assign(child, {
           property: `${error.property}.${child.property}`,
         });

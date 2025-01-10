@@ -109,9 +109,9 @@ export function ApiFile(fileName: string): MethodDecorator {
   );
 }
 
-export function ApiArrayFiles(
+export function ApiArrayFiles<TClass>(
   fileName: string,
-  extraModels: Function, // function constructor
+  extraModels: new (...args: any[]) => TClass, // function constructor
   maxCount: number = MAX_FILES_UPLOAD,
 ): MethodDecorator {
   return applyDecorators(

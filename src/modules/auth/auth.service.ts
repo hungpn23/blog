@@ -14,7 +14,6 @@ import { JwtService } from '@nestjs/jwt';
 import argon2 from 'argon2';
 import { Cache } from 'cache-manager';
 import crypto from 'crypto';
-import { Response as ExpressResponse } from 'express';
 import ms from 'ms';
 import { DeleteResult } from 'typeorm';
 import { SessionEntity } from '../user/entities/session.entity';
@@ -41,7 +40,7 @@ export class AuthService {
     await UserEntity.save(new UserEntity({ ...dto, role: Role.USER }));
   }
 
-  async login(dto: AuthReqDto, res: ExpressResponse) {
+  async login(dto: AuthReqDto) {
     const { email, password } = dto;
     const user = await UserEntity.findOne({
       where: { email },
@@ -88,10 +87,7 @@ export class AuthService {
     return await SessionEntity.delete({ id: sessionId });
   }
 
-  async refreshToken(
-    { sessionId, signature }: JwtRefreshPayloadType,
-    res: ExpressResponse,
-  ) {
+  async refreshToken({ sessionId, signature }: JwtRefreshPayloadType) {
     const session = await SessionEntity.findOne({
       where: { id: sessionId },
       relations: { user: true },
@@ -121,6 +117,7 @@ export class AuthService {
         secret: this.configService.get('AUTH_JWT_SECRET', { infer: true }),
       });
     } catch (error) {
+      this.logger.error(error);
       throw new UnauthorizedException('invalid token');
     }
 
@@ -142,6 +139,7 @@ export class AuthService {
         secret: this.configService.get('AUTH_REFRESH_SECRET', { infer: true }),
       });
     } catch (error) {
+      this.logger.error(error);
       throw new UnauthorizedException('session expired');
     }
   }

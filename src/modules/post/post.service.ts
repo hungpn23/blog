@@ -73,7 +73,7 @@ export class PostService {
     }
 
     if (query.search) {
-      let search = query.search.trim();
+      const search = query.search.trim();
       builder
         .where('post.title LIKE :title', { title: `%${search}%` })
         .orWhere('post.content LIKE :content', { content: `%${search}%` });
@@ -115,7 +115,7 @@ export class PostService {
     }
 
     if (query.search) {
-      let search = query.search.trim();
+      const search = query.search.trim();
       builder
         .where('post.title LIKE :title', { title: `%${search}%` })
         .orWhere('post.content LIKE :content', { content: `%${search}%` });

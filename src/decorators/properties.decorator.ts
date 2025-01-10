@@ -176,9 +176,11 @@ function checkCommonOptions(
   decorators: PropertyDecorator[],
   options?: CommonOptions,
 ) {
-  options?.required === false
-    ? decorators.push(IsOptional({ each: options?.isArray }))
-    : decorators.push(IsDefined({ each: options?.isArray }));
+  if (options?.required === false) {
+    decorators.push(IsOptional({ each: options?.isArray }));
+  } else {
+    decorators.push(IsDefined({ each: options?.isArray }));
+  }
 
   return decorators;
 }

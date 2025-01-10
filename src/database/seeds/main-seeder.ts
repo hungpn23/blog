@@ -56,7 +56,7 @@ export class MainSeeder implements Seeder {
   ) {
     const totalPosts = 100;
 
-    let postPromises: Promise<PostEntity>[] = [];
+    const postPromises: Promise<PostEntity>[] = [];
     for (let i = 1; i <= totalPosts; i++) {
       postPromises.push(this.makePost(user, tags, postFactory));
     }
