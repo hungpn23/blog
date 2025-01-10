@@ -13,15 +13,15 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<ExpressRequest>();
-
-    const isPublic = this.getMetadata<boolean>(context, IS_PUBLIC_KEY);
+    const isPublic = this.getMetadata<boolean>(IS_PUBLIC_KEY, context);
     if (isPublic) return true;
 
     const isRefreshToken = this.getMetadata<boolean>(
-      context,
       IS_REFRESH_TOKEN_KEY,
+      context,
     );
+
+    const request = context.switchToHttp().getRequest<ExpressRequest>();
 
     if (isRefreshToken) {
       const refreshToken = this.extractTokenFromHeader(request);
@@ -41,7 +41,7 @@ export class AuthGuard implements CanActivate {
     return type === 'Bearer' ? token : '';
   }
 
-  private getMetadata<TValue>(context: ExecutionContext, metadataKey: any) {
+  private getMetadata<TValue>(metadataKey: any, context: ExecutionContext) {
     return this.reflector.getAllAndOverride<TValue>(metadataKey, [
       context.getClass(),
       context.getHandler(),
