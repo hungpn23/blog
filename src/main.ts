@@ -16,9 +16,9 @@ import { AppModule } from './app.module';
 import { AppEnvVariables } from './configs/app.config';
 import swaggerConfig from './configs/swagger.config';
 import { GlobalExceptionFilter } from './filters/global-exception.filter';
+import { AuthGuard } from './guards/auth.guard';
+import { RoleGuard } from './guards/role.guard';
 import { AuthService } from './modules/auth/auth.service';
-import { AuthGuard } from './modules/auth/guards/auth.guard';
-import { RoleGuard } from './modules/auth/guards/role.guard';
 import { secureApiDocs } from './utils/secure-docs';
 
 async function bootstrap() {

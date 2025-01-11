@@ -1,9 +1,8 @@
 import { IS_PUBLIC_KEY, IS_REFRESH_TOKEN_KEY } from '@/constants/index';
+import { AuthService } from '@/modules/auth/auth.service';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request as ExpressRequest } from 'express';
-
-import { AuthService } from '../auth.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -41,7 +40,7 @@ export class AuthGuard implements CanActivate {
     return type === 'Bearer' ? token : '';
   }
 
-  private getMetadata<TValue>(metadataKey: any, context: ExecutionContext) {
+  getMetadata<TValue>(metadataKey: any, context: ExecutionContext) {
     return this.reflector.getAllAndOverride<TValue>(metadataKey, [
       context.getClass(),
       context.getHandler(),

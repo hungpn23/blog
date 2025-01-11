@@ -35,7 +35,7 @@ export class AuthController {
     @Body() dto: AuthReqDto,
     @Res({ passthrough: true }) res: ExpressResponse,
   ): Promise<LoginResDto> {
-    return await this.authService.login(dto, res);
+    return await this.authService.login(dto);
   }
 
   @ApiEndpoint({ summary: 'logout', type: DeleteResult })
@@ -52,7 +52,7 @@ export class AuthController {
     // passthrough: true to not block automatic handle response by nestjs
     @Res({ passthrough: true }) res: ExpressResponse,
   ): Promise<RefreshResDto> {
-    return await this.authService.refreshToken(payload, res);
+    return await this.authService.refreshToken(payload);
   }
 
   // TODO auth api
