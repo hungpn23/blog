@@ -1,88 +1,98 @@
 import { AuthService } from '@/modules/auth/auth.service';
 import { ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Test, TestingModule } from '@nestjs/testing';
+import { Request as ExpressRequest } from 'express';
 import { AuthGuard } from './auth.guard';
 
 describe('AuthGuard', () => {
-  let guard: AuthGuard;
-  let reflector: Partial<Record<keyof Reflector, jest.Mock>>;
-  let authService: Partial<Record<keyof AuthService, jest.Mock>>;
-  let context: Partial<Record<keyof ExecutionContext, jest.Mock>>;
-  let module: TestingModule;
+  let authGuard: AuthGuard;
+  let reflector: Reflector;
+  let authService: AuthService;
 
-  beforeEach(async () => {
+  beforeEach(() => {
+    reflector = new Reflector();
     authService = {
       verifyAccessToken: jest.fn(),
       verifyRefreshToken: jest.fn(),
-    };
+    } as any;
+    authGuard = new AuthGuard(reflector, authService);
+  });
 
-    reflector = {
-      getAllAndOverride: jest.fn(),
-    };
+  it('should allow access if the route is public', async () => {
+    jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(true);
 
-    context = {
-      getHandler: jest.fn(),
-      getClass: jest.fn(),
-      switchToHttp: jest.fn().mockReturnValue({
-        getRequest: jest.fn(),
+    const context = {
+      switchToHttp: () => ({
+        getRequest: () => ({}) as ExpressRequest,
       }),
-    };
+      getClass: jest.fn(),
+      getHandler: jest.fn(),
+    } as any as ExecutionContext;
 
-    module = await Test.createTestingModule({
-      providers: [
-        AuthGuard,
-        {
-          provide: AuthService,
-          useValue: authService,
-        },
-        {
-          provide: Reflector,
-          useValue: reflector,
-        },
-      ],
-    }).compile();
-
-    guard = module.get<AuthGuard>(AuthGuard);
+    const result = await authGuard.canActivate(context);
+    expect(result).toBe(true);
   });
 
-  afterEach(async () => {
-    jest.clearAllMocks();
-    module.close();
-  });
+  it('should verify refresh token if isRefreshToken is true', async () => {
+    jest
+      .spyOn(reflector, 'getAllAndOverride')
+      .mockReturnValueOnce(false)
+      .mockReturnValueOnce(true);
+    const request = {
+      headers: { authorization: 'Bearer refreshToken' },
+    } as ExpressRequest;
+    const context = {
+      switchToHttp: () => ({
+        getRequest: () => request,
+      }),
+      getClass: jest.fn(),
+      getHandler: jest.fn(),
+    } as any as ExecutionContext;
 
-  it('should be defined', () => {
-    expect(guard).toBeDefined();
-  });
-
-  describe('canActivate', () => {
-    it('should return true if the route is public', async () => {
-      const isPublic = true;
-
-      jest.spyOn(guard, 'getMetadata').mockReturnValueOnce(isPublic);
-
-      expect(guard.getMetadata).toHaveBeenCalledTimes(1);
-      expect(await guard.canActivate(context as ExecutionContext)).toBe(true);
+    (authService.verifyRefreshToken as jest.Mock).mockReturnValue({
+      userId: 1,
     });
 
-    // it('should return true if the route is not public and a valid access token is provided', async () => {
-    //   const isPublic = false;
-    //   reflector.getAllAndOverride.mockReturnValue(isPublic);
+    const result = await authGuard.canActivate(context);
+    expect(result).toBe(true);
+    expect(request['user']).toEqual({ userId: 1 });
+    expect(authService.verifyRefreshToken).toHaveBeenCalledWith('refreshToken');
+  });
 
-    //   context.switchToHttp().getRequest.mockReturnValue({
-    //     headers: {
-    //       authorization: `Bearer valid-access-token`,
-    //     },
-    //   });
+  it('should verify access token if isRefreshToken is false', async () => {
+    jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(false);
+    const request = {
+      headers: { authorization: 'Bearer accessToken' },
+    } as ExpressRequest;
+    const context = {
+      switchToHttp: () => ({
+        getRequest: () => request,
+      }),
+      getClass: jest.fn(),
+      getHandler: jest.fn(),
+    } as any as ExecutionContext;
 
-    //   authService.verifyAccessToken.mockResolvedValueOnce({ userId: 'x' });
+    (authService.verifyAccessToken as jest.Mock).mockResolvedValue({
+      userId: 1,
+    });
 
-    //   const result = await guard.canActivate(context as ExecutionContext);
+    const result = await authGuard.canActivate(context);
+    expect(result).toBe(true);
+    expect(request['user']).toEqual({ userId: 1 });
+    expect(authService.verifyAccessToken).toHaveBeenCalledWith('accessToken');
+  });
 
-    //   expect(reflector.getAllAndOverride).toHaveBeenCalledTimes(2);
-    //   expect(context.switchToHttp().getRequest).toHaveBeenCalledTimes(1);
-    //   expect(authService.verifyAccessToken).toHaveBeenCalledTimes(1);
-    //   expect(result).toBe(true);
-    // });
+  it('should return undefined token if authorization header is not Bearer', () => {
+    const request = {
+      headers: { authorization: 'Basic token' },
+    } as ExpressRequest;
+    const token = authGuard['extractTokenFromHeader'](request);
+    expect(token).toBe('');
+  });
+
+  it('should return undefined token if authorization header is missing', () => {
+    const request = { headers: {} } as ExpressRequest;
+    const token = authGuard['extractTokenFromHeader'](request);
+    expect(token).toBe('');
   });
 });
